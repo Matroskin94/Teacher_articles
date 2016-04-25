@@ -1,0 +1,102 @@
+
+.container-menu {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    left: -125px;
+    -webkit-transition:  left 0.4s ease-in-out;
+    -moz-transition:  left 0.4s ease-in-out;
+    -ms-transition:  left 0.4s ease-in-out;
+    -o-transition:  left 0.4s ease-in-out;
+    transition:  left 0.4s ease-in-out;
+}
+
+.container-menu.open-sidebar {
+    left: 0px;
+}
+#sidebar {
+    background: #D4D4D4;
+    width: 175px;
+    position: absolute;
+    box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   z-index: 99;
+   padding:0 0 0 0;
+}
+#sidebar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+#sidebar ul li {
+    margin: 0;
+}
+#sidebar ul li a {
+    background: #D4D4D4;
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 100;
+    color: gray;
+    text-decoration: none;
+    display: block;
+    /*border-bottom: 1px solid #C9223D;*/
+    -webkit-transition:  background 0.3s ease-in-out;
+    -moz-transition:  background 0.3s ease-in-out;
+    -ms-transition:  background 0.3s ease-in-out;
+    -o-transition:  background 0.3s ease-in-out;
+    transition:  background 0.3s ease-in-out;
+}
+
+#sidebar ul li:hover a {
+    background: #878787;
+    color:white;
+} 
+
+#sidebar ul li.active-item a{
+    /*background: #878787;*/
+    background: #89323F;
+    color:white; 
+}
+
+
+
+.menu-icon {
+    display: none;
+    padding: 10px 10px 0 0;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    position: relative;
+    float: right;
+}
+.menu-icon .content{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    padding-left: 60px;
+    width: 100%;
+}
+.menu-icon .content h1{
+    font-weight: 100;
+}
+.menu-icon .content p{
+    width: 100%;
+    line-height: 160%;
+}
+.menu-icon #sidebar-toggle {
+    background: #DF314D;
+    border-radius: 3px;
+    display: block;
+    position: relative;
+    padding: 10px 7px;
+    float: left;
+}
+.menu-icon #sidebar-toggle .bar{
+     display: block;
+    width: 18px;
+    margin-bottom: 3px;
+    height: 2px;
+    background-color: #fff;
+    border-radius: 1px;
+}
+.menu-icon #sidebar-toggle .bar:last-child{
+     margin-bottom: 0;
+}

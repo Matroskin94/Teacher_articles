@@ -1,0 +1,148 @@
+/*Menu fonts*/
+@font-face {
+font-family: 'Arsenal';  
+src: local('Arsenal-Regular'), 
+url('fonts/Arsenal/arsenal-regular.woff2') format('woff2'), 
+url('fonts/Arsenal/arsenal-regular.woff') format('woff'), 
+url('fonts/Arsenal/arsenal-regular.ttf') format('truetype');    
+font-weight: 400;
+font-style: normal;
+}
+
+@font-face {
+font-family: 'Arsenal';   
+src: local('Arsenal-Italic'), 
+	url('fonts/Arsenal/arsenal-italic.woff2') format('woff2'), 
+	url('fontsArsenal/arsenal-italic.woff') format('woff'), 
+	url('fonts/Arsenal/arsenal-italic.ttf') format('truetype');   
+font-weight: 400;    
+font-style: italic;
+}
+
+@font-face {    
+font-family: 'Arsenal';    
+src: local('Arsenal-Bold'), 
+	url('fonts/Arsenal/arsenal-bold.woff2') format('woff2'), 
+	url('fonts/Arsenal/arsenal-bold.woff') format('woff'), 
+	url('fonts/Arsenal/arsenal-bold.ttf') format('truetype');    
+font-weight: 700;    
+font-style: normal;
+}
+
+@font-face {    
+font-family: 'Arsenal';    
+src: local('Arsenal-BoldItalic'), 
+	url('fonts/Arsenal/arsenal-bolditalic.woff2') format('woff2'), 
+	url('fonts/Arsenal/arsenal-bolditalic.woff') format('woff'), 
+	url('fonts/Arsenal/arsenal-bolditalic.ttf') format('truetype');    
+font-weight: 700;    
+font-style: italic;
+}
+
+/*<<- end MF end ->>*/
+body {
+	font-family: 'Arsenal';
+}
+
+table {
+	border:1px solid #DDDDDD;
+}
+
+th {
+	background-color:#BFBFBF;
+}
+/*Horizontal menu style*/
+
+.min-screen{
+	min-width: 450px;
+	overflow: auto;
+}
+
+.menu-frame{
+	width: 100%;
+	min-width: 350px;
+	height: 45px;
+}
+
+
+ul.horizontal-menu {
+margin-right: 10px;
+padding: 12px 0 0 0;
+list-style: none;
+float: right;
+}
+
+ul.horizontal-menu li {
+display: inline;
+margin-right: 5px
+}
+
+ul.horizontal-menu li a {
+color: #888899;
+text-decoration: none;
+background: #f7f7f9;
+border-bottom: none;
+box-shadow: 3px 3px 5px black;
+padding: 5px 14px;
+}
+
+ul.horizontal-menu li a:hover {
+	background-color: #DDDDDD;
+}
+
+ul.horizontal-menu li a.selected {
+color: #555566;
+background: #A3AC9A;
+}
+/*<<- end HMS end ->>*/
+
+.main-field{
+	
+}
+
+.vert-menu{
+	/*background-color: green;*/
+	padding-left: 0px !important;
+	position: relative;
+}
+
+.info-field{
+	
+}
+.row {
+	overflow: hidden;
+}
+
+.wrong-pass{
+	color:red;
+	display: inline-block;
+	opacity: 0;
+}
+
+.wrong-pass > p{
+	margin:0 0 0 0;
+}
+
+.wrong-pass input {
+	border:1px solid red;
+}
+
+/*Выделение строки таблицы*/
+
+.choosen{
+	background-color: #DDDDDD;
+}
+
+.table-hover>tbody>tr:hover,
+.table-hover>tbody>tr.choosen:hover{
+	background-color: #DDDDDD;
+	cursor: pointer;
+}
+
+.active-item{
+
+}
+
+#redact-authors {
+	display: none;
+}
