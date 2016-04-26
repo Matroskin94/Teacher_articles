@@ -10,8 +10,6 @@ $(document).ready(function() {
   	$('#page-id').animate({opacity:0},200);
   	$('.menu-icon').show();
 
-  }else{
-
   }
 
   $(window).resize(function(){
@@ -64,33 +62,57 @@ $(document).ready(function() {
   			function(){
   				$(".reg-form").find(".wrong-pass").find("p").text('Пароли совпадают!');
   			}
-  		);
+  			);
   		$(".wrong-pass").animate({"opacity":1},500);
 
   		
   	}
-}
+  }
 
-$("tr").click(function(){
-	if($(this).hasClass("choosen")){
-		$(this).removeClass("choosen");
-		$("#redact-authors").fadeOut();
-	}else{
-		$("tr").removeClass("choosen");
-		$(this).addClass("choosen");
-		$("#redact-authors").fadeIn();
-		$("#redact-authors").css("display","inline");
-	}
-});
+	$("tr").click(function(){
+		if($(this).hasClass("choosen")){
+			$(this).removeClass("choosen");
+			$("#redact-authors").fadeOut();
+		}else{
+			$("tr").removeClass("choosen");
+			$(this).addClass("choosen");
+			$("#redact-authors").fadeIn();
+			$("#redact-authors").css("display","inline");
+		}
+	});
 
+	$("#choose-jour").change(function() {
+		//console.log("opt-clicked");
+		//Серия D №2 2016-04-13
+		var jour_name = $(this).val(),
+			batch = jour_name.substring(0,8),
+			reg = /№[\d]{1,2}/,
+			number = jour_name.match(reg)[0].substring(1),
+			jour_data = {
+				"jour_batch" : batch,
+				"jour_numb" : number
+			};
+			//data_to_serv = $.toJSON(jour_data);
+		console.log("numb: "+number);
+		$.ajax({
+			url: 'script.php?req_type=ajax',
+			type: 'POST',
+			data: 'jsonData=' + $.toJSON(jour_data),
+			success:function(data) {
+				var resp = JSON.parse(data);
+				//alert("data sent");
+				console.log("size:"+resp.length);
+				console.log(resp[0]);
+				console.log(resp[1]);
+			}
+		});
+	});
 
-$("#choose-jour > option").click(function() {
-	console.log("opt-clicked");
-});
+/*$(document).on('click','option', function(){
+	alert('нажатие!');
+});*/
 
 
   document.getElementById("re_pass").addEventListener("input", validatePassword);
-
-
- 	
+	
 });

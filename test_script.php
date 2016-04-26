@@ -121,8 +121,8 @@
   <h1>Вывод статей журнала</h1>
   
   <form action="script.php" method="post">
-    <select size="1" name="journal" id="choose-jour">
-      <option disabled>Журнал</option>
+    <select id="choose-jour" size="1" name="journal">
+      <option disabled selected="true">Журнал</option>
       <?php
         $result = select_from_db($connection,"journals");
         while( $row = $result->fetch_assoc() ){ 
@@ -137,6 +137,7 @@
 
     <script src="lib/jquery/jquery-1.12.0.min.js"></script>
     <script src="lib/jquery/jquery-ui.min.js"></script>
+    <script src="lib/jquery/jquery.json.js"></script>
     <script src="js/app.js"></script>
     <script src="lib/bootstrap/js/bootstrap.min.js"></script>
   </body>
