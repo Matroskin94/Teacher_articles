@@ -146,3 +146,22 @@ background: #A3AC9A;
 #redact-authors {
 	display: none;
 }
+
+.art-status {
+	margin:3px auto;
+	width: 10px;
+	height: 10px;
+	border-radius: 5px;
+}
+
+.blocked-art{
+	background-color: red;
+}
+
+.unblocked-art{
+	background-color: yellow;
+}
+
+.waiting-art {
+	background-color: black;
+}

@@ -16,6 +16,7 @@
   <!-- Bootstrap -->
   <!--<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">-->
   <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/test_script.css">
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -58,6 +59,12 @@
       Введите страницы публикации: <input type=text name="pages"  required value="pages"><br><br>
       Содержание статьи <br>
       <textarea cols="80" rows="10" name="art_text"  required>Что-то очень умное</textarea><br><br>
+      Заблокировать статью:
+      <p>
+        <input name="art_blocked" type="radio" value=1> 
+        Да 
+        <input name="art_blocked" type="radio" value=0> 
+        Нет</p>
       <input id="send_article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
     <hr><hr>
@@ -99,6 +106,33 @@
     ?>
   <hr><hr>
 
+  <h1>Вывод статей журнала</h1>
+  
+  <form action="script.php" method="post">
+    <select id="choose-jour" size="1" name="journal">
+      <option disabled selected="true">Журнал</option>
+      <?php
+        $result = select_from_db($connection,"journals");
+        while( $row = $result->fetch_assoc() ){ 
+        echo "<option>".$row['type']." №".$row['number']." ".$row['date']."</option>";
+      }
+      ?>
+    </select>
+    <input type="submit" value="Отправить">
+  </form>
+  <br>
+  <table class="hidden" id="article-data">
+    <tr>
+      <th>Авторы</th>
+      <th>Статья</th>
+      <th>Блокировка</th>
+      <th>Журнал</th>
+      <th>Страницы</th>
+    </tr>
+  </table>
+
+  <hr><hr>
+
   <h1>Вывод авторов</h1>
   <table class="table table-hover">
     <tr>
@@ -115,23 +149,6 @@
       }
     ?>
   </table>
-
-  <hr><hr>
-
-  <h1>Вывод статей журнала</h1>
-  
-  <form action="script.php" method="post">
-    <select id="choose-jour" size="1" name="journal">
-      <option disabled selected="true">Журнал</option>
-      <?php
-        $result = select_from_db($connection,"journals");
-        while( $row = $result->fetch_assoc() ){ 
-        echo "<option>".$row['type']." №".$row['number']." ".$row['date']."</option>";
-      }
-      ?>
-    </select>
-    <input type="submit" value="Отправить">
-  </form>
 
   <hr><hr>
 

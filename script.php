@@ -43,7 +43,7 @@ function insert_to_db($mysqli,$form_type){
 		$stmt->bind_param("isssssss", $arg_list[2], $arg_list[3], $arg_list[4], $arg_list[5], $arg_list[6], $arg_list[7], $arg_list[8],$arg_list[9]);
 		break;
 		case 'new_article' :
-		$qr = "INSERT INTO `articles` (`article_id` ,`author` ,`name` ,`pages` ,`article_text` ,`date` ,`author_id` ,`journal_id`) VALUES (NULL, '".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."', '".$arg_list[5]."', CURRENT_TIMESTAMP , NULL , NULL)";
+		$qr = "INSERT INTO `articles` (`article_id` ,`author` ,`name` ,`pages` ,`article_text` ,`date` ,`author_id` ,`journal_id`,`blocked`) VALUES (NULL, '".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."', '".$arg_list[5]."', CURRENT_TIMESTAMP , NULL , NULL, ".$arg_list[8].")";
 		$result = $mysqli->query($qr);
 		break;
 		default:
@@ -127,23 +127,17 @@ function select_script($mysqli)
 			$script_result = "user_registred";
 			break;
 			case 'new_article' :
-			insert_to_db($mysqli,"new_article",$_POST['author'],$_POST['art_name'],$_POST['pages'],$_POST['art_text'],NULL,NULL);
+			$script_result = insert_to_db($mysqli,"new_article",$_POST['author'],$_POST['art_name'],$_POST['pages'],$_POST['art_text'],NULL,NULL, (int)$_POST['art_blocked']);
 			unset($_GET['req_type']);
-					//echo '<script>location.replace("script.php");</script>'; exit;
+			echo '<script>location.replace("test_script.php");</script>'; exit;
 			//header ('Location: test_script.php');
-			$script_result = "article_added";
+			//$script_result = "article_added";
 			break;
 			case 'search': 
 			$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
 			unset($_GET['req_type']);
 			//echo '<script>location.replace("test_script.php");</script>';
 			//header ('Location: test_script.php');
-			break;
-			case 'ajax':
-			//echo $_POST['test_val']."server_succeses";
-			//$_POST['test_val'] =$_POST['test_val']."server_succeses";
-			echo "response";
-			//$_POST['test_val'] = $_POST['test_val']."server_succeses";
 			break;
 			default:
 				# code...
@@ -155,45 +149,65 @@ function select_script($mysqli)
 }
 
 if(isset($_GET['req_type'])){
-	if($_GET['req_type'] == "ajax"){
-		$mysqli = db_connect();
-		$data = json_decode($_POST['jsonData']);
-		$curr_batch = '';
-		$curr_numb = '';
-		$jour_articles = ''; 
-		foreach ($data as $key=>$value) {
-			//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
-			if($key == 'jour_batch'){
-				$curr_batch = $value;
+	$mysqli = db_connect();
+	switch ($_GET['req_type']) {
+		case 'ajax_ch_jour':
+			$data = json_decode($_POST['jsonData']);
+			$curr_batch = '';
+			$curr_numb = '';
+			$jour_articles = ''; 
+			foreach ($data as $key=>$value) {
+				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
+				if($key == 'jour_batch'){
+					$curr_batch = $value;
+				}
+				if($key == 'jour_numb'){
+					$curr_numb = $value;
+				}
 			}
-			if($key == 'jour_numb'){
-				$curr_numb = $value;
+			$jour_id = $mysqli->query("SELECT `journal_id` FROM `journals` WHERE type = '".$curr_batch."' AND number = ".$curr_numb."");
+			$row = $jour_id->fetch_assoc();
+			$jour_id = $row['journal_id'];
+			$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."'");
+			$i = 0;
+			$json_data = array();
+			$single_article = array();
+			while ($row = $jour_articles->fetch_assoc()) {
+				$json_data[$i] = $row;
+				$i++;
 			}
-		}
-		$jour_id = $mysqli->query("SELECT `journal_id` FROM `journals` WHERE type = '".$curr_batch."' AND number = ".$curr_numb."");
-		$row = $jour_id->fetch_assoc();
-		$jour_id = $row['journal_id'];
-		//$response .= 'Серия: '.$curr_batch.'; Номер: '.$curr_numb.' Журнал: '.$jour_id;
-		$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."'");
-		//$json_data = array ('id'=>1,'name'=>"ivan",'country'=>'Russia',"office"=>array("yandex"," management"));
-		//echo json_encode($json_data);
-		$i = 0;
-		$json_data = array();
-		$single_article = array();
-		while ($row = $jour_articles->fetch_assoc()) {
-			//$json_data = array('author'=>$row['author'], 'name'=>$row['name'], 'pages'=>$row['pages'], 'jour_batch'=>$curr_batch, 'jour_numb'=>$curr_numb);
-			//$single_article['author'] = $row['author'];
-			$json_data[$i] = $row;
-			$i++;
-		}
-		$response = json_encode($json_data);
+			$response = json_encode($json_data);
+			$mysqli->close();
+			echo $response;
+			break;
+		case 'ajax_bl_art':
+			$art_name = '';
+			$art_stat = '';
+			$data = json_decode($_POST['jsonData']);
+			foreach ($data as $key=>$value) {
+				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
+				if($key == 'art_name'){
+					$art_name = $value;
+					//$result .= "art_name".$art_name;
+				}
+				if($key == 'art_stat'){
+					$art_stat = $value;
+				}
+			}
 
-		echo $response;
+			$qr = "UPDATE `articles` SET blocked = ".(int)$art_stat." WHERE name = '".$art_name."'";
+			$result = $mysqli->query($qr);
+			//$response = json_encode($result);
+			$mysqli->close();
+			echo $result;
+
+			break;
+		default:
+			select_script($mysqli);
+		break;
 	}
 }
 
-//$connect = db_connect();
-//select_script($connect);
 //$mysqli->close();
 
 

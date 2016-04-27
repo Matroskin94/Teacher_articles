@@ -45,9 +45,33 @@ $(document).ready(function() {
   	}
   }
 
-  $("#send_user-data").click(function(event) {
-  	check_passwords($(this),event);
-  });
+  /*Заполнение таблицы данными*/
+  var show_table = function (data, jour_name) {
+  	var table = $('#article-data > tbody'),
+  		new_row = "",
+  		new_elem = "";
+  		$("#article-data").css("opacity",0);
+  		table.children().slice(1).remove();
+  	for (var i = 0; i < data.length; i++) {
+  		new_elem = $("<tr></tr>");
+  		table.append(new_elem);
+  		new_elem.append("<td>"+data[i].author+"</td>");
+  		new_elem.append("<td>"+data[i].name+"</td>");
+  		if(data[i].blocked == 1){
+  			new_elem.append("<td><div class='art-status blocked-art'></div></td>");
+  		}else{
+  			new_elem.append("<td><div class='art-status unblocked-art'></div></td>");
+  		}
+
+
+  		new_elem.append("<td>"+jour_name+"</td>");
+  		new_elem.append("<td>"+data[i].pages+"</td>");
+  	}
+  		$("#article-data").removeClass("hidden");
+  		$("#article-data").addClass("table table-hover");
+  		$("#article-data").animate({"opacity":1},500);
+  }
+
   /*Проверка совпадения паролей*/
   var validatePassword = function(){
   	var pass2=document.getElementById("pass").value;
@@ -69,7 +93,8 @@ $(document).ready(function() {
   	}
   }
 
-	$("tr").click(function(){
+  /*Обработка клика на строку таблицы*/
+	$(document).on("click", "tr", function(){
 		if($(this).hasClass("choosen")){
 			$(this).removeClass("choosen");
 			$("#redact-authors").fadeOut();
@@ -81,8 +106,8 @@ $(document).ready(function() {
 		}
 	});
 
+	/*Выбор журнала*/
 	$("#choose-jour").change(function() {
-		//console.log("opt-clicked");
 		//Серия D №2 2016-04-13
 		var jour_name = $(this).val(),
 			batch = jour_name.substring(0,8),
@@ -92,26 +117,69 @@ $(document).ready(function() {
 				"jour_batch" : batch,
 				"jour_numb" : number
 			};
-			//data_to_serv = $.toJSON(jour_data);
-		console.log("numb: "+number);
+		//console.log("numb: "+number);
 		$.ajax({
-			url: 'script.php?req_type=ajax',
+			url: 'script.php?req_type=ajax_ch_jour',
 			type: 'POST',
 			data: 'jsonData=' + $.toJSON(jour_data),
 			success:function(data) {
 				var resp = JSON.parse(data);
-				//alert("data sent");
-				console.log("size:"+resp.length);
-				console.log(resp[0]);
-				console.log(resp[1]);
+				show_table(resp,jour_name);
+
 			}
 		});
 	});
 
-/*$(document).on('click','option', function(){
-	alert('нажатие!');
-});*/
+	/*Изменение статуса статьи*/
 
+	$(document).on("click", ".art-status", function () {
+		var art_stat = '',
+			waiting = false,
+			elem = $(this);
+		if($(this).hasClass("blocked-art")){
+			art_stat = 0;
+			$(this).removeClass("blocked-art");
+			$(this).addClass("waiting-art");
+			waiting = true;
+		}else if($(this).hasClass("unblocked-art")){
+			art_stat = 1;
+			$(this).removeClass("unblocked-art");
+			$(this).addClass("waiting-art");
+			waiting = true;
+		}
+		var parrent_row = $(this).parent().parent(),
+			row_cells = parrent_row.children(),
+			test ="",
+			data_send = {
+				"art_name": $(row_cells.get(1)).text(),
+				"art_stat": art_stat
+			};
+		//console.log("JSON"+$.toJSON(data_send));
+		if(waiting){
+			console.log("sending");
+			$.ajax({
+			url: 'script.php?req_type=ajax_bl_art',
+			type: 'POST',
+			data: 'jsonData=' + $.toJSON(data_send),
+			success: function(data) {
+				if(art_stat == 1){
+					elem.removeClass("waiting-art");
+					elem.addClass("blocked-art");
+				}else if(art_stat == 0){
+					elem.removeClass("waiting-art");
+					elem.addClass("unblocked-art");
+				}
+				var resp = JSON.parse(data);
+				//console.log("ready:"+resp);
+			} 
+
+			});
+		}
+	});
+
+	$("#send_user-data").click(function(event) {
+		check_passwords($(this),event);
+	});
 
   document.getElementById("re_pass").addEventListener("input", validatePassword);
 	
