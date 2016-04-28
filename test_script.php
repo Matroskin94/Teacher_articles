@@ -63,8 +63,16 @@
       <p>
         <input name="art_blocked" type="radio" value=1> 
         Да 
-        <input name="art_blocked" type="radio" value=0> 
+        <input name="art_blocked" checked type="radio" value=0> 
         Нет</p>
+      <hr>
+      Список используемой литературы: <br><br>
+
+      Наименование источника: <input type="text" name="literature_name1"></input><br><br>
+      Список авторов: <input type="text" name="literature_authors1"></input><br><br>
+      Страницы: <input type="text" name="literature_pages1"></input><br><br>
+      <button id="add-litr" onclick="return false">Добавить источник</button><br>
+      <hr>
       <input id="send_article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
     <hr><hr>
@@ -114,11 +122,10 @@
       <?php
         $result = select_from_db($connection,"journals");
         while( $row = $result->fetch_assoc() ){ 
-        echo "<option>".$row['type']." №".$row['number']." ".$row['date']."</option>";
+        echo "<option>Серия ".$row['type']." №".$row['number']." ".$row['date']."</option>";
       }
       ?>
     </select>
-    <input type="submit" value="Отправить">
   </form>
   <br>
   <table class="hidden" id="article-data">
@@ -130,11 +137,13 @@
       <th>Страницы</th>
     </tr>
   </table>
-
+  <br>
+  <button id="redact-article">Редактировать</button> 
+  
   <hr><hr>
 
   <h1>Вывод авторов</h1>
-  <table class="table table-hover">
+  <table class="table table-hover" id="authors-data">
     <tr>
       <th>Автор</th>
       <th>Организация</th>
@@ -149,7 +158,8 @@
       }
     ?>
   </table>
-
+  <br>
+  <button id="redact-authors">Редактировать</button> 
   <hr><hr>
 
     <script src="lib/jquery/jquery-1.12.0.min.js"></script>

@@ -94,30 +94,44 @@ $(document).ready(function() {
   }
 
   /*Обработка клика на строку таблицы*/
-	$(document).on("click", "tr", function(){
-		if($(this).hasClass("choosen")){
-			$(this).removeClass("choosen");
-			$("#redact-authors").fadeOut();
-		}else{
-			$("tr").removeClass("choosen");
-			$(this).addClass("choosen");
-			$("#redact-authors").fadeIn();
-			$("#redact-authors").css("display","inline");
+	$(document).on("click", "tr", function(event){
+		//console.log($(event.target).closest("table").is("#article-data"));
+		if(!$(event.target).hasClass("art-status")){
+			if($(this).hasClass("choosen") ){
+				$(this).removeClass("choosen");
+				if($(event.target).closest("table").is("#article-data")){
+					$("#redact-article").fadeOut();
+				}else {
+					$("#redact-authors").fadeOut();
+				}
+			}else{
+				$("tr").removeClass("choosen");
+				$(this).addClass("choosen");
+				if($(event.target).closest("table").is("#article-data")){
+					$("#redact-article").fadeIn();
+				}else {
+					$("#redact-authors").fadeIn();
+				}
+				//$("#redact-authors").fadeIn();
+				//$("#redact-authors").css("display","inline");
+			}
 		}
 	});
 
-	/*Выбор журнала*/
+	/*Выбор журнала (Проверить выборку при отсутствии статей в журнале)*/ 
 	$("#choose-jour").change(function() {
 		//Серия D №2 2016-04-13
+		//console.log('WWW');
 		var jour_name = $(this).val(),
-			batch = jour_name.substring(0,8),
+			batch = jour_name.substring(6,7),
 			reg = /№[\d]{1,2}/,
 			number = jour_name.match(reg)[0].substring(1),
 			jour_data = {
 				"jour_batch" : batch,
 				"jour_numb" : number
 			};
-		//console.log("numb: "+number);
+		console.log(batch);
+		//console.log("numb: "+$.toJSON(jour_data));
 		$.ajax({
 			url: 'script.php?req_type=ajax_ch_jour',
 			type: 'POST',
@@ -154,7 +168,6 @@ $(document).ready(function() {
 				"art_name": $(row_cells.get(1)).text(),
 				"art_stat": art_stat
 			};
-		//console.log("JSON"+$.toJSON(data_send));
 		if(waiting){
 			console.log("sending");
 			$.ajax({
@@ -181,6 +194,42 @@ $(document).ready(function() {
 		check_passwords($(this),event);
 	});
 
-  document.getElementById("re_pass").addEventListener("input", validatePassword);
+	$(document).on("click", "#add-litr", function(event){
+		var input_name = document.createElement('input'),
+			input_authors = document.createElement('input'),
+			input_pages = document.createElement('input'),
+			p_name = document.createElement('p'),
+			p_authors = document.createElement('p'),
+			p_pages = document.createElement('p'),
+			txt1 = document.createTextNode("Наименование источника: "),
+			txt2 = document.createTextNode("Список авторов: "),
+			txt3 = document.createTextNode("Страницы: "),
+			add_butt = $('#add-litr'),
+			prev_input = $(event.target).prev().prev().prev(),
+			prev_numb = prev_input.prop("name")[prev_input.prop("name").length - 1];
+		//console.log(prev_numb);
+		//p_name.appendChild(txt);
+		//p_authors.appendChild(txt);
+		//p_pages.appendChild(txt);
+		$(input_name).prop({"type":"text", "name":"literature_name" + prev_numb + ""});
+		$(input_authors).prop({"type":"text", "name":"literature_name" + prev_numb + ""});
+		$(input_pages).prop({"type":"text", "name":"literature_name" + prev_numb + ""});
+		$(txt1).insertBefore(add_butt);	
+		$(input_name).insertBefore(add_butt);
+		$(document.createElement("br")).insertBefore(add_butt);
+		$(document.createElement("br")).insertBefore(add_butt);
+		$(txt2).insertBefore(add_butt);
+		$(input_authors).insertBefore(add_butt);
+		$(document.createElement("br")).insertBefore(add_butt);
+		$(document.createElement("br")).insertBefore(add_butt);
+		$(txt3).insertBefore(add_butt);
+		$(input_pages).insertBefore(add_butt);
+		$(document.createElement("br")).insertBefore(add_butt);
+		$(document.createElement("br")).insertBefore(add_butt);
+		//console.log(p_name);
+		return false;
+	});
+
+  	document.getElementById("re_pass").addEventListener("input", validatePassword);
 	
 });

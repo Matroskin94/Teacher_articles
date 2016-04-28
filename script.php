@@ -170,6 +170,7 @@ if(isset($_GET['req_type'])){
 			$jour_id = $row['journal_id'];
 			$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."'");
 			$i = 0;
+			//echo var_dump($jour_articles);
 			$json_data = array();
 			$single_article = array();
 			while ($row = $jour_articles->fetch_assoc()) {
@@ -177,9 +178,9 @@ if(isset($_GET['req_type'])){
 				$i++;
 			}
 			$response = json_encode($json_data);
-			$mysqli->close();
 			echo $response;
-			break;
+			$mysqli->close();
+		break;
 		case 'ajax_bl_art':
 			$art_name = '';
 			$art_stat = '';
@@ -201,7 +202,7 @@ if(isset($_GET['req_type'])){
 			$mysqli->close();
 			echo $result;
 
-			break;
+		break;
 		default:
 			select_script($mysqli);
 		break;
