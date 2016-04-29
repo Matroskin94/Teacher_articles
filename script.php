@@ -37,6 +37,12 @@ function insert_to_db($mysqli,$form_type){
 	/*Подготовка шаблонного выражения*/
 	$args_num = func_num_args();
 	$arg_list = func_get_args();
+	$added_id = "";
+	$lit_curr = "literature_name0";
+	$auth_curr = "";
+	$pages_curr = "";
+	$curr_id = NULL;
+	$lit_num = 0;
 	switch ($form_type) {
 		case 'register':
 		$stmt = $mysqli->prepare("INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?)"); 
@@ -45,6 +51,26 @@ function insert_to_db($mysqli,$form_type){
 		case 'new_article' :
 		$qr = "INSERT INTO `articles` (`article_id` ,`author` ,`name` ,`pages` ,`article_text` ,`date` ,`author_id` ,`journal_id`,`blocked`) VALUES (NULL, '".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."', '".$arg_list[5]."', CURRENT_TIMESTAMP , NULL , NULL, ".$arg_list[8].")";
 		$result = $mysqli->query($qr);
+		
+		$added_id = $mysqli->insert_id;
+		//echo "args:".$args_num;
+		while (isset($_POST[$lit_curr])) {
+			$lit_num += 1;
+			$lit_curr = "literature_name".$lit_num;
+		}
+		//echo "Lit_num: ".$lit_num;
+		$stmt = $mysqli->prepare("INSERT INTO `lit_sources` VALUES (?, ?, ?, ?, ?)");
+		$stmt->bind_param("isssi", $curr_id, $lit_curr, $auth_curr, $pages_curr, $added_id);
+		for($i = 0; $i < $lit_num; $i++){
+			$lit_curr = "literature_name".$lit_num;
+			$auth_curr = "literature_authors".$lit_num;
+			$pages_curr = "literature_pages".$lit_num;
+			$lit_curr = "literature_name".$lit_num; 
+			$stmt->execute();
+		}
+		$stmt->close();
+		//var_dump($result);
+		return $added_id;
 		break;
 		default:
 
@@ -77,18 +103,8 @@ function find_article($mysqli,$s_table,$s_line,$s_word){
 	$result = $mysqli->query($qr);
 	$result->search_type = $s_line;
 	if($result->num_rows != 0){
-		/*while( $row = $result->fetch_assoc() ){ 
-			echo "<hr>";
-			echo "Название:".$row['name']."<br>";
-			echo "Автор:".$row['author']."<br>";
-			echo "Текст:".$row['article_text']."<br>";
-			echo "<hr>";
-		}*/
 		return $result;
 	}else{
-		/*echo "<hr>";
-		echo "Поиск не дал результатов!";
-		echo "res_type:".$result->test;*/
 		if($s_line == "author"){
 			$result->search_type = "author_not_found";
 		} else if($s_line == "name"){
@@ -129,11 +145,12 @@ function select_script($mysqli)
 			case 'new_article' :
 			$script_result = insert_to_db($mysqli,"new_article",$_POST['author'],$_POST['art_name'],$_POST['pages'],$_POST['art_text'],NULL,NULL, (int)$_POST['art_blocked']);
 			unset($_GET['req_type']);
-			echo '<script>location.replace("test_script.php");</script>'; exit;
+			echo '<script>location.replace("test_script.php");</script>';
 			//header ('Location: test_script.php');
 			//$script_result = "article_added";
 			break;
 			case 'search': 
+			//$script_result->search_type
 			$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
 			unset($_GET['req_type']);
 			//echo '<script>location.replace("test_script.php");</script>';
@@ -204,7 +221,7 @@ if(isset($_GET['req_type'])){
 
 		break;
 		default:
-			select_script($mysqli);
+			//select_script($mysqli);
 		break;
 	}
 }

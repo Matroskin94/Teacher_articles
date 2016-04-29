@@ -68,10 +68,10 @@
       <hr>
       Список используемой литературы: <br><br>
 
-      Наименование источника: <input type="text" name="literature_name1"></input><br><br>
-      Список авторов: <input type="text" name="literature_authors1"></input><br><br>
-      Страницы: <input type="text" name="literature_pages1"></input><br><br>
-      <button id="add-litr" onclick="return false">Добавить источник</button><br>
+      Наименование источника: <input type="text" name="literature_name0"></input><br><br>
+      Список авторов: <input type="text" name="literature_authors0"></input><br><br>
+      Страницы: <input type="text" name="literature_pages0"></input><br><br>
+      <button id="add-litr" onclick="return false">Ещё источник</button><br>
       <hr>
       <input id="send_article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
