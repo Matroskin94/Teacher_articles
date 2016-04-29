@@ -93,6 +93,45 @@ $(document).ready(function() {
   	}
   }
 
+  /*Функция добавления формы для источника литературы*/
+
+  var add_lit_form = function(prev_input, prev_numb,add_butt){
+  	var input_name = document.createElement('input'),
+				input_authors = document.createElement('input'),
+				input_pages = document.createElement('input'),
+				p_name = document.createElement('p'),
+				p_authors = document.createElement('p'),
+				p_pages = document.createElement('p'),
+				txt1 = document.createTextNode("Наименование источника: "),
+				txt2 = document.createTextNode("Список авторов: "),
+				txt3 = document.createTextNode("Страницы: "),
+				//add_butt = $('#add-litr'),
+				error_p = document.createElement("p"),
+				text_p = document.createTextNode("Количество авторов не может превышать 10");
+				error_p.appendChild(text_p);		
+			
+			prev_numb = Number(prev_numb) + 1;
+			//p_name.appendChild(txt);
+			//p_authors.appendChild(txt);
+			//p_pages.appendChild(txt);
+			
+			$(input_name).prop({"type":"text", "name":"literature_name" + prev_numb + ""});
+			$(input_authors).prop({"type":"text", "name":"literature_authors" + prev_numb + ""});
+			$(input_pages).prop({"type":"text", "name":"literature_pages" + prev_numb + ""});
+			$(txt1).insertBefore(add_butt);	
+			$(input_name).insertBefore(add_butt);
+			$(document.createElement("br")).insertBefore(add_butt);
+			$(document.createElement("br")).insertBefore(add_butt);
+			$(txt2).insertBefore(add_butt);
+			$(input_authors).insertBefore(add_butt);
+			$(document.createElement("br")).insertBefore(add_butt);
+			$(document.createElement("br")).insertBefore(add_butt);
+			$(txt3).insertBefore(add_butt);
+			$(input_pages).insertBefore(add_butt);
+			$(document.createElement("br")).insertBefore(add_butt);
+			$(document.createElement("br")).insertBefore(add_butt);
+  }
+
   /*Обработка клика на строку таблицы*/
 	$(document).on("click", "tr", function(event){
 		//console.log($(event.target).closest("table").is("#article-data"));
@@ -160,8 +199,8 @@ $(document).ready(function() {
 			$(this).addClass("waiting-art");
 			waiting = true;
 		}
-		var parrent_row = $(this).parent().parent(),
-			row_cells = parrent_row.children(),
+		var parent_row = $(this).parent().parent(),
+			row_cells = parent_row.children(),
 			test ="",
 			data_send = {
 				"art_name": $(row_cells.get(1)).text(),
@@ -193,58 +232,49 @@ $(document).ready(function() {
 		check_passwords($(this),event);
 	});
 
+
+	/*Добавление полей вводя для дополнительных авторов*/
 	$(document).on("click", "#add-litr", function(event){
 		var	prev_input = $(event.target).prev().prev().prev(),
 			prev_numb = prev_input.prop("name")[prev_input.prop("name").length - 1];
+		add_lit_form(prev_input,prev_numb,$('#add-litr'));
+		//console.log(p_name);
 		if(prev_numb >= 9){
 			var error_p = document.createElement("p"),
 				text_p = document.createTextNode("Количество авторов не может превышать 10");
 				error_p.appendChild(text_p);
-
-
-		}else {
-			var input_name = document.createElement('input'),
-				input_authors = document.createElement('input'),
-				input_pages = document.createElement('input'),
-				p_name = document.createElement('p'),
-				p_authors = document.createElement('p'),
-				p_pages = document.createElement('p'),
-				txt1 = document.createTextNode("Наименование источника: "),
-				txt2 = document.createTextNode("Список авторов: "),
-				txt3 = document.createTextNode("Страницы: "),
-				add_butt = $('#add-litr'),
-				error_p = document.createElement("p"),
-				text_p = document.createTextNode("Количество авторов не может превышать 10");
-				error_p.appendChild(text_p);		
-			
-			prev_numb = Number(prev_numb) + 1;
-			//p_name.appendChild(txt);
-			//p_authors.appendChild(txt);
-			//p_pages.appendChild(txt);
-			$(input_name).prop({"type":"text", "name":"literature_name" + prev_numb + ""});
-			$(input_authors).prop({"type":"text", "name":"literature_authors" + prev_numb + ""});
-			$(input_pages).prop({"type":"text", "name":"literature_pages" + prev_numb + ""});
-			$(txt1).insertBefore(add_butt);	
-			$(input_name).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(txt2).insertBefore(add_butt);
-			$(input_authors).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(txt3).insertBefore(add_butt);
-			$(input_pages).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			//console.log(p_name);
-			if(prev_numb >= 9){
-				$(error_p).insertBefore(add_butt);
-				$(add_butt).prop({"disabled":true});
-			}
+			$(error_p).insertBefore(add_butt);
+			$(add_butt).prop({"disabled":true});
 		}
 
 		return false;
 	});
+
+	/*Редактрование материала*/
+	$(document).on("click", "#redact-article", function(){
+		//$("#redact-article").addClass("hidden");
+		//$("#redact-article-form").show(500);
+		var choosen_row = $(".choosen"),
+			row_cells = choosen_row.children(),
+			data_send = {
+				"art_name": $(row_cells.get(1)).text(),
+			};
+
+		//console.log($.toJSON(data_send));
+			$.ajax({
+			url: 'script.php?req_type=ajax_get_art',
+			type: 'POST',
+			data: 'jsonData=' + $.toJSON(data_send),
+			success: function(data) {
+				var resp = JSON.parse(data);
+				console.log("ready:"+data);
+			} 
+
+			});
+
+
+	});
+
 
   	document.getElementById("re_pass").addEventListener("input", validatePassword);
 	

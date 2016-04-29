@@ -76,6 +76,8 @@
       <input id="send_article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
     <hr><hr>
+
+
   
   <h1>Поиск</h1>
     <p>Поиск новостей по автору:</p>
@@ -137,8 +139,18 @@
       <th>Страницы</th>
     </tr>
   </table>
-  <br>
-  <button id="redact-article">Редактировать</button> 
+  <br> 
+  <form id="redact-article-form" class="hidden">
+    Введите автора: <input type=text name="author"  required value=""><br><br>
+    Введите название статьи: <input type=text name="art_name"  required value=""><br><br>
+    Введите журнал для публикации статьи:<input type=text name="journal_name"  required value=""><br><br>
+    Введите страницы публикации: <input type=text name="pages"  required value=""><br><br>
+    Содержание статьи <br>
+    <textarea cols="80" rows="10" name="art_text"  required></textarea><br><br>
+    <button id=""></button>
+  </form>
+
+  <button id="redact-article">Редактировать</button>
   
   <hr><hr>
 

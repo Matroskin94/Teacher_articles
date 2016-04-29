@@ -86,10 +86,8 @@ function insert_to_db($mysqli,$form_type){
 
 function update_data_in_db($mysqli){
 	/*Изменение записи в таблице*/
-	$stmt = $mysqli->prepare("UPDATE `users` SET nickname = ?, password = ? WHERE id=1");
-	$stmt->bind_param("ss", $nickname, $pass); 
-	$nickname = 'Like_a_BIG_BOSS';
-	$pass = 'microcontroller';
+	//$stmt = $mysqli->prepare("UPDATE `users` SET nickname = ?, password = ? WHERE id=1");
+	//$stmt->bind_param("ss", $nickname, $pass); 
 	$stmt->execute();
 	/* END Изменение записи в таблице*/
 }
@@ -136,26 +134,29 @@ function select_script($mysqli)
 	if(isset($_GET['req_type'])){
 		switch ($_GET['req_type']) {
 			case 'register':
-			insert_to_db($mysqli,"register", NULL, $_POST['nickname'],$_POST['pass'],$_POST['surname'],$_POST['name'],$_POST['lastname'],$_POST['dc_degree'],$_POST['organisation']);
-			unset($_GET['req_type']);
+				insert_to_db($mysqli,"register", NULL, $_POST['nickname'],$_POST['pass'],$_POST['surname'	],$_POST['name'],$_POST['lastname'],$_POST['dc_degree'],$_POST['organisation']);
+				unset($_GET['req_type']);
 					//echo '<script>location.replace("script.php");</script>'; exit;
-			header ('Location: test_script.php');
-			$script_result = "user_registred";
+				header ('Location: test_script.php');
+				$script_result = "user_registred";
 			break;
+
 			case 'new_article' :
-			$script_result = insert_to_db($mysqli,"new_article",$_POST['author'],$_POST['art_name'],$_POST['pages'],$_POST['art_text'],NULL,NULL, (int)$_POST['art_blocked']);
-			unset($_GET['req_type']);
-			echo '<script>location.replace("test_script.php");</script>';
-			//header ('Location: test_script.php');
-			//$script_result = "article_added";
+				$script_result = insert_to_db($mysqli,"new_article",$_POST['author'],$_POST['art_name'],$_POST['pages'],$_POST['art_text'],NULL,NULL, (int)$_POST['art_blocked']);
+				unset($_GET['req_type']);
+				echo '<script>location.replace("test_script.php");</script>';
+				//header ('Location: test_script.php');
+				//$script_result = "article_added";
 			break;
+			
 			case 'search': 
-			//$script_result->search_type
-			$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
-			unset($_GET['req_type']);
-			//echo '<script>location.replace("test_script.php");</script>';
-			//header ('Location: test_script.php');
+				//$script_result->search_type
+				$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
+				unset($_GET['req_type']);
+				//echo '<script>location.replace("test_script.php");</script>';
+				//header ('Location: test_script.php');
 			break;
+
 			default:
 				# code...
 			break;
@@ -218,8 +219,40 @@ if(isset($_GET['req_type'])){
 			//$response = json_encode($result);
 			$mysqli->close();
 			echo $result;
-
 		break;
+
+		case 'ajax_get_art':
+			$art_name = '';
+			$data = json_decode($_POST['jsonData']);
+			$response = array();
+			$lit = '';
+			$i = 0;
+			foreach ($data as $key=>$value) {
+				if($key == "art_name"){
+					$art_name = $value;
+				}
+			}
+			$qr = "SELECT * FROM `articles` WHERE name = '".$art_name."'";
+			$qr_res = $mysqli->query($qr); 
+			$row = $qr_res->fetch_assoc();
+			$response['art_data'] = $row;
+			$qr = "SELECT * FROM `lit_sources` WHERE article_id = ".$row['article_id'];
+			$qr_res = $mysqli->query($qr);
+			while ($row = $qr_res->fetch_assoc()) {
+				$lit = 'lit' + $i;
+				$lit_data[$lit] = $row;
+				$i++;
+			}
+			$response['lit_data'] = $lit_data;
+			$response['lit_count'] = $i;
+			//$row = 
+			$response = json_encode($response);
+			echo $response;
+		break;
+
+		case 'ajax_update_art':
+			
+			break;
 		default:
 			//select_script($mysqli);
 		break;

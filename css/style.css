@@ -166,3 +166,7 @@ background: #A3AC9A;
 .waiting-art {
 	background-color: black;
 }
+
+.hidden {
+	display: none;
+}
