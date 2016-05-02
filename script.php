@@ -88,6 +88,7 @@ function update_data_in_db($mysqli){
 	/*Изменение записи в таблице*/
 	//$stmt = $mysqli->prepare("UPDATE `users` SET nickname = ?, password = ? WHERE id=1");
 	//$stmt->bind_param("ss", $nickname, $pass); 
+	//$qr = "UPDATE `users` SET "
 	$stmt->execute();
 	/* END Изменение записи в таблице*/
 }

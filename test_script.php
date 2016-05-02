@@ -68,9 +68,9 @@
       <hr>
       Список используемой литературы: <br><br>
 
-      Наименование источника: <input type="text" name="literature_name0"></input><br><br>
-      Список авторов: <input type="text" name="literature_authors0"></input><br><br>
-      Страницы: <input type="text" name="literature_pages0"></input><br><br>
+      Наименование источника: <input type="text" required name="literature_name0"></input><br><br>
+      Список авторов: <input type="text" required name="literature_authors0"></input><br><br>
+      Страницы: <input type="text" id="" required name="literature_pages0"></input><br><br>
       <button id="add-litr" onclick="return false">Ещё источник</button><br>
       <hr>
       <input id="send_article-data" type=submit value="Добавить материал" name="send_article_data">
@@ -140,14 +140,14 @@
     </tr>
   </table>
   <br> 
-  <form id="redact-article-form" class="hidden">
+  <form id="redact-article-form" class="hidden" action="test_script.php?req_type=redact_article">
     Введите автора: <input type=text name="author"  required value=""><br><br>
     Введите название статьи: <input type=text name="art_name"  required value=""><br><br>
     Введите журнал для публикации статьи:<input type=text name="journal_name"  required value=""><br><br>
     Введите страницы публикации: <input type=text name="pages"  required value=""><br><br>
     Содержание статьи <br>
-    <textarea cols="80" rows="10" name="art_text"  required></textarea><br><br>
-    <button id=""></button>
+    <textarea id="last" cols="80" rows="10" name="art_text"  required></textarea><br><br>
+    <button id="save-change-art">Сохранить изменения</button>
   </form>
 
   <button id="redact-article">Редактировать</button>

@@ -107,17 +107,23 @@ $(document).ready(function() {
 				txt3 = document.createTextNode("Страницы: "),
 				//add_butt = $('#add-litr'),
 				error_p = document.createElement("p"),
-				text_p = document.createTextNode("Количество авторов не может превышать 10");
-				error_p.appendChild(text_p);		
-			
-			prev_numb = Number(prev_numb) + 1;
+				text_p = document.createTextNode("Количество авторов не может превышать 10"),
+				prev_numb = Number(prev_numb) + 1,
+				inputs = Array();
+				
+			error_p.appendChild(text_p);		
 			//p_name.appendChild(txt);
 			//p_authors.appendChild(txt);
 			//p_pages.appendChild(txt);
-			
-			$(input_name).prop({"type":"text", "name":"literature_name" + prev_numb + ""});
-			$(input_authors).prop({"type":"text", "name":"literature_authors" + prev_numb + ""});
-			$(input_pages).prop({"type":"text", "name":"literature_pages" + prev_numb + ""});
+			$("p#err_lit").remove();
+			$("input#last").removeAttr("id");
+			$(input_name).prop({"type":"text","id":"last", "required":"true","name":"literature_name" + prev_numb + ""});
+			$(input_authors).prop({"type":"text", "required":"true", "name":"literature_authors" + prev_numb + ""});
+			$(input_pages).prop({"type":"text", "required":"true", "name":"literature_pages" + prev_numb + ""});
+			inputs[0] = input_name;
+			inputs[1] = input_authors;
+			inputs[2] = input_pages;
+
 			$(txt1).insertBefore(add_butt);	
 			$(input_name).insertBefore(add_butt);
 			$(document.createElement("br")).insertBefore(add_butt);
@@ -130,7 +136,38 @@ $(document).ready(function() {
 			$(input_pages).insertBefore(add_butt);
 			$(document.createElement("br")).insertBefore(add_butt);
 			$(document.createElement("br")).insertBefore(add_butt);
+			return inputs;
   }
+
+	/*Проверка заполненности полей источников литературы*/
+	var check_lit_fields = function(prev_numb,butt){
+		var prev_lit = "literature_name" + prev_numb,
+			prev_auth = "literature_authors" + prev_numb,
+			prev_pages = "literature_pages" + prev_numb,
+			lit_val = $('input[name="'+prev_lit+'"]').val(),
+			auth_val = $('input[name="'+prev_auth+'"]').val(),
+			pages_val = $('input[name="'+prev_pages+'"]').val();
+
+		if((lit_val != "")&&(auth_val != "")&&(pages_val != "")){
+			return true;
+		}else{
+			if( !$("p").is($("#err_lit"))){
+				var err_p = document.createElement("p"),
+					err_txt = document.createTextNode("Не все поля заполнены!");
+				$(err_p).prop({"id":"err_lit"});
+				err_p.appendChild(err_txt);
+				$(err_p).insertBefore(butt);
+				$(err_p).hide();
+				$(err_p).show("slow");
+				return false;
+			}else{
+				$("#err_lit").hide();
+				$("#err_lit").fadeIn("slow");
+				return false;
+			}
+		}
+
+	}
 
   /*Обработка клика на строку таблицы*/
 	$(document).on("click", "tr", function(event){
@@ -140,6 +177,8 @@ $(document).ready(function() {
 				$(this).removeClass("choosen");
 				if($(event.target).closest("table").is("#article-data")){
 					$("#redact-article").fadeOut();
+					$("#redact-article-form").fadeOut();
+					//$("#redact-article-form").hide();	
 				}else {
 					$("#redact-authors").fadeOut();
 				}
@@ -155,6 +194,28 @@ $(document).ready(function() {
 				//$("#redact-authors").css("display","inline");
 			}
 		}
+	});
+
+	/*Заполнение полей таблицы редактирования материала*/
+
+	/*Добавление полей вводя для дополнительных авторов*/
+	$(document).on("click", "#add-litr", function(event){
+		var	prev_input = $(event.target).parent().find("#last");
+			prev_numb = prev_input.prop("name")[prev_input.prop("name").length - 1];
+		//console.log(prev_input);	
+
+		//console.log($('input[name="'+prev_lit+'"]').val());
+		if(check_lit_fields(prev_numb,$("#add-litr"))){
+			add_lit_form(prev_input,prev_numb,$('#add-litr'));
+			if(prev_numb >= 9){
+				var error_p = document.createElement("p"),
+				text_p = document.createTextNode("Количество авторов не может превышать 10");
+				error_p.appendChild(text_p);
+				$(error_p).insertBefore(add_butt);
+				$(add_butt).prop({"disabled":true});
+			}
+		}
+		return false;
 	});
 
 	/*Выбор журнала (Проверить выборку при отсутствии статей в журнале)*/ 
@@ -177,7 +238,6 @@ $(document).ready(function() {
 			success:function(data) {
 				var resp = JSON.parse(data);
 				show_table(resp,jour_name);
-
 			}
 		});
 	});
@@ -232,26 +292,8 @@ $(document).ready(function() {
 		check_passwords($(this),event);
 	});
 
-
-	/*Добавление полей вводя для дополнительных авторов*/
-	$(document).on("click", "#add-litr", function(event){
-		var	prev_input = $(event.target).prev().prev().prev(),
-			prev_numb = prev_input.prop("name")[prev_input.prop("name").length - 1];
-		add_lit_form(prev_input,prev_numb,$('#add-litr'));
-		//console.log(p_name);
-		if(prev_numb >= 9){
-			var error_p = document.createElement("p"),
-				text_p = document.createTextNode("Количество авторов не может превышать 10");
-				error_p.appendChild(text_p);
-			$(error_p).insertBefore(add_butt);
-			$(add_butt).prop({"disabled":true});
-		}
-
-		return false;
-	});
-
 	/*Редактрование материала*/
-	$(document).on("click", "#redact-article", function(){
+	$(document).on("click", "#redact-article", function(event){
 		//$("#redact-article").addClass("hidden");
 		//$("#redact-article-form").show(500);
 		var choosen_row = $(".choosen"),
@@ -266,8 +308,31 @@ $(document).ready(function() {
 			type: 'POST',
 			data: 'jsonData=' + $.toJSON(data_send),
 			success: function(data) {
-				var resp = JSON.parse(data);
-				console.log("ready:"+data);
+				//console.log(data);
+				var resp = JSON.parse(data),
+					lit_count = resp["lit_count"],
+					redact_form = $("#redact-article-form"),
+					redact_inputs = redact_form.find("input");
+					last_inputs = "";
+				//console.log(redact_inputs);
+				redact_form.removeClass("hidden");
+				$("#redact-article").hide();
+				redact_form.hide();
+				redact_form.show("slow");
+				$(redact_inputs.get(0)).val(resp["art_data"]["author"]);
+				$(redact_inputs.get(1)).val(resp["art_data"]["name"]);
+				$(redact_inputs.get(2)).val("test journal");
+				$(redact_inputs.get(3)).val(resp["art_data"]["pages"]);
+				$(redact_form.find("textarea").get(0)).val(resp["art_data"]["article_text"]);
+				for(var i = 0; i < lit_count; i++){
+					//add_lit_form = function(prev_input, prev_numb,add_butt)
+					var	prev_input = $(event.target).parent().find("#last");
+					last_inputs = add_lit_form(prev_input,i,$("#save-change-art"));
+					$(last_inputs[0]).val(resp["lit_data"][i]["name"]);
+					$(last_inputs[1]).val(resp["lit_data"][i]["authors"]);
+					$(last_inputs[2]).val(resp["lit_data"][i]["pages"]);
+					//console.log(resp["list_data"][i]["name"]);
+				}
 			} 
 
 			});
