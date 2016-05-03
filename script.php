@@ -84,12 +84,31 @@ function insert_to_db($mysqli,$form_type){
 	
 }
 
-function update_data_in_db($mysqli){
+function update_data_in_db($mysqli, $update_table){
 	/*Изменение записи в таблице*/
 	//$stmt = $mysqli->prepare("UPDATE `users` SET nickname = ?, password = ? WHERE id=1");
 	//$stmt->bind_param("ss", $nickname, $pass); 
-	//$qr = "UPDATE `users` SET "
-	$stmt->execute();
+	$args_num = func_num_args();
+	$arg_list = func_get_args();
+	switch ($update_table) {
+		case 'article_update':
+			$qr = "UPDATE `articles` SET author = ".$arg_list[2]." name = ".$arg_list[3]." pages = ".$arg_list[4]." article_text = ".$arg_list[5]."";
+			$result = $mysqli->query($qr);
+
+		break;
+		case 'user_update':
+			
+		break;
+		default:
+			
+		break;
+	}
+
+	
+	
+
+
+	//$stmt->execute();
 	/* END Изменение записи в таблице*/
 }
 
@@ -252,8 +271,33 @@ if(isset($_GET['req_type'])){
 		break;
 
 		case 'ajax_update_art':
-			
-			break;
+			$art_name = '';
+			$art_author = '';
+			$art_pages = '';
+			$art_text = '';
+			$data = json_decode($_POST['jsonData']);
+			foreach ($data as $key=>$value) {
+				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
+				switch ($key) {
+					case 'author':
+						$art_name = $value;
+					break;
+					case 'name':
+						$art_author = $value;
+					break;
+					case 'pages':
+						$art_pages = $value;
+					break;
+					case 'article_text':
+						$art_text = $value;
+					break;
+					default:
+						# code...
+					break;
+				}
+			}
+			update_data_in_db($mysqli, $articles, $art_name, $art_name, $art_pages, $art_text);
+		break;
 		default:
 			//select_script($mysqli);
 		break;

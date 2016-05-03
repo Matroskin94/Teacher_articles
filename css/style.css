@@ -82,7 +82,8 @@ color: #888899;
 text-decoration: none;
 background: #f7f7f9;
 border-bottom: none;
-box-shadow: 3px 3px 5px black;
+box-shadow: 1px 1px 1px black;
+/*border:1px solid black;*/
 padding: 5px 14px;
 }
 

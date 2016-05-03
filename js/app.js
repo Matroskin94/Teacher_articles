@@ -96,47 +96,49 @@ $(document).ready(function() {
   /*Функция добавления формы для источника литературы*/
 
   var add_lit_form = function(prev_input, prev_numb,add_butt){
-  	var input_name = document.createElement('input'),
-				input_authors = document.createElement('input'),
-				input_pages = document.createElement('input'),
-				p_name = document.createElement('p'),
-				p_authors = document.createElement('p'),
-				p_pages = document.createElement('p'),
-				txt1 = document.createTextNode("Наименование источника: "),
-				txt2 = document.createTextNode("Список авторов: "),
-				txt3 = document.createTextNode("Страницы: "),
-				//add_butt = $('#add-litr'),
-				error_p = document.createElement("p"),
-				text_p = document.createTextNode("Количество авторов не может превышать 10"),
-				prev_numb = Number(prev_numb) + 1,
-				inputs = Array();
-				
-			error_p.appendChild(text_p);		
-			//p_name.appendChild(txt);
-			//p_authors.appendChild(txt);
-			//p_pages.appendChild(txt);
-			$("p#err_lit").remove();
-			$("input#last").removeAttr("id");
-			$(input_name).prop({"type":"text","id":"last", "required":"true","name":"literature_name" + prev_numb + ""});
-			$(input_authors).prop({"type":"text", "required":"true", "name":"literature_authors" + prev_numb + ""});
-			$(input_pages).prop({"type":"text", "required":"true", "name":"literature_pages" + prev_numb + ""});
-			inputs[0] = input_name;
-			inputs[1] = input_authors;
-			inputs[2] = input_pages;
+  	var lit_div = document.createElement('div'),
+  		input_name = document.createElement('input'),
+  		input_authors = document.createElement('input'),
+  		input_pages = document.createElement('input'),
+  		p_name = document.createElement('p'),
+  		p_authors = document.createElement('p'),
+  		p_pages = document.createElement('p'),
+  		txt1 = document.createTextNode("Наименование источника: "),
+  		txt2 = document.createTextNode("Список авторов: "),
+  		txt3 = document.createTextNode("Страницы: "),
+		prev_numb = Number(prev_numb) + 1,
+		inputs = Array();
+	
+	$(lit_div).addClass("literature");	
 
-			$(txt1).insertBefore(add_butt);	
-			$(input_name).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(txt2).insertBefore(add_butt);
-			$(input_authors).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(txt3).insertBefore(add_butt);
-			$(input_pages).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			$(document.createElement("br")).insertBefore(add_butt);
-			return inputs;
+	//parentElem.appendChild(elem)
+	//Добавляет elem в конец дочерних элементов parentElem.				
+	//p_name.appendChild(txt);
+	//p_authors.appendChild(txt);
+	//p_pages.appendChild(txt);
+	$("p#err_lit").remove();
+	$("#last").removeAttr("id");
+	$(input_name).prop({"type":"text","id":"last", "required":"true","name":"literature_name" + prev_numb + ""});
+	$(input_authors).prop({"type":"text", "required":"true", "name":"literature_authors" + prev_numb + ""});
+	$(input_pages).prop({"type":"text", "required":"true", "name":"literature_pages" + prev_numb + ""});
+	inputs[0] = input_name;
+	inputs[1] = input_authors;
+	inputs[2] = input_pages;
+
+	lit_div.appendChild(txt1);
+	lit_div.appendChild(input_name);
+	lit_div.appendChild(document.createElement("br"));
+	lit_div.appendChild(document.createElement("br"));
+	lit_div.appendChild(txt2);
+	lit_div.appendChild(input_authors);
+	lit_div.appendChild(document.createElement("br"));
+	lit_div.appendChild(document.createElement("br"));
+	lit_div.appendChild(txt3);
+	lit_div.appendChild(input_pages);
+	lit_div.appendChild(document.createElement("br"));
+	lit_div.appendChild(document.createElement("br"));
+	$(lit_div).insertBefore(add_butt);
+	return inputs;
   }
 
 	/*Проверка заполненности полей источников литературы*/
@@ -148,7 +150,7 @@ $(document).ready(function() {
 			auth_val = $('input[name="'+prev_auth+'"]').val(),
 			pages_val = $('input[name="'+prev_pages+'"]').val();
 
-		if((lit_val != "")&&(auth_val != "")&&(pages_val != "")){
+		/*if((lit_val != "")&&(auth_val != "")&&(pages_val != "")){
 			return true;
 		}else{
 			if( !$("p").is($("#err_lit"))){
@@ -165,7 +167,8 @@ $(document).ready(function() {
 				$("#err_lit").fadeIn("slow");
 				return false;
 			}
-		}
+		}*/
+		return true;
 
 	}
 
@@ -211,8 +214,8 @@ $(document).ready(function() {
 				var error_p = document.createElement("p"),
 				text_p = document.createTextNode("Количество авторов не может превышать 10");
 				error_p.appendChild(text_p);
-				$(error_p).insertBefore(add_butt);
-				$(add_butt).prop({"disabled":true});
+				$(error_p).insertBefore($("#add-litr"));
+				$($("#add-litr")).prop({"disabled":true});
 			}
 		}
 		return false;
@@ -334,12 +337,51 @@ $(document).ready(function() {
 					//console.log(resp["list_data"][i]["name"]);
 				}
 			} 
-
 			});
-
-
 	});
 
+	/*Сохранение статьи после редактирования*/
+	$(document).on("click", "#save-change-art", function(){
+		$("#redact-article-form").hide("slow");
+		$(document).find("tr.choosen").removeClass("choosen");
+		/*
+		$(redact_inputs.get(0)).val(resp["art_data"]["author"]);
+		$(redact_inputs.get(1)).val(resp["art_data"]["name"]);
+		$(redact_inputs.get(2)).val("test journal");
+		$(redact_inputs.get(3)).val(resp["art_data"]["pages"]);
+		$(redact_form.find("textarea").get(0)).val(resp["art_data"]["article_text"]);
+		*/
+
+		var redact_form = $("#redact-article-form"),
+			redact_inputs = redact_form.find("input"),
+			lit_inputs = redact_form.find("div"),
+			sources = [],
+			data_send = {
+			"author" : $(redact_inputs.get(0)).val(),
+			"art_name" : $(redact_inputs.get(1)).val(),
+			"pages" : $(redact_inputs.get(3)).val(),
+			"article_text" : $(redact_form.find("textarea").get(0)).val(),
+			"literature" : []
+
+		};
+		for(var i = 4; i < redact_inputs.length - 1;i += 3){
+			sources[i - 3] = $(redact_inputs.get(i)).val();
+			sources[i - 2] = $(redact_inputs.get(i + 1)).val();
+			sources[i - 1] = $(redact_inputs.get(i + 2)).val();
+		}
+		data_send["literature"] = sources;
+		console.log(data_send);
+		/*$.ajax({
+			url: 'script.php?req_type=ajax_update_art',
+			type: 'POST',
+			data: 'jsonData=' + $.toJSON(data_send),
+			success: function(data) {
+				
+			}
+		});*/
+		$(".literature").remove();
+		return false;
+	});
 
   	document.getElementById("re_pass").addEventListener("input", validatePassword);
 	
