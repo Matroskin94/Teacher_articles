@@ -62,10 +62,9 @@ function insert_to_db($mysqli,$form_type){
 		$stmt = $mysqli->prepare("INSERT INTO `lit_sources` VALUES (?, ?, ?, ?, ?)");
 		$stmt->bind_param("isssi", $curr_id, $lit_curr, $auth_curr, $pages_curr, $added_id);
 		for($i = 0; $i < $lit_num; $i++){
-			$lit_curr = "literature_name".$lit_num;
-			$auth_curr = "literature_authors".$lit_num;
-			$pages_curr = "literature_pages".$lit_num;
-			$lit_curr = "literature_name".$lit_num; 
+			$lit_curr = $_POST["literature_name".$i.""];
+			$auth_curr = $_POST["literature_authors".$i.""];
+			$pages_curr = $_POST["literature_pages".$i.""];
 			$stmt->execute();
 		}
 		$stmt->close();
@@ -88,13 +87,32 @@ function update_data_in_db($mysqli, $update_table){
 	/*Изменение записи в таблице*/
 	//$stmt = $mysqli->prepare("UPDATE `users` SET nickname = ?, password = ? WHERE id=1");
 	//$stmt->bind_param("ss", $nickname, $pass); 
+	//$art_literature->author[0]
 	$args_num = func_num_args();
 	$arg_list = func_get_args();
 	switch ($update_table) {
 		case 'article_update':
-			$qr = "UPDATE `articles` SET author = ".$arg_list[2]." name = ".$arg_list[3]." pages = ".$arg_list[4]." article_text = ".$arg_list[5]."";
-			$result = $mysqli->query($qr);
-
+			//var_dump($arg_list);
+			$name = "";
+			$author = "";
+			$pages = "";
+			$curr_id = (int)$arg_list[7];
+			//$qr = "UPDATE `articles` SET `author` = '".$arg_list[2]."', `name` = '".$arg_list[3]."', `pages` = '".$arg_list[4]."', `article_text` = '".$arg_list[5]."' WHERE `article_id` = ".$arg_list[7]."";
+			//$result = $mysqli->query($qr);
+			//echo "qr:".$qr."\n";
+			//echo "res:".$result."\n";
+			//$qr = "UPDATE `lit_sources` SET name = ".$arg_list[8]->name[i]." authors = ".$arg_list[8]->author[i]." pages = ".$arg_list[8]->pages[i]."";
+			$stmt = $mysqli->prepare("UPDATE `lit_sources` SET name = ? , authors = ? , pages = ? WHERE article_id = ?");
+			$stmt->bind_param("sssi",$arg_list[6]->name[$i],$arg_list[6]->author[$i],$arg_list[6]->pages[$i],$curr_id);
+			//echo "name:". $arg_list[6]->name[0]."";
+			for($i = 0; i < count($arg_list[6]->author);$i++){
+				/*$name = $arg_list[6]->name[$i];
+				$author = $arg_list[6]->author[$i];
+				$pages = $arg_list[6]->pages[$i];
+				$curr_id = (int)$arg_list[7];*/
+				$stmt->execute();
+			}
+			echo "ready";
 		break;
 		case 'user_update':
 			
@@ -242,6 +260,9 @@ if(isset($_GET['req_type'])){
 		break;
 
 		case 'ajax_get_art':
+
+			//session_name('upd_article');
+			session_start();
 			$art_name = '';
 			$data = json_decode($_POST['jsonData']);
 			$response = array();
@@ -255,6 +276,7 @@ if(isset($_GET['req_type'])){
 			$qr = "SELECT * FROM `articles` WHERE name = '".$art_name."'";
 			$qr_res = $mysqli->query($qr); 
 			$row = $qr_res->fetch_assoc();
+			$_SESSION['ses_upd_art_id'] = $row['article_id'];
 			$response['art_data'] = $row;
 			$qr = "SELECT * FROM `lit_sources` WHERE article_id = ".$row['article_id'];
 			$qr_res = $mysqli->query($qr);
@@ -271,19 +293,22 @@ if(isset($_GET['req_type'])){
 		break;
 
 		case 'ajax_update_art':
+			session_start();
 			$art_name = '';
 			$art_author = '';
 			$art_pages = '';
 			$art_text = '';
+			$art_literature = [];
+			echo "string: ".$_POST['jsonData']."\n";
 			$data = json_decode($_POST['jsonData']);
 			foreach ($data as $key=>$value) {
 				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
 				switch ($key) {
 					case 'author':
-						$art_name = $value;
-					break;
-					case 'name':
 						$art_author = $value;
+					break;
+					case 'art_name':
+						$art_name = $value;
 					break;
 					case 'pages':
 						$art_pages = $value;
@@ -291,12 +316,25 @@ if(isset($_GET['req_type'])){
 					case 'article_text':
 						$art_text = $value;
 					break;
+					case 'literature':
+						$art_literature = $value;
+					break;
 					default:
 						# code...
 					break;
 				}
 			}
-			update_data_in_db($mysqli, $articles, $art_name, $art_name, $art_pages, $art_text);
+
+			if(isset($_SESSION['ses_upd_art_id'])){
+				//echo "art_id: ".$_SESSION['ses_upd_art_id']."";
+				$id = $_SESSION['ses_upd_art_id'];
+				//echo "id".$id."";
+				update_data_in_db($mysqli, "article_update",$art_author, $art_name, $art_pages, $art_text, $art_literature, $id);
+			}else{
+				echo "art ID undefined";
+			}
+			//$response = json_encode($art_literature->author[0]);
+			//echo $response;
 		break;
 		default:
 			//select_script($mysqli);
@@ -308,4 +346,3 @@ if(isset($_GET['req_type'])){
 
 
 ?>
-

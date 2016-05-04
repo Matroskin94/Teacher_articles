@@ -355,34 +355,36 @@ $(document).ready(function() {
 		var redact_form = $("#redact-article-form"),
 			redact_inputs = redact_form.find("input"),
 			lit_inputs = redact_form.find("div"),
-			sources = [],
+			j = 0,
 			data_send = {
 			"author" : $(redact_inputs.get(0)).val(),
 			"art_name" : $(redact_inputs.get(1)).val(),
 			"pages" : $(redact_inputs.get(3)).val(),
 			"article_text" : $(redact_form.find("textarea").get(0)).val(),
-			"literature" : []
+			"literature" : {"author":[], "name":[], "pages":[]}
 
 		};
 		for(var i = 4; i < redact_inputs.length - 1;i += 3){
-			sources[i - 3] = $(redact_inputs.get(i)).val();
-			sources[i - 2] = $(redact_inputs.get(i + 1)).val();
-			sources[i - 1] = $(redact_inputs.get(i + 2)).val();
+			data_send["literature"]["author"][j] = $(redact_inputs.get(i)).val();
+			data_send["literature"]["name"][j] = $(redact_inputs.get(i + 1)).val();
+			data_send["literature"]["pages"][j] = $(redact_inputs.get(i + 2)).val();
+			j++;
 		}
-		data_send["literature"] = sources;
-		console.log(data_send);
-		/*$.ajax({
+		//console.log(data_send["literature"]);
+		$.ajax({
 			url: 'script.php?req_type=ajax_update_art',
 			type: 'POST',
 			data: 'jsonData=' + $.toJSON(data_send),
 			success: function(data) {
-				
+				console.log(data);
 			}
-		});*/
+		});
 		$(".literature").remove();
 		return false;
 	});
 
-  	document.getElementById("re_pass").addEventListener("input", validatePassword);
+  	if(document.getElementById("re_pass")){
+  		document.getElementById("re_pass").addEventListener("input", validatePassword);
+  	}
 	
 });
