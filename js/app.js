@@ -291,9 +291,9 @@ $(document).ready(function() {
 		}
 	});
 
-	$("#send_user-data").click(function(event) {
+	/*$("#send_author_data").click(function(event) {
 		check_passwords($(this),event);
-	});
+	});*/
 
 	/*Редактрование материала*/
 	$(document).on("click", "#redact-article", function(event){

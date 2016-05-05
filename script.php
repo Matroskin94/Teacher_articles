@@ -4,7 +4,7 @@ header("Content-Type: text/html; charset=utf-8");
 define('HOST', 'localhost');
 define('USER', 'admin');
 define('PASSWORD', '1111');
-define('DB', 'teacher_articles');
+define('DB', 'nastej_db');
 /*Подключение к БД*/
 
 function db_connect()
@@ -44,9 +44,9 @@ function insert_to_db($mysqli,$form_type){
 	$curr_id = NULL;
 	$lit_num = 0;
 	switch ($form_type) {
-		case 'register':
-		$stmt = $mysqli->prepare("INSERT INTO `users` VALUES (?, ?, ?, ?, ?, ?, ?, ?)"); 
-		$stmt->bind_param("isssssss", $arg_list[2], $arg_list[3], $arg_list[4], $arg_list[5], $arg_list[6], $arg_list[7], $arg_list[8],$arg_list[9]);
+		case 'add_author':
+		$stmt = $mysqli->prepare("INSERT INTO `authors` VALUES (?, ?, ?, ?, ?)"); 
+		$stmt->bind_param("issss", $arg_list[2], $arg_list[3], $arg_list[4], $arg_list[5], $arg_list[6]);
 		break;
 		case 'new_article' :
 		$qr = "INSERT INTO `articles` (`article_id` ,`author` ,`name` ,`pages` ,`article_text` ,`date` ,`author_id` ,`journal_id`,`blocked`) VALUES (NULL, '".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."', '".$arg_list[5]."', CURRENT_TIMESTAMP , NULL , NULL, ".$arg_list[8].")";
@@ -121,11 +121,6 @@ function update_data_in_db($mysqli, $update_table){
 			
 		break;
 	}
-
-	
-	
-
-
 	//$stmt->execute();
 	/* END Изменение записи в таблице*/
 }
@@ -171,11 +166,11 @@ function select_script($mysqli)
 	$script_result = NULL;
 	if(isset($_GET['req_type'])){
 		switch ($_GET['req_type']) {
-			case 'register':
-				insert_to_db($mysqli,"register", NULL, $_POST['nickname'],$_POST['pass'],$_POST['surname'	],$_POST['name'],$_POST['lastname'],$_POST['dc_degree'],$_POST['organisation']);
+			case 'add_author':
+				insert_to_db($mysqli,"add_author", NULL, $_POST['author_name'],$_POST['dc_degree'],$_POST['type'],$_POST['organisation']);
 				unset($_GET['req_type']);
-					//echo '<script>location.replace("script.php");</script>'; exit;
-				header ('Location: test_script.php');
+				echo '<script>location.replace("test_script.php");</script>'; exit;
+				//header ('Location: test_script.php');
 				$script_result = "user_registred";
 			break;
 

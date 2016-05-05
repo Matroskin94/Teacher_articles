@@ -29,31 +29,51 @@
     <?php
       $query_result = select_script($connection);
     ?>
-    <h1>Регистрация</h1>
-    <form id="reg-form" class="reg-form" method="post" action="test_script.php?req_type=register">
-      Введите логин: <input type=text name="nickname"  required value="1"><br><br>
-      Введите пароль: <input id='pass' type=password name="pass" required value="2">
-      <div class="wrong-pass">
-        <p></p>
-      </div>
-      <br><br>
-      Повторите пароль: <input id='re_pass' type=password name="pass_rep" required value="1">
-      <div class="wrong-pass">
-        <p></p>
-      </div>
-      <br><br>
-      Введите фамилию: <input type=text name="surname"  required placeholder="Ваша фамилия" value="1"><br><br>
-      Введите имя: <input type=text name="name" required placeholder="Ваше имя" value="1"><br><br>
-      Введите отчество: <input type=text name="lastname" required placeholder="Ваше отчество" value="1"><br><br>
+    <h1>Добавить автора</h1>
+    <form id="reg-form" class="reg-form" method="post" action="test_script.php?req_type=add_author">
+      Введите ФИО автора: <input type=text name="author_name" required placeholder="Автор" value="1"><br><br>
       Введите научную степень: <input type=text name="dc_degree" required placeholder="Научная степень" value="1"><br><br>
-      Введите Вашу организацию: <input type=text name="organisation" required placeholder="Организация" value="ПГУ"><br><br>
-      <input id="send_user-data" type=submit value="Зарегистрироваться" name="send_user_data">
+      Введите серию журнала для публикации статей:<select id="choose-type" size="1" name="type">
+        <option disabled selected="true">Серия</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+      <select>
+      <br><br>
+      Введите научную степень: <input type=text name="organisation" required placeholder="Организация" value="1">
+      <br><br>
+      <input id="send_author_data" type=submit value="Добавить автора" name="send_user_data">
+    </form>
+    <hr><hr>
+
+    <h1>Добавление журнала</h1>
+    
+    <form id="journal-form" method="post" action="test_script.php?req_type=new_journal">
+      Введите название журнала: <input type="text" name="journal_name" required placeholder="Журнал"><br><br>
+      Выберите класс журнала: <select id="choose-type" size="1" name="type">
+        <option disabled selected="true">Серия</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+      <select> <br><br>
+      Введите год публикации: <input type="text" name="pub_year" required placeholder="Год"><br><br>
+      Ввудите номер журнала: <input type="text" name="journal_number" required placeholder="Номер"><br><br>
+      Заблокировать журнал:
+      <p>
+        <input name="art_blocked" type="radio" value=1> 
+        Да 
+        <input name="art_blocked" checked type="radio" value=0> 
+        Нет</p>
+      <input id="add_journal" type=submit value="Добавить журнал" name="send_journal_data">
     </form>
     <hr><hr>
 
     <h1>Добавление материала</h1>
     <form id="art-form" class="reg-form" method="post" action="test_script.php?req_type=new_article">
-      Введите автора: <input type=text name="author"  required value="author"><br><br>
       Введите название статьи: <input type=text name="art_name"  required value="art_name"><br><br>
       Введите журнал для публикации статьи:<input type=text name="journal_name"  required value="journal_name"><br><br>
       Введите страницы публикации: <input type=text name="pages"  required value="pages"><br><br>
@@ -77,7 +97,7 @@
     </form>
     <hr><hr>
 
-
+  
   
   <h1>Поиск</h1>
     <p>Поиск новостей по автору:</p>
@@ -161,10 +181,10 @@
       <th>Организация</th>
     </tr>
     <?php
-      $result = select_from_db($connection,"users");
+      $result = select_from_db($connection,"authors");
       while( $row = $result->fetch_assoc() ){ 
         echo "<tr>";
-        echo "<td>".$row['surname']." ".$row['name']." ".$row['lastname']."</td>";
+        echo "<td>".$row['name']."</td>";
         echo "<td>".$row['organisation']."</td>";
         echo "</tr>";
       }
