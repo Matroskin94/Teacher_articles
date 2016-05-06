@@ -42,7 +42,7 @@
         <option>E</option>
       <select>
       <br><br>
-      Введите научную степень: <input type=text name="organisation" required placeholder="Организация" value="1">
+      Введите организацию: <input type=text name="organisation" required placeholder="Организация" value="1">
       <br><br>
       <input id="send_author_data" type=submit value="Добавить автора" name="send_user_data">
     </form>
@@ -50,7 +50,7 @@
 
     <h1>Добавление журнала</h1>
     
-    <form id="journal-form" method="post" action="test_script.php?req_type=new_journal">
+    <form id="journal-form" method="post" action="test_script.php?req_type=add_journal">
       Введите название журнала: <input type="text" name="journal_name" required placeholder="Журнал"><br><br>
       Выберите класс журнала: <select id="choose-type" size="1" name="type">
         <option disabled selected="true">Серия</option>
@@ -61,12 +61,13 @@
         <option>E</option>
       <select> <br><br>
       Введите год публикации: <input type="text" name="pub_year" required placeholder="Год"><br><br>
-      Ввудите номер журнала: <input type="text" name="journal_number" required placeholder="Номер"><br><br>
+      Введите номер журнала: <input type="text" name="journal_number" required placeholder="Номер"><br><br>
+      Введите количество страниц журнала: <input type="text" name="journal_pages" required placeholder="Страницы"><br><br>
       Заблокировать журнал:
       <p>
-        <input name="art_blocked" type="radio" value=1> 
+        <input name="art_blocked" checked type="radio" value=1> 
         Да 
-        <input name="art_blocked" checked type="radio" value=0> 
+        <input name="art_blocked" type="radio" value=0> 
         Нет</p>
       <input id="add_journal" type=submit value="Добавить журнал" name="send_journal_data">
     </form>
@@ -74,25 +75,26 @@
 
     <h1>Добавление материала</h1>
     <form id="art-form" class="reg-form" method="post" action="test_script.php?req_type=new_article">
-      Введите название статьи: <input type=text name="art_name"  required value="art_name"><br><br>
-      Введите журнал для публикации статьи:<input type=text name="journal_name"  required value="journal_name"><br><br>
-      Введите страницы публикации: <input type=text name="pages"  required value="pages"><br><br>
-      Содержание статьи <br>
-      <textarea cols="80" rows="10" name="art_text"  required>Что-то очень умное</textarea><br><br>
-      Заблокировать статью:
-      <p>
-        <input name="art_blocked" type="radio" value=1> 
-        Да 
-        <input name="art_blocked" checked type="radio" value=0> 
-        Нет</p>
+      <p>Введите название статьи: <input type=text name="art_name"  required value="art_name"></p>
+      <p id="choose_journ_p">Выберите серию журнала: <select id="choose-journal-class">
+        <option disabled selected="true"> Серия </option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+      </select></p>
+      <p>Выберите журнал: <select disabled id="avail_journals">
+        <option disabled selected>Журнал</option>
+      </select></p>
+      <p>Введите страницы публикации: <input type=text name="pages"  required value="pages"></p>
       <hr>
-      Список используемой литературы: <br><br>
-
-      Наименование источника: <input type="text" required name="literature_name0"></input><br><br>
-      Список авторов: <input type="text" required name="literature_authors0"></input><br><br>
-      Страницы: <input type="text" id="last" required name="literature_pages0"></input><br><br>
-      <button id="add-litr" onclick="return false">Ещё источник</button><br>
-      <hr>
+      <div class="author_selectors">
+        <p>Введите автора публикации: <select disabled id="author0" class="avail_authors">
+          <option disabled selected>Автор</option>
+        </select></p>
+      </div>
+      <p><button class="hidden" onclick="return false" id="add_author">Ещё автор</button></p>
       <input id="send_article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
     <hr><hr>
@@ -142,10 +144,10 @@
     <select id="choose-jour" size="1" name="journal">
       <option disabled selected="true">Журнал</option>
       <?php
-        $result = select_from_db($connection,"journals");
+        /*$result = select_from_db($connection,"journals");
         while( $row = $result->fetch_assoc() ){ 
         echo "<option>Серия ".$row['type']." №".$row['number']." ".$row['date']."</option>";
-      }
+      }*/
       ?>
     </select>
   </form>
@@ -181,20 +183,20 @@
       <th>Организация</th>
     </tr>
     <?php
-      $result = select_from_db($connection,"authors");
+      /*$result = select_from_db($connection,"authors");
       while( $row = $result->fetch_assoc() ){ 
         echo "<tr>";
         echo "<td>".$row['name']."</td>";
         echo "<td>".$row['organisation']."</td>";
         echo "</tr>";
-      }
+      }*/
     ?>
   </table>
   <br>
   <button id="redact-authors">Редактировать</button> 
   <hr><hr>
 
-    <script src="lib/jquery/jquery-1.12.0.min.js"></script>
+     <script src="lib/jquery/jquery-1.12.0.min.js"></script>
     <script src="lib/jquery/jquery-ui.min.js"></script>
     <script src="lib/jquery/jquery.json.js"></script>
     <script src="js/app.js"></script>

@@ -18,18 +18,23 @@ function db_connect()
 }
 
 /*Выборка из базы данных*/
-function select_from_db($mysqli,$table){
-	if ($result = $mysqli->query('SELECT * FROM '.$table)) { 
-		return $result;
-		/* Выборка результатов запроса */ 
-		/*while( $row = $result->fetch_assoc() ){ 
-			echo "<hr>";
-			echo "Фамилия:".$row['surname']."<br>";
-			echo "Имя:".$row['name']."<br>";
-			echo "Отчество:".$row['lastname']."<br>";
-		} */
-		/* Освобождаем используемую память */ 
-		//$result->close();
+function select_from_db($mysqli,$table,$row,$value){
+	$args_num = func_num_args();
+	$args_list = func_get_args();
+	if($args_num == 4){
+		if ($result = $mysqli->query("SELECT * FROM ".$table." WHERE ".$row." = '".$value."'")) { 
+			return $result;
+		}else{
+			return $args_num;
+		}
+	}
+	if($args_num == 6){
+		if ($result = $mysqli->query("SELECT * FROM `".$table."` WHERE `".$row."` = '".$value."' AND `".$args_list[4]."` = '".$args_list[5]."'")) { 
+		//if($result = $mysqli->query("SELECT * FROM `journals` WHERE `class` = 'C' AND `blocked` = 0")){
+			return $result;
+		}else{
+			return $args_num;
+		}
 	}
 }
 /*Вставка записи в таблицу*/
@@ -45,31 +50,38 @@ function insert_to_db($mysqli,$form_type){
 	$lit_num = 0;
 	switch ($form_type) {
 		case 'add_author':
-		$stmt = $mysqli->prepare("INSERT INTO `authors` VALUES (?, ?, ?, ?, ?)"); 
-		$stmt->bind_param("issss", $arg_list[2], $arg_list[3], $arg_list[4], $arg_list[5], $arg_list[6]);
+			$stmt = $mysqli->prepare("INSERT INTO `authors` VALUES (?, ?, ?, ?, ?)"); 
+			$stmt->bind_param("issss", $arg_list[2], $arg_list[3], $arg_list[4], $arg_list[5], $arg_list[6]);
 		break;
+
+		case 'add_journal':
+			$stmt = $mysqli->prepare("INSERT INTO `journals` VALUES (?, ?, ?, ?, ?, ?, ?)"); 
+			$stmt->bind_param("issiiii", $arg_list[2], $arg_list[3], $arg_list[4], $arg_list[5], $arg_list[6], $arg_list[7], $arg_list[8]);
+			break;
+
+
 		case 'new_article' :
-		$qr = "INSERT INTO `articles` (`article_id` ,`author` ,`name` ,`pages` ,`article_text` ,`date` ,`author_id` ,`journal_id`,`blocked`) VALUES (NULL, '".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."', '".$arg_list[5]."', CURRENT_TIMESTAMP , NULL , NULL, ".$arg_list[8].")";
-		$result = $mysqli->query($qr);
+			$qr = "INSERT INTO `articles` (`article_id` ,`author` ,`name` ,`pages` ,`article_text` ,`date` ,`author_id` ,`journal_id`,`blocked`) VALUES (NULL, '".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."', '".$arg_list[5]."', CURRENT_TIMESTAMP , NULL , NULL, ".$arg_list[8].")";
+			$result = $mysqli->query($qr);
 		
-		$added_id = $mysqli->insert_id;
-		//echo "args:".$args_num;
-		while (isset($_POST[$lit_curr])) {
-			$lit_num += 1;
-			$lit_curr = "literature_name".$lit_num;
-		}
-		//echo "Lit_num: ".$lit_num;
-		$stmt = $mysqli->prepare("INSERT INTO `lit_sources` VALUES (?, ?, ?, ?, ?)");
-		$stmt->bind_param("isssi", $curr_id, $lit_curr, $auth_curr, $pages_curr, $added_id);
-		for($i = 0; $i < $lit_num; $i++){
-			$lit_curr = $_POST["literature_name".$i.""];
-			$auth_curr = $_POST["literature_authors".$i.""];
-			$pages_curr = $_POST["literature_pages".$i.""];
-			$stmt->execute();
-		}
-		$stmt->close();
-		//var_dump($result);
-		return $added_id;
+			$added_id = $mysqli->insert_id;
+			//echo "args:".$args_num;
+			while (isset($_POST[$lit_curr])) {
+				$lit_num += 1;
+				$lit_curr = "literature_name".$lit_num;
+			}
+			//echo "Lit_num: ".$lit_num;
+			$stmt = $mysqli->prepare("INSERT INTO `lit_sources` VALUES (?, ?, ?, ?, ?)");
+			$stmt->bind_param("isssi", $curr_id, $lit_curr, $auth_curr, $pages_curr, $added_id);
+			for($i = 0; $i < $lit_num; $i++){
+				$lit_curr = $_POST["literature_name".$i.""];
+				$auth_curr = $_POST["literature_authors".$i.""];
+				$pages_curr = $_POST["literature_pages".$i.""];
+				$stmt->execute();
+			}	
+			$stmt->close();
+			//var_dump($result);
+			return $added_id;
 		break;
 		default:
 
@@ -172,6 +184,11 @@ function select_script($mysqli)
 				echo '<script>location.replace("test_script.php");</script>'; exit;
 				//header ('Location: test_script.php');
 				$script_result = "user_registred";
+			break;
+
+			case 'add_journal':
+				$script_result = insert_to_db($mysqli, "add_journal", NULL, $_POST["journal_name"], $_POST["type"], $_POST["pub_year"], $_POST["journal_number"], $_POST["journal_pages"], (int)$_POST["art_blocked"]);
+				echo '<script>location.replace("test_script.php");</script>'; exit;
 			break;
 
 			case 'new_article' :
@@ -331,6 +348,50 @@ if(isset($_GET['req_type'])){
 			//$response = json_encode($art_literature->author[0]);
 			//echo $response;
 		break;
+		case 'ajax_ch_art_class':
+			$data = json_decode($_POST['jsonData']);
+			$journal_class = "";
+			$journals_arr = array();
+			$authors_arr = array();
+			$response_arr = array(
+				"authors"=> array(),
+				"journals"=> array(),
+			);
+			$i = 0;
+			$block = "blocked";
+			foreach ($data as $key=>$value) {
+				if($key == "journal_class"){
+					$journal_class = $value;
+				}
+			}
+			$result = select_from_db($mysqli,"journals","class",$journal_class);
+			//$result = $mysqli->query("SELECT * FROM `journals` WHERE `class` = 'C' AND `".$block."` = ".$i."");
+			if(is_object($result)){
+				while( $row = $result->fetch_assoc() ){ 
+          			//echo "<option>Серия ".$row['class']." №".$row['number']." ".$row['pub_year']."</option>";
+					$journals_arr[$i] = $row;
+					$i++;
+				}
+			}
+			$response_arr['journals'] = $journals_arr;
+			$result = select_from_db($mysqli, "authors","class",$journal_class);
+			$i = 0;
+			if(is_object($result)){
+				while( $row = $result->fetch_assoc() ){ 
+          			//echo "<option>Серия ".$row['class']." №".$row['number']." ".$row['pub_year']."</option>";
+					$authors_arr[$i] = $row;
+					$i++;
+				}
+			}else{
+				//$res = json_encode($result);
+				//echo $result;
+			}
+			$response_arr['authors'] = $authors_arr;
+
+			$res = json_encode($response_arr);
+			echo $res;
+		break;
+
 		default:
 			//select_script($mysqli);
 		break;

@@ -1,4 +1,5 @@
 $(document).ready(function() {
+	console.log("ready");
   $("[data-toggle]").click(function() {
     var toggle_el = $(this).data("toggle");
     $('.container-menu').toggleClass("open-sidebar");
@@ -72,6 +73,18 @@ $(document).ready(function() {
   		$("#article-data").animate({"opacity":1},500);
   }
 
+  /*Вывод доступных журналов определённого класса*/
+  var show_select = function(data,select_journal,select_author){
+  	for(var i = 0;i<data['journals'].length;i++){
+  		new_elem = $("<option>Серия "+data['journals'][i]['class']+" №"+data['journals'][i]['number']+" "+data['journals'][i]['pub_year']+"</option>");
+  		$(select_journal).append(new_elem);
+  	}
+  	for(var i = 0;i<data['authors'].length;i++){
+  		new_elem = $("<option>"+data['authors'][i]['name']+"</option>");
+  		$(select_author).append(new_elem);
+  	}
+  }
+
   /*Проверка совпадения паролей*/
   var validatePassword = function(){
   	var pass2=document.getElementById("pass").value;
@@ -91,6 +104,39 @@ $(document).ready(function() {
 
   		
   	}
+  }
+
+  /*Функция добавления select для авторов*/
+
+  var add_auth_select = function(prev_select){
+  	var prev_options = prev_select.find("option"),
+  		auth_p = document.createElement('p'),
+  		text_p = document.createTextNode("Выберите автора публикации:"),
+  		new_select = document.createElement('select'),
+  		first_option = document.createElement('option'),
+  		f_opt_text = document.createTextNode("Автор"),
+  		selector_div = $(".author_selectors")[0],
+  		last_selector_opt = $(".author_selectors > p > select:last > option")
+  		last_choosen_opt = $(".author_selectors > p > select:last > option:selected"),
+  		new_option = "",
+  		new_option_text = "";
+
+  		auth_p.appendChild(text_p);
+  		first_option.appendChild(f_opt_text);
+  		$(first_option).attr("disabled", true);
+  		new_select.appendChild(first_option);
+  		console.log(last_selector_opt.length);
+  		//console.log(last_choosen_opt.val());
+  		for(var i = 1; i < last_selector_opt.length; i++){
+  			if($(last_selector_opt[i]).val() != last_choosen_opt.val()){
+  				new_option_text = document.createTextNode($(last_selector_opt[i]).val());
+  				new_option = document.createElement("option");
+  				new_option.appendChild(new_option_text);
+  				new_select.appendChild(new_option);
+  			}
+  		}
+  		auth_p.appendChild(new_select);
+  		selector_div.appendChild(auth_p);
   }
 
   /*Функция добавления формы для источника литературы*/
@@ -386,5 +432,50 @@ $(document).ready(function() {
   	if(document.getElementById("re_pass")){
   		document.getElementById("re_pass").addEventListener("input", validatePassword);
   	}
+
+  	/*Выбор типа журнала для публикации статьи*/
+  	$("#choose-journal-class").change(function(event){
+  		var data_send = {
+  			"journal_class": $(this).val()
+  		};
+
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_ch_art_class',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success: function(data){
+  				var resp = JSON.parse(data);
+				//console.log("authors");	
+  				//console.log(resp['authors']);
+  				//console.log("journals");					
+  				//console.log(resp['journals']);
+  				show_select(resp,$("#avail_journals")[0],$(".avail_authors")[0]);
+  				if(resp['journals'].length>0){
+  					$("#avail_journals").removeAttr("disabled");
+  					$(".avail_authors").removeAttr("disabled");
+  					//$("#add_author").removeAttr("disabled");
+  					$("#add_author").removeClass("hidden");
+  					$("#add_author").hide();
+  					$("#add_author").fadeIn(200);
+  					$("#choose_journ_p").find("span").remove();
+  				}else{
+  					$("#avail_journals").attr("disabled",true);
+  					$(".avail_authors").attr("disabled",true);
+  					$("#choose-journal-class").after("<span>&nbsp&nbsp<nbsp></nbsp>Журналы данного класса ещё не опубликованы</span>");
+  				}
+  				//console.log(resp.length);
+
+  			}
+  		});
+  	});
+
+  	/*Обработка кнопки добавления авторов (доработать при не хватке количества авторов)*/
+  	$("#add_author").on("click", function(){
+  		var prev_select = $(event.target).parent().parent().find(".author_selectors > p > select");
+  		//console.log(prev_select.find("option"));
+  		add_auth_select(prev_select);
+  		return false;
+  	});
+
 	
 });
