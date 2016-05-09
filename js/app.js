@@ -119,24 +119,34 @@ $(document).ready(function() {
   		last_selector_opt = $(".author_selectors > p > select:last > option")
   		last_choosen_opt = $(".author_selectors > p > select:last > option:selected"),
   		new_option = "",
+  		last_select_name = last_choosen_opt.parent().prop("name");
   		new_option_text = "";
 
   		auth_p.appendChild(text_p);
   		first_option.appendChild(f_opt_text);
-  		$(first_option).attr("disabled", true);
+  		$(first_option).attr("disabled",true);
+  		$(first_option).attr("selected",true);
+  		//console.log(last_select_name[last_select_name.length - 1]);
+  		$(new_select).attr("name", "author" + Number(Number(last_select_name[last_select_name.length - 1]) + 1));
+  		//$(new_select).prop("name",last_choosen_opt.parent().prop("name")[last_choosen_opt.parent().prop("name").length - 1])
   		new_select.appendChild(first_option);
   		console.log(last_selector_opt.length);
   		//console.log(last_choosen_opt.val());
-  		for(var i = 1; i < last_selector_opt.length; i++){
-  			if($(last_selector_opt[i]).val() != last_choosen_opt.val()){
-  				new_option_text = document.createTextNode($(last_selector_opt[i]).val());
-  				new_option = document.createElement("option");
-  				new_option.appendChild(new_option_text);
-  				new_select.appendChild(new_option);
+  		if(last_choosen_opt.val() != "Автор"){
+  			for(var i = 1; i < last_selector_opt.length; i++){
+  				if($(last_selector_opt[i]).val() != last_choosen_opt.val()){
+  					new_option_text = document.createTextNode($(last_selector_opt[i]).val());
+  					new_option = document.createElement("option");
+  					new_option.appendChild(new_option_text);
+  					new_select.appendChild(new_option);
+  				}
+  			}
+  			auth_p.appendChild(new_select);
+  			selector_div.appendChild(auth_p);
+  			if(last_selector_opt.length <= 3){
+  				$("button#add_author").attr("disabled",true);
   			}
   		}
-  		auth_p.appendChild(new_select);
-  		selector_div.appendChild(auth_p);
   }
 
   /*Функция добавления формы для источника литературы*/
