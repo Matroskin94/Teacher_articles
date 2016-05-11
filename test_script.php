@@ -153,13 +153,14 @@
   </table>
   <br> 
   <form id="redact-article-form" class="hidden" action="test_script.php?req_type=redact_article">
-    Введите автора: <input type=text name="author"  required value=""><br><br>
-    Введите название статьи: <input type=text name="art_name"  required value=""><br><br>
-    Введите журнал для публикации статьи:<input type=text name="journal_name"  required value=""><br><br>
-    Введите страницы публикации: <input type=text name="pages"  required value=""><br><br>
-    Содержание статьи <br>
-    <textarea id="last" cols="80" rows="10" name="art_text"  required></textarea><br><br>
-    <button id="save-change-art">Сохранить изменения</button>
+    <p>Введите название статьи: <input type=text name="art_name"  required value=""></p>
+    <p>Введите страницы публикации: <input type=text name="pages"  required value=""></p>
+    <table class="table table-hover" id="auth-redact-data">
+      <tbody>
+         <caption>Авторы статьи</caption>
+      </tbody>
+    </table>
+    <p><button id="save-change-art">Сохранить изменения</button></p>
   </form>
 
   <button id="redact-article">Редактировать</button>

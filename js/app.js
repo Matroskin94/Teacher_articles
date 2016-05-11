@@ -47,16 +47,23 @@ $(document).ready(function() {
   }
 
   /*Заполнение таблицы данными*/
-  var show_table = function (data, jour_name) {
+  var show_art_table = function (data, jour_name) {
   	var table = $('#article-data > tbody'),
   		new_row = "",
-  		new_elem = "";
+  		new_elem = "",
+  		authors_str = "";
   		$("#article-data").css("opacity",0);
   		table.children().slice(1).remove();
+  	//console.log(data);
+  	for(var i = 0; i<data[0]['authors'].length; i++){
+  		authors_str += data[0]['authors'][i]['name'];
+  		authors_str += "<br>"
+  	}
+  	console.log(authors_str);
   	for (var i = 0; i < data.length; i++) {
   		new_elem = $("<tr></tr>");
   		table.append(new_elem);
-  		new_elem.append("<td>Отобразить авторов</td>");
+  		new_elem.append("<td>"+authors_str+"</td>");
   		new_elem.append("<td>"+data[i].art_name+"</td>");
   		new_elem.append("<td>"+data[i].art_pages+"</td>");
   		/*if(data[i].blocked == 1){
@@ -298,8 +305,8 @@ $(document).ready(function() {
 			data: 'jsonData=' + $.toJSON(jour_data),
 			success:function(data) {
 				var resp = JSON.parse(data);
-				console.log(resp);
-				//show_table(resp,jour_name);
+				//console.log(resp);
+				show_art_table(resp,jour_name);
 			}
 		});
 	});
@@ -363,7 +370,7 @@ $(document).ready(function() {
 			data_send = {
 				"art_name": $(row_cells.get(1)).text(),
 			};
-
+			console.log($(row_cells.get(1)).text());
 		//console.log($.toJSON(data_send));
 			$.ajax({
 			url: 'script.php?req_type=ajax_get_art',
@@ -374,26 +381,24 @@ $(document).ready(function() {
 				var resp = JSON.parse(data),
 					lit_count = resp["lit_count"],
 					redact_form = $("#redact-article-form"),
-					redact_inputs = redact_form.find("input");
-					last_inputs = "";
+					redact_inputs = redact_form.find("input"),
+					last_inputs = "",
+					redact_teble = redact_form.find("table");
 				//console.log(redact_inputs);
+				console.log(resp);
 				redact_form.removeClass("hidden");
 				$("#redact-article").hide();
 				redact_form.hide();
 				redact_form.show("slow");
-				$(redact_inputs.get(0)).val(resp["art_data"]["author"]);
-				$(redact_inputs.get(1)).val(resp["art_data"]["name"]);
-				$(redact_inputs.get(2)).val("test journal");
-				$(redact_inputs.get(3)).val(resp["art_data"]["pages"]);
-				$(redact_form.find("textarea").get(0)).val(resp["art_data"]["article_text"]);
-				for(var i = 0; i < lit_count; i++){
-					//add_lit_form = function(prev_input, prev_numb,add_butt)
-					var	prev_input = $(event.target).parent().find("#last");
-					last_inputs = add_lit_form(prev_input,i,$("#save-change-art"));
-					$(last_inputs[0]).val(resp["lit_data"][i]["name"]);
-					$(last_inputs[1]).val(resp["lit_data"][i]["authors"]);
-					$(last_inputs[2]).val(resp["lit_data"][i]["pages"]);
-					//console.log(resp["list_data"][i]["name"]);
+				//console.log(redact_inputs.get(0));
+				$(redact_inputs.get(0)).val(resp[0]["art_name"]);
+				$(redact_inputs.get(1)).val(resp[0]["art_pages"]);
+
+				for (var i = 0; i < resp[0]["authors"].length; i++) {
+					new_elem = $("<tr></tr>");
+					redact_teble.append(new_elem);
+					new_elem.append("<td>"+resp[0]["authors"][i]["name"]+"</td>");
+					new_elem.append("<td><div class='art-status unblocked-art'></div><td>");
 				}
 			} 
 			});

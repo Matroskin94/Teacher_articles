@@ -256,6 +256,28 @@ function show_s_results($arr)
 }
 
 
+/*Выборка собдержимого статьи*/
+
+function select_article($mysqli,$jour_articles){
+	$i = 0;
+	$article_authors = array();
+	while ($row = $jour_articles->fetch_assoc()) {
+		$j = 0;
+		$authors_id = select_from_db($mysqli,"author_id","article_author","article_id",$row['article_id']);
+		while($art_auth_row = $authors_id->fetch_assoc()){
+			$authors_of_art = select_from_db($mysqli,"*","authors","author_id",$art_auth_row['author_id']);
+			while ($auth_row = $authors_of_art->fetch_assoc()) {
+				$article_authors[$j] = $auth_row;
+				$j++;
+			}
+		}
+		$row['authors'] = $article_authors;
+		$json_data[$i] = $row;
+		$i++;
+	}
+	return $json_data;
+}
+
 /*Выбор сценария обработки запроса*/
 function select_script($mysqli)
 {	
@@ -395,10 +417,7 @@ if(isset($_GET['req_type'])){
 			//echo var_dump($jour_articles);
 			$json_data = array();
 			$single_article = array();
-			while ($row = $jour_articles->fetch_assoc()) {
-				$json_data[$i] = $row;
-				$i++;
-			}
+			$json_data = select_article($mysqli, $jour_articles);
 			$response = json_encode($json_data);
 			echo $response;
 			$mysqli->close();
@@ -434,27 +453,29 @@ if(isset($_GET['req_type'])){
 			$response = array();
 			$lit = '';
 			$i = 0;
+			$art_data = "";
 			foreach ($data as $key=>$value) {
 				if($key == "art_name"){
 					$art_name = $value;
 				}
 			}
-			$qr = "SELECT * FROM `articles` WHERE name = '".$art_name."'";
+			$qr = "SELECT * FROM `articles` WHERE art_name = '".$art_name."'";
 			$qr_res = $mysqli->query($qr); 
-			$row = $qr_res->fetch_assoc();
-			$_SESSION['ses_upd_art_id'] = $row['article_id'];
-			$response['art_data'] = $row;
-			$qr = "SELECT * FROM `lit_sources` WHERE article_id = ".$row['article_id'];
-			$qr_res = $mysqli->query($qr);
-			while ($row = $qr_res->fetch_assoc()) {
-				$lit = 'lit' + $i;
-				$lit_data[$lit] = $row;
-				$i++;
-			}
-			$response['lit_data'] = $lit_data;
-			$response['lit_count'] = $i;
+			$art_data = select_article($mysqli,$qr_res);
+			//$row = $qr_res->fetch_assoc();
+			$_SESSION['ses_upd_art_id'] = $art_data['article_id'];
+			//$response['art_data'] = $row;
+			//$qr = "SELECT * FROM `article_author` WHERE article_id = ".$row['article_id'];
+			//$qr_res = $mysqli->query($qr);
+			//while ($row = $qr_res->fetch_assoc()) {
+			//	$lit = 'lit' + $i;
+			//	$lit_data[$lit] = $row;
+			//	$i++;
+			//}
+			//$response['lit_data'] = $lit_data;
+			//$response['lit_count'] = $i;
 			//$row = 
-			$response = json_encode($response);
+			$response = json_encode($art_data);
 			echo $response;
 		break;
 
