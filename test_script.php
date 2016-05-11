@@ -73,7 +73,7 @@
     </form>
     <hr><hr>
 
-    <h1>Добавление материала</h1>
+    <!--<h1>Добавление материала</h1>
     <form id="art-form" class="reg-form" method="post" action="test_script.php?req_type=new_article">
       <p>Введите название статьи: <input type=text name="art_name"  required value="art_name"></p>
       <p id="choose_journ_p">Выберите серию журнала: <select id="choose-journal-class" name="jour_class">
@@ -97,54 +97,45 @@
       <p><button class="hidden" onclick="return false" id="add_author">Ещё автор</button></p>
       <input id="send-article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
-    <hr><hr>
+    <hr><hr> -->
 
   
   
   <h1>Поиск</h1>
     <p>Поиск новостей по автору:</p>
     <form id="search-form" method="post" action="test_script.php?req_type=search">
-      <input type=text name="search_word" placeholder="Автор">
-      <input type=hidden name="search_table" value="articles">
-      <input type=hidden name="search_field" value="author">
-      <input type=submit name=search_by_author value="Поиск">
+      <input type=text name="search_author" placeholder="Автор">
+      <p>Поиск новостей по названию статьи:</p>
+      <input type=text name="search_name" placeholder="Статья">
+      <p><button name="search_but">Поиск</button></p>
     </form>
     <?php
-        if($query_result->search_type === "author"){
-          if($query_result->num_rows > 0){
+        //var_dump($query_result);
+        //echo "qr_res:".$query_result[count($query_result)-1]."<br>";
+        if($query_result[count($query_result)-1] === "search"){
             show_s_results($query_result);
-          } 
-        } else if($query_result->search_type === "author_not_found"){
+        } else if($query_result === "not_found"){
             echo "Поиск не дал результатов";
         }
     ?>
   
-  <p>Поиск новостей по названию статьи:</p>
-    <form id="search-form" method="post" action="test_script.php?req_type=search">
-      <input type=text name="search_word" placeholder="Статья">
-      <input type=hidden name="search_table" value="articles">
-      <input type=hidden name="search_field" value="name">
-      <input type=submit name=search_by_art_name value="Поиск">
-    </form>
-
-  <?php
-      if($query_result->search_type === "name"){
-          if($query_result->num_rows > 0){
-            show_s_results($query_result);
-          } 
-        } else if($query_result->search_type === "name_not_found"){
-            echo "Поиск не дал результатов";
-        }
-    ?>
   <hr><hr>
 
   <h1>Вывод статей журнала</h1>
   
   <form action="script.php" method="post">
-    <select id="choose-jour" size="1" name="journal">
+    <select size="1" name="journal-class" id="vew_journ_class">
+      <option disabled selected="true">Серия</option>
+      <option>A</option>
+      <option>B</option>
+      <option>C</option>
+      <option>D</option>
+      <option>E</option>
+    </select>
+    <select id="journals" class="choose-jour" size="1" name="journal" disabled="true">
       <option disabled selected="true">Журнал</option>
       <?php
-        /*$result = select_from_db($connection,"journals");
+        /*$result = select_from_db($connection,"*","joutnals");
         while( $row = $result->fetch_assoc() ){ 
         echo "<option>Серия ".$row['type']." №".$row['number']." ".$row['date']."</option>";
       }*/
@@ -156,9 +147,8 @@
     <tr>
       <th>Авторы</th>
       <th>Статья</th>
-      <th>Блокировка</th>
-      <th>Журнал</th>
       <th>Страницы</th>
+      <th>Журнал</th>
     </tr>
   </table>
   <br> 

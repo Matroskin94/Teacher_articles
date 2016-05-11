@@ -18,26 +18,32 @@ function db_connect()
 }
 
 /*Выборка из базы данных*/
-function select_from_db($mysqli,$field,$table,$row,$value){
+function select_from_db($mysqli,$field,$table){
 	$args_num = func_num_args();
 	$args_list = func_get_args();
+	if($args_num == 3){
+		if($result = $mysqli->query("SELECT ".$field." FROM ".$table."")){
+			return $result;
+		}
+	}
 	if($args_num == 5){
-		if ($result = $mysqli->query("SELECT ".$field." FROM ".$table." WHERE ".$row." = '".$value."'")) { 
+		if ($result = $mysqli->query("SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."'")) { 
+			//echo "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."' <br>";
 			return $result;
 		}else{
-			return $args_num;
+			return "not_found";
 		}
 	}
 	if($args_num == 7){
-		if ($result = $mysqli->query("SELECT ".$field." FROM `".$table."` WHERE `".$row."` = '".$value."' AND `".$args_list[5]."` = '".$args_list[6]."'")) { 
-		//if($result = $mysqli->query("SELECT * FROM `journals` WHERE `class` = 'C' AND `blocked` = 0")){
+		if ($result = $mysqli->query("SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."'")) { 
+			//echo "SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."' <br>";
 			return $result;
 		}else{
-			return $args_num;
+			return "not_found";
 		}
 	}
 	if($args_num == 9){
-		if($result = $mysqli->query("SELECT ".$field." FROM `".$table."` WHERE `".$row."` = '".$value."' AND `".$args_list[5]."` = '".$args_list[6]."' AND`".$args_list[7]."` = '".$args_list[8]."'")){
+		if($result = $mysqli->query("SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."' AND`".$args_list[7]."` = '".$args_list[8]."'")){
 			return $result;
 		}else{
 			return "false";
@@ -131,19 +137,19 @@ function authors_link_art($mysqli,$article_id){
 	//var_dump($_POST);
 	while (isset($_POST[$curr_auth])) {
 		$auth_name = $_POST[$curr_auth];
-		echo "curr_auth:".$auth_name."<br>";
+		//echo "curr_auth:".$auth_name."<br>";
 		$sel_res = select_from_db($mysqli, "author_id","authors","name",$auth_name);
 		//var_dump($sel_res);
 		$res_row = $sel_res->fetch_assoc();
 		$auth_id = $res_row['author_id'];
-		echo "curr_auth_id:".$auth_id."<br>";
+		//echo "curr_auth_id:".$auth_id."<br>";
 		insert_to_db($mysqli,"add_link",$res_row->author_id);
 		if(is_object($stmt)){
 			$stmt->execute();
 		}
 		$auth_num += 1;
 		$curr_auth = "author".$auth_num; 
-		echo "next_author:".$curr_auth."<br>";
+		//echo "next_author:".$curr_auth."<br>";
 	}
 
 	$stmt->close();
@@ -155,6 +161,17 @@ function authors_link_art($mysqli,$article_id){
 	//select_from_db($mysqli, "author_id","authors","name",$auth_name);
 }
 
+/*Поиск статей в связующей таблице*/
+function select_link($mysqli,$author_id,$art_id_arr){
+	$articles_str = implode(",",$art_id_arr);
+	$qr = "SELECT `article_id` FROM `article_author` WHERE `author_id` = '".$author_id."' AND `article_id` IN (".$articles_str.")";
+	$res_articles = $mysqli->query($qr);
+	if(is_object($res_articles)){
+		return $res_articles;
+	}else{
+		return "not_found";
+	}
+}
 
 function update_data_in_db($mysqli, $update_table){
 	/*Изменение записи в таблице*/
@@ -201,35 +218,41 @@ function update_data_in_db($mysqli, $update_table){
 
 /*Поиск статей*/
 
-function find_article($mysqli,$s_table,$s_line,$s_word){
+function find_article($mysqli,$field,$s_table,$s_line,$s_word){
 	$arg_list = func_get_args();
-	$qr = "SELECT * FROM ".$s_table." WHERE ".$s_line." LIKE '%$s_word%'";
+	$result = "";
+	$qr = "SELECT ".$field." FROM `".$s_table."` WHERE ".$s_line." LIKE '%$s_word%'";
 	$result = $mysqli->query($qr);
-	$result->search_type = $s_line;
+	//echo "<br>";
+	//var_dump($result);
 	if($result->num_rows != 0){
 		return $result;
 	}else{
-		if($s_line == "author"){
-			$result->search_type = "author_not_found";
-		} else if($s_line == "name"){
-			$result->search_type = "name_not_found";
-		}
-		return $result;
+		$result = "not_found";
+		return $result;		
 	}
+	//return $result;
 
 }
 
 /* Вывод статей по авторам*/
 function show_s_results($arr)
-{
-	while( $row = $arr->fetch_assoc() ){ 
-		echo "<hr>";
-		echo "Название:".$row['name']."<br>";
-		echo "Автор:".$row['author']."<br>";
-		echo "Текст:".$row['article_text']."<br>";
-		echo "<hr>";
+{	
+	//echo "<br>";
+	//var_dump($arr);
+	for($i = 0;$i<count($arr);$i++){
+		if(is_object($arr[$i])){
+			while( $row = $arr[$i]->fetch_assoc() ){ 
+				echo "<hr>";
+				//var_dump($row);
+				echo "Название:".$row['art_name']."<br>";
+				/*echo "Автор:".$row['author']."<br>";
+				echo "Текст:".$row['article_text']."<br>";*/
+				echo "<hr>";
+			}
+		}
 	}
-	$arr->free();
+	//$arr->free();
 }
 
 
@@ -267,17 +290,68 @@ function select_script($mysqli)
 				//echo "j_id".$journal_id;
 				$ins_art_id = insert_to_db($mysqli,"new_article",$_POST['art_name'],$_POST['pages'],$journal_id);
 				authors_link_art($mysqli,$ins_art_id);
-				//insert_to_db($mysqli, "add_link",$journal_id,$ins_art_id);
-				//$script_result = insert_to_db($mysqli,"new_article", NULL, $_POST['art_name'],$_POST['journal'],$_POST['pages']);
 				unset($_GET['req_type']);
-				//echo '<script>location.replace("test_script.php");</script>';
+				echo '<script>location.replace("test_script.php");</script>';
 				//header ('Location: test_script.php');
-				//$script_result = "article_added";
 			break;
 			
 			case 'search': 
-				//$script_result->search_type
-				$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
+				$arr_articles = array();
+				if(($_POST['search_name'] === "")&&($_POST['search_author'] === "")){
+					return "not_found";
+				}else if(($_POST['search_name'] != "")&&($_POST['search_author'] === "")){
+					$search_by_name = find_article($mysqli,"*","articles","art_name",$_POST['search_name']);
+					//var_dump($search_by_name);
+					$arr_articles[0] = $search_by_name;
+					$arr_articles[1] = "search";
+					return $arr_articles;	
+				}else{
+					$search_by_author = find_article($mysqli,"author_id", "authors","name",$_POST['search_author']);
+					$search_by_name = find_article($mysqli,"article_id","articles","art_name",$_POST['search_name']);
+					//var_dump($search_by_name);
+					//echo "<br>";
+					$i = 0;
+					if(($_POST['search_name'] === "")&&($_POST['search_author'] != "")&&($search_by_author != "not_found")){
+						while ($auth_row = $search_by_author->fetch_assoc()){
+							$auth_id = $auth_row['author_id'];
+							$sel_by_auth = select_from_db($mysqli,"article_id","article_author","author_id",$auth_id);
+							if(is_object($sel_by_auth)){
+								while($row = $sel_by_auth->fetch_assoc()){
+									$sel_by_art_id = select_from_db($mysqli,"*","articles","article_id",$row['article_id']);
+									$arr_articles[$i] = $sel_by_art_id;
+									$i++;
+								}
+							}
+						}
+						$arr_articles[count($arr_articles)] = "search";
+						return $arr_articles;
+					}
+					if(($search_by_name != "not_found") && ($search_by_author != "not_found")){
+						$i = 0;
+						while ($name_row = $search_by_name->fetch_assoc()){
+							while($auth_row = $search_by_author->fetch_assoc()){
+								$sel_aut_name = select_from_db($mysqli,"article_id","article_author","article_id",$name_row['article_id'],"author_id",$auth_row['author_id']);
+								if($sel_aut_name->num_rows != NULL){
+									$aut_name_row = $sel_aut_name->fetch_assoc();
+									$arr_articles[$i] = select_from_db($mysqli,"*","articles","article_id",$aut_name_row['article_id']);
+									$i++;
+								}
+							}
+							$search_by_author->data_seek(0);
+						}
+						if(count($arr_articles) == 0){
+							return "not_found";
+						}else{
+							$arr_articles[count($arr_articles)] = "search";
+							return $arr_articles;
+						}
+					}else {
+						return "not_found";
+					}
+
+				}
+				
+				//$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
 				unset($_GET['req_type']);
 				//echo '<script>location.replace("test_script.php");</script>';
 				//header ('Location: test_script.php');
@@ -286,8 +360,8 @@ function select_script($mysqli)
 			default:
 				# code...
 			break;
-		}
-		return $script_result;
+	}	
+	return $script_result;
 	}
 
 }
@@ -299,6 +373,7 @@ if(isset($_GET['req_type'])){
 			$data = json_decode($_POST['jsonData']);
 			$curr_batch = '';
 			$curr_numb = '';
+			$curr_year = '';
 			$jour_articles = ''; 
 			foreach ($data as $key=>$value) {
 				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
@@ -308,8 +383,11 @@ if(isset($_GET['req_type'])){
 				if($key == 'jour_numb'){
 					$curr_numb = $value;
 				}
+				if($key == 'jour_year'){
+					$curr_year = $value;
+				}
 			}
-			$jour_id = $mysqli->query("SELECT `journal_id` FROM `journals` WHERE type = '".$curr_batch."' AND number = ".$curr_numb."");
+			$jour_id = $mysqli->query("SELECT `journal_id` FROM `journals` WHERE class = '".$curr_batch."' AND number = ".$curr_numb." AND pub_year = ".$curr_year."");
 			$row = $jour_id->fetch_assoc();
 			$jour_id = $row['journal_id'];
 			$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."'");
@@ -441,10 +519,8 @@ if(isset($_GET['req_type'])){
 				}
 			}
 			$result = select_from_db($mysqli,"*","journals","class",$journal_class);
-			//$result = $mysqli->query("SELECT * FROM `journals` WHERE `class` = 'C' AND `".$block."` = ".$i."");
 			if(is_object($result)){
 				while( $row = $result->fetch_assoc() ){ 
-          			//echo "<option>Серия ".$row['class']." №".$row['number']." ".$row['pub_year']."</option>";
 					$journals_arr[$i] = $row;
 					$i++;
 				}
@@ -468,6 +544,25 @@ if(isset($_GET['req_type'])){
 			echo $res;
 		break;
 
+		case 'ajax_vew_jour_class':
+			$data = json_decode($_POST['jsonData']);
+			$journal_class = "";
+			$i = 0;
+			foreach ($data as $key=>$value) {
+				if($key == "journal_class"){
+					$journal_class = $value;
+				}
+			}
+			$result = select_from_db($mysqli,"*","journals","class",$journal_class);
+			if(is_object($result)){
+				while( $row = $result->fetch_assoc() ){ 
+					$journals_arr[$i] = $row;
+					$i++;
+				}
+			}
+			$res = json_encode($journals_arr);
+			echo $res;
+			break;
 		default:
 			//select_script($mysqli);
 		break;

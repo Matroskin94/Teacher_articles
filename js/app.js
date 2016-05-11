@@ -56,17 +56,18 @@ $(document).ready(function() {
   	for (var i = 0; i < data.length; i++) {
   		new_elem = $("<tr></tr>");
   		table.append(new_elem);
-  		new_elem.append("<td>"+data[i].author+"</td>");
-  		new_elem.append("<td>"+data[i].name+"</td>");
-  		if(data[i].blocked == 1){
+  		new_elem.append("<td>Отобразить авторов</td>");
+  		new_elem.append("<td>"+data[i].art_name+"</td>");
+  		new_elem.append("<td>"+data[i].art_pages+"</td>");
+  		/*if(data[i].blocked == 1){
   			new_elem.append("<td><div class='art-status blocked-art'></div></td>");
   		}else{
   			new_elem.append("<td><div class='art-status unblocked-art'></div></td>");
-  		}
+  		}*/
 
 
   		new_elem.append("<td>"+jour_name+"</td>");
-  		new_elem.append("<td>"+data[i].pages+"</td>");
+  		//new_elem.append("<td>"+data[i].pages+"</td>");
   	}
   		$("#article-data").removeClass("hidden");
   		$("#article-data").addClass("table table-hover");
@@ -278,16 +279,17 @@ $(document).ready(function() {
 	});
 
 	/*Выбор журнала (Проверить выборку при отсутствии статей в журнале)*/ 
-	$("#choose-jour").change(function() {
+	$(".choose-jour").change(function() {
 		//Серия D №2 2016-04-13
-		//console.log('WWW');
+		console.log('WWW');
 		var jour_name = $(this).val(),
 			batch = jour_name.substring(6,7),
-			reg = /№[\d]{1,2}/,
-			number = jour_name.match(reg)[0].substring(1),
+			number = jour_name.match(/№[\d]{1,2}/)[0].substring(1),
+			year = jour_name.match(/[\d]{4}/)[0],
 			jour_data = {
 				"jour_batch" : batch,
-				"jour_numb" : number
+				"jour_numb" : number,
+				"jour_year" : year
 			};
 		//console.log("numb: "+$.toJSON(jour_data));
 		$.ajax({
@@ -296,7 +298,8 @@ $(document).ready(function() {
 			data: 'jsonData=' + $.toJSON(jour_data),
 			success:function(data) {
 				var resp = JSON.parse(data);
-				show_table(resp,jour_name);
+				console.log(resp);
+				//show_table(resp,jour_name);
 			}
 		});
 	});
@@ -476,6 +479,28 @@ $(document).ready(function() {
   				//console.log(resp.length);
 
   			}
+  		});
+  	});
+
+  	/*Выбор типа журнала для просмотра*/
+  	$("#vew_journ_class").on("change",function(){
+  		var data_send = {
+  			"journal_class": $(this).val()
+  		};
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_vew_jour_class',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success: function(data){
+  				var resp = JSON.parse(data);
+  				$("#journals").removeAttr("disabled");
+  				for(var i = 0;i<resp.length;i++){
+  					new_elem = $("<option>Серия "+resp[i]['class']+" №"+resp[i]['number']+" "+resp[i]['pub_year']+"</option>");
+  					$("#journals").append(new_elem);
+  				}
+
+  			}
+
   		});
   	});
 
