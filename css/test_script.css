@@ -1,4 +1,9 @@
 .hidden {
 	display: none;
 }
-
+.hidden-table{
+	border: none; 
+}
+.hidden-table td, .hidden-table tr{
+	border: none; 
+}

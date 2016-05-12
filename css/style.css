@@ -139,6 +139,9 @@ background: #A3AC9A;
 	background-color: #DDDDDD;
 	cursor: pointer;
 }
+.table-hover>tbody>tr.table-head:hover {
+	cursor: default;
+}
 
 .active-item{
 
@@ -149,11 +152,28 @@ background: #A3AC9A;
 	display: none;
 }
 
-.art-status {
-	margin:3px auto;
+.status {
+	margin: 6px 4px;
 	width: 10px;
 	height: 10px;
 	border-radius: 5px;
+	cursor: pointer;
+}
+
+.status.unblocked-art:hover::after { 
+ 	content: "Удалить"; 
+    position: relative;
+    top: -5px;
+    left: 30px;
+    color:red;
+}
+
+.status.blocked-art:hover::after { 
+ 	content: "Восстановить"; 
+    position: relative;
+    top: -5px;
+    left: 30px;
+    color:green;
 }
 
 .blocked-art{

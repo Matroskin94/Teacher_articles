@@ -93,12 +93,13 @@
         <p>Выберите автора публикации: <select disabled name="author0" class="avail_authors">
           <option disabled selected>Автор</option>
         </select></p>
+        <p><button class="hidden" onclick="return false" id="add_author">Ещё автор</button></p>
       </div>
-      <p><button class="hidden" onclick="return false" id="add_author">Ещё автор</button></p>
+      
       <input id="send-article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
-    <hr><hr> -->
-
+    <hr><hr>
+ -->
   
   
   <h1>Поиск</h1>
@@ -144,7 +145,7 @@
   </form>
   <br>
   <table class="hidden" id="article-data">
-    <tr>
+    <tr class="table-head">
       <th>Авторы</th>
       <th>Статья</th>
       <th>Страницы</th>
@@ -152,15 +153,23 @@
     </tr>
   </table>
   <br> 
-  <form id="redact-article-form" class="hidden" action="test_script.php?req_type=redact_article">
+  <form id="redact-article-form" method="POST" class="hidden" action="test_script.php?req_type=redact_article">
     <p>Введите название статьи: <input type=text name="art_name"  required value=""></p>
     <p>Введите страницы публикации: <input type=text name="pages"  required value=""></p>
-    <table class="table table-hover" id="auth-redact-data">
+    <table class="table" id="auth-redact-data">
       <tbody>
          <caption>Авторы статьи</caption>
       </tbody>
     </table>
-    <p><button id="save-change-art">Сохранить изменения</button></p>
+    <p><button onclick="return false" id="redact_add_auth">Добавить автора</button></p>
+    <div class="author_selectors hidden">
+        <p>Выберите автора публикации: <select name="author0" class="avail_authors">
+          <option disabled selected>Автор</option>
+        </select></p>
+        <p><button onclick="return false" id="add_author">Ещё автор</button></p>
+    </div>
+    
+    <p><button id="save-change-art" onclick="return false">Сохранить изменения</button></p>
   </form>
 
   <button id="redact-article">Редактировать</button>

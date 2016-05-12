@@ -29,6 +29,7 @@ function select_from_db($mysqli,$field,$table){
 	if($args_num == 5){
 		if ($result = $mysqli->query("SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."'")) { 
 			//echo "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."' <br>";
+			$result->qr = "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."' <br>";
 			return $result;
 		}else{
 			return "not_found";
@@ -81,8 +82,8 @@ function insert_to_db($mysqli,$form_type){ //($mysqli,$form_type,art_name, journ
 
 
 		case 'new_article' :
-			$qr = "INSERT INTO `articles` (`article_id` ,`art_name` ,`art_pages` ,`journal_id`) VALUES (NULL,
-			'".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."')";
+			$qr = "INSERT INTO `articles` (`article_id` ,`art_name` ,`art_pages`, `class`, `journal_id`) VALUES (NULL,
+			'".$arg_list[2]."', '".$arg_list[3]."', '".$arg_list[4]."', '".$arg_list[5]."')";
 			//echo "QUERY: ".$qr;
 			$result = $mysqli->query($qr);
 		
@@ -310,7 +311,7 @@ function select_script($mysqli)
 				$row = $journal->fetch_assoc();
 				$journal_id = $row['journal_id'];
 				//echo "j_id".$journal_id;
-				$ins_art_id = insert_to_db($mysqli,"new_article",$_POST['art_name'],$_POST['pages'],$journal_id);
+				$ins_art_id = insert_to_db($mysqli,"new_article",$_POST['art_name'],$_POST['pages'],$_POST['jour_class'],$journal_id);
 				authors_link_art($mysqli,$ins_art_id);
 				unset($_GET['req_type']);
 				echo '<script>location.replace("test_script.php");</script>';
@@ -462,19 +463,14 @@ if(isset($_GET['req_type'])){
 			$qr = "SELECT * FROM `articles` WHERE art_name = '".$art_name."'";
 			$qr_res = $mysqli->query($qr); 
 			$art_data = select_article($mysqli,$qr_res);
-			//$row = $qr_res->fetch_assoc();
+			$qr_res->data_seek(0);
+			$art_row = $qr_res->fetch_assoc();
+			$auth_of_class = select_from_db($mysqli,"name","authors","class",$art_row['class']);
 			$_SESSION['ses_upd_art_id'] = $art_data['article_id'];
-			//$response['art_data'] = $row;
-			//$qr = "SELECT * FROM `article_author` WHERE article_id = ".$row['article_id'];
-			//$qr_res = $mysqli->query($qr);
-			//while ($row = $qr_res->fetch_assoc()) {
-			//	$lit = 'lit' + $i;
-			//	$lit_data[$lit] = $row;
-			//	$i++;
-			//}
-			//$response['lit_data'] = $lit_data;
-			//$response['lit_count'] = $i;
-			//$row = 
+			while ($row = $auth_of_class->fetch_assoc()) {
+				$art_data['auth_class'][$i] = $row;
+				$i++;
+			}
 			$response = json_encode($art_data);
 			echo $response;
 		break;
