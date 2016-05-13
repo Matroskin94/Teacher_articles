@@ -184,26 +184,51 @@ function update_data_in_db($mysqli, $update_table){
 	switch ($update_table) {
 		case 'article_update':
 			//var_dump($arg_list);
-			$name = "";
-			$author = "";
+			$curr_auth = "";
+			$article_id = (int)$arg_list[2];
+			$dell_authors = $arg_list[5];
+			$new_authors = $arg_list[6];
 			$pages = "";
-			$curr_id = (int)$arg_list[7];
-			//$qr = "UPDATE `articles` SET `author` = '".$arg_list[2]."', `name` = '".$arg_list[3]."', `pages` = '".$arg_list[4]."', `article_text` = '".$arg_list[5]."' WHERE `article_id` = ".$arg_list[7]."";
-			//$result = $mysqli->query($qr);
+			$curr_id = (int)$arg_list[2];
+			$qr = "UPDATE `articles` SET `art_name` = '".$arg_list[3]."', `art_pages` = '".$arg_list[4]."' WHERE `article_id` = ".$article_id."";
+			$result = $mysqli->query($qr);
+			$dell = $mysqli->prepare("DELETE FROM `article_author` WHERE article_id = ? AND author_id = ?");
+			$dell->bind_param("ii",$article_id,$curr_auth);
+			$add = $mysqli->prepare("INSERT INTO `article_author` (author_id, article_id) VALUES (?, ?)");
+			$add->bind_param("ii", $curr_auth, $article_id);
+			if(count($dell_authors) != 0){
+				for($i = 0; $i < count($dell_authors);$i++){
+					$result = select_from_db($mysqli,"author_id","authors","name",$dell_authors[$i]);
+					$auth_row = $result->fetch_assoc();
+					$curr_auth = (int)$auth_row['author_id'];
+					$dell->execute();
+				}
+			}
+			$dell->close();
+			if(count($new_authors)!=0){
+				for($i = 0; $i < count($new_authors);$i++){
+					$result = select_from_db($mysqli,"author_id","authors","name",$new_authors[$i]);
+					$auth_row = $result->fetch_assoc();
+					$curr_auth = (int)$auth_row['author_id'];
+					$add->execute();
+				}
+			}
+			$add->close();
+
 			//echo "qr:".$qr."\n";
 			//echo "res:".$result."\n";
 			//$qr = "UPDATE `lit_sources` SET name = ".$arg_list[8]->name[i]." authors = ".$arg_list[8]->author[i]." pages = ".$arg_list[8]->pages[i]."";
-			$stmt = $mysqli->prepare("UPDATE `lit_sources` SET name = ? , authors = ? , pages = ? WHERE article_id = ?");
-			$stmt->bind_param("sssi",$arg_list[6]->name[$i],$arg_list[6]->author[$i],$arg_list[6]->pages[$i],$curr_id);
+			//$stmt = $mysqli->prepare("UPDATE `lit_sources` SET name = ? , authors = ? , pages = ? WHERE article_id = ?");
+			//$stmt->bind_param("sssi",$arg_list[6]->name[$i],$arg_list[6]->author[$i],$arg_list[6]->pages[$i],$curr_id);
 			//echo "name:". $arg_list[6]->name[0]."";
-			for($i = 0; i < count($arg_list[6]->author);$i++){
+			//for($i = 0; $i < count($arg_list[6]->author);$i++){
 				/*$name = $arg_list[6]->name[$i];
 				$author = $arg_list[6]->author[$i];
 				$pages = $arg_list[6]->pages[$i];
 				$curr_id = (int)$arg_list[7];*/
-				$stmt->execute();
-			}
-			echo "ready";
+			//	$stmt->execute();
+			//}
+			return $qr;
 		break;
 		case 'user_update':
 			
@@ -466,7 +491,7 @@ if(isset($_GET['req_type'])){
 			$qr_res->data_seek(0);
 			$art_row = $qr_res->fetch_assoc();
 			$auth_of_class = select_from_db($mysqli,"name","authors","class",$art_row['class']);
-			$_SESSION['ses_upd_art_id'] = $art_data['article_id'];
+			$_SESSION['ses_upd_art_id'] = $art_data[0]['article_id'];
 			while ($row = $auth_of_class->fetch_assoc()) {
 				$art_data['auth_class'][$i] = $row;
 				$i++;
@@ -480,24 +505,33 @@ if(isset($_GET['req_type'])){
 			$art_name = '';
 			$art_author = '';
 			$art_pages = '';
-			$art_text = '';
-			$art_literature = [];
-			echo "string: ".$_POST['jsonData']."\n";
+			$dell_aut = array();
+			$new_aut = array();
+			//echo "string: ".$_POST['jsonData']."\n";
+			//echo "art_id".$_SESSION;
+			print_r($_SESSION);
+			if(isset($_SESSION['ses_upd_art_id'])){
+				$curr_art_id = $_SESSION['ses_upd_art_id'];
+			}
 			$data = json_decode($_POST['jsonData']);
 			foreach ($data as $key=>$value) {
 				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
 				switch ($key) {
-					case 'author':
-						$art_author = $value;
-					break;
 					case 'art_name':
 						$art_name = $value;
 					break;
 					case 'pages':
 						$art_pages = $value;
 					break;
-					case 'article_text':
-						$art_text = $value;
+					case 'dell_authors':
+						for($i = 0; $i < count($value); $i++){
+							$dell_aut[$i] = $value[$i];
+						}
+					break;
+					case 'new_authors':
+						for($i = 0; $i < count($value); $i++){
+							$new_aut[$i] = $value[$i];
+						}
 					break;
 					case 'literature':
 						$art_literature = $value;
@@ -507,15 +541,17 @@ if(isset($_GET['req_type'])){
 					break;
 				}
 			}
-
-			if(isset($_SESSION['ses_upd_art_id'])){
+			if($curr_art_id){
+				echo update_data_in_db($mysqli,"article_update",$curr_art_id,$art_name,$art_pages,$dell_aut,$new_aut);
+			}
+			/*if(isset($_SESSION['ses_upd_art_id'])){
 				//echo "art_id: ".$_SESSION['ses_upd_art_id']."";
 				$id = $_SESSION['ses_upd_art_id'];
 				//echo "id".$id."";
 				update_data_in_db($mysqli, "article_update",$art_author, $art_name, $art_pages, $art_text, $art_literature, $id);
 			}else{
 				echo "art ID undefined";
-			}
+			}*/
 			//$response = json_encode($art_literature->author[0]);
 			//echo $response;
 		break;

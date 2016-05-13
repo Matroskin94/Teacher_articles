@@ -59,7 +59,6 @@ $(document).ready(function() {
   		authors_str += data[0]['authors'][i]['name'];
   		authors_str += "<br>"
   	}
-  	console.log(authors_str);
   	for (var i = 0; i < data.length; i++) {
   		new_elem = $("<tr></tr>");
   		table.append(new_elem);
@@ -285,8 +284,14 @@ $(document).ready(function() {
 	/*Выбор журнала (Проверить выборку при отсутствии статей в журнале)*/ 
 	$(".choose-jour").change(function() {
 		//Серия D №2 2016-04-13
-		var jour_name = $(this).val(),
-			batch = jour_name.substring(6,7),
+		var jour_name = $(this).val();
+		show_journal_articles(jour_name);
+	});
+
+
+	/**/
+	var show_journal_articles = function(jour_name){
+		var	batch = jour_name.substring(6,7),
 			number = jour_name.match(/№[\d]{1,2}/)[0].substring(1),
 			year = jour_name.match(/[\d]{4}/)[0],
 			jour_data = {
@@ -305,8 +310,7 @@ $(document).ready(function() {
 				show_art_table(resp,jour_name);
 			}
 		});
-	});
-
+	}
 	/*Изменение статуса статьи*/
 
 	/*$(document).on("click", ".status", function () {
@@ -371,7 +375,6 @@ $(document).ready(function() {
 			success: function(data) {
 				//console.log(data);
 				var resp = JSON.parse(data),
-					lit_count = resp["lit_count"],
 					redact_form = $("#redact-article-form"),
 					redact_inputs = redact_form.find("input"),
 					last_inputs = "",
@@ -460,8 +463,8 @@ $(document).ready(function() {
 			"dell_authors" : []
 		};
 
-		console.log(add_auth);
-		console.log($(remove_auth.get(0)).text());
+		//console.log(add_auth);
+		//console.log($(remove_auth.get(0)).text());
 		for(var i = 0;i < remove_auth.length; i++){
 			data_send["dell_authors"][i] = $(remove_auth.get(i)).text();
 		}
@@ -471,21 +474,16 @@ $(document).ready(function() {
 			}
 		}
 		console.log(data_send);
-		/*for(var i = 4; i < redact_inputs.length - 1;i += 3){
-			data_send["literature"]["author"][j] = $(redact_inputs.get(i)).val();
-			data_send["literature"]["name"][j] = $(redact_inputs.get(i + 1)).val();
-			data_send["literature"]["pages"][j] = $(redact_inputs.get(i + 2)).val();
-			j++;
-		}
 		$.ajax({
 			url: 'script.php?req_type=ajax_update_art',
 			type: 'POST',
 			data: 'jsonData=' + $.toJSON(data_send),
 			success: function(data) {
-				console.log(data);
+				console.log("response"+data);
+				show_journal_articles($('#journals').val());
 			}
 		});
-		$(".literature").remove();*/
+		//$(".literature").remove();
 		$("#auth-redact-data > tbody > tr").remove();
 		$(".author_selectors").hide();
 		var old_selects = $(".author_selectors").find("p"),
