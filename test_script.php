@@ -135,12 +135,6 @@
     </select>
     <select id="journals" class="choose-jour" size="1" name="journal" disabled="true">
       <option disabled selected="true">Журнал</option>
-      <?php
-        /*$result = select_from_db($connection,"*","joutnals");
-        while( $row = $result->fetch_assoc() ){ 
-        echo "<option>Серия ".$row['type']." №".$row['number']." ".$row['date']."</option>";
-      }*/
-      ?>
     </select>
   </form>
   <br>
@@ -154,8 +148,8 @@
   </table>
   <br> 
   <form id="redact-article-form" method="POST" class="hidden" action="test_script.php?req_type=redact_article">
-    <p>Введите название статьи: <input type=text name="art_name"  required value=""></p>
-    <p>Введите страницы публикации: <input type=text name="pages"  required value=""></p>
+    <p>Введите название статьи: <input required type=text name="art_name"  required value=""></p>
+    <p>Введите страницы публикации: <input required type=text name="pages"  required value=""></p>
     <table class="table" id="auth-redact-data">
       <tbody>
          <caption>Авторы статьи</caption>
@@ -173,30 +167,55 @@
   </form>
 
   <button id="redact-article">Редактировать</button>
+  <button id="delete-article">Удалить</button>
   
   <hr><hr>
 
   <h1>Вывод авторов</h1>
-  <table class="table table-hover" id="authors-data">
-    <tr>
+  <p>Выберите сурию журнала <select size="1" name="journal-class" id="vew_author_by_class">
+      <option disabled selected="true">Серия</option>
+      <option>A</option>
+      <option>B</option>
+      <option>C</option>
+      <option>D</option>
+      <option>E</option>
+    </select></p>
+  <table class="table table-hover hidden" id="authors-data">
+    <tr class="table-head">
       <th>Автор</th>
+      <th>Научная степень</th>
       <th>Организация</th>
     </tr>
     <?php
-      /*$result = select_from_db($connection,"authors");
+      /*$result = select_from_db($connection,"*","authors");
       while( $row = $result->fetch_assoc() ){ 
         echo "<tr>";
         echo "<td>".$row['name']."</td>";
+        echo "<td>".$row['dc_degree']."</td>";
         echo "<td>".$row['organisation']."</td>";
         echo "</tr>";
       }*/
     ?>
   </table>
   <br>
-  <button id="redact-authors">Редактировать</button> 
+  <button id="redact-authors">Редактировать</button>
+    <form id="redact-author-form" name="redact_author" class="hidden">
+      <p>Фамилия имя отчество<input required type="text"></input></p>
+      <p>Научная степень<input required type="text"></input></p>    
+      <p>Серия журналов для публикации <select id="choose-type" size="1" name="type">
+        <option disabled selected="true">Серия</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+      <select></p>
+      <p>Организация<input required type="text"></input></p>
+      <p><button onclick="return false" id="update-author">Сохранить изменения</button></p>
+    </form>
   <hr><hr>
 
-     <script src="lib/jquery/jquery-1.12.0.min.js"></script>
+    <script src="lib/jquery/jquery-1.12.0.min.js"></script>
     <script src="lib/jquery/jquery-ui.min.js"></script>
     <script src="lib/jquery/jquery.json.js"></script>
     <script src="js/app.js"></script>

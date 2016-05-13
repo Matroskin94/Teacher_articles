@@ -47,37 +47,40 @@ $(document).ready(function() {
   }
 
   /*Заполнение таблицы данными*/
-  var show_art_table = function (data, jour_name) {
-  	var table = $('#article-data > tbody'),
+  var show_table = function (table,data, jour_name) {
+  	var table_body = $('#article-data > tbody'),
   		new_row = "",
   		new_elem = "",
   		authors_str = "";
-  		$("#article-data").css("opacity",0);
-  		table.children().slice(1).remove();
-  	//console.log(data);
-  	for(var i = 0; i<data[0]['authors'].length; i++){
-  		authors_str += data[0]['authors'][i]['name'];
-  		authors_str += "<br>"
+  	$("#article-data").css("opacity",0);
+  	$(table).children().children().slice(1).remove();
+  	//console.log($(table).attr("id"));
+  	if(table === "#article-data"){
+  		for(var i = 0; i<data[0]['authors'].length; i++){
+  			authors_str += data[0]['authors'][i]['name'];
+  			authors_str += "<br>"
+  		}
+  		for (var i = 0; i < data.length; i++) {
+  			new_elem = $("<tr></tr>");
+  			$(table).append(new_elem);
+  			new_elem.append("<td>"+authors_str+"</td>");
+  			new_elem.append("<td>"+data[i].art_name+"</td>");
+  			new_elem.append("<td>"+data[i].art_pages+"</td>");
+  			new_elem.append("<td>"+jour_name+"</td>");
+  		}
+  	}else if(table === "#authors-data"){
+  		for (var i = 0; i < data.length; i++) {
+  			new_elem = $("<tr></tr>");
+  			$(table).append(new_elem);
+  			new_elem.append("<td>"+data[i].name+"</td>");
+  			new_elem.append("<td>"+data[i].dc_degree+"</td>");
+  			new_elem.append("<td>"+data[i].organisation+"</td>");
+  		}
   	}
-  	for (var i = 0; i < data.length; i++) {
-  		new_elem = $("<tr></tr>");
-  		table.append(new_elem);
-  		new_elem.append("<td>"+authors_str+"</td>");
-  		new_elem.append("<td>"+data[i].art_name+"</td>");
-  		new_elem.append("<td>"+data[i].art_pages+"</td>");
-  		/*if(data[i].blocked == 1){
-  			new_elem.append("<td><div class='status blocked-art'></div></td>");
-  		}else{
-  			new_elem.append("<td><div class='status unblocked-art'></div></td>");
-  		}*/
-
-
-  		new_elem.append("<td>"+jour_name+"</td>");
-  		//new_elem.append("<td>"+data[i].pages+"</td>");
-  	}
-  		$("#article-data").removeClass("hidden");
-  		$("#article-data").addClass("table table-hover");
-  		$("#article-data").animate({"opacity":1},500);
+  		$(table).removeClass("hidden");
+  		$(table).addClass("table table-hover");
+  		$(table).animate({"opacity":1},500);
+  		//$(table).slideDown();
   }
 
   /*Вывод доступных журналов определённого класса*/
@@ -240,11 +243,12 @@ $(document).ready(function() {
 
   /*Обработка клика на строку таблицы*/
 	$(document).on("click", "tr", function(event){
-		if(!$(event.target).hasClass("status")&&!($(event.target).parent().hasClass('table-head'))){
+		if(!$(event.target).hasClass("status")&&!($(event.target).parent().hasClass('table-head'))&&!($(event.target).parent().parent().parent().hasClass("redacting"))){
 			if($(this).hasClass("choosen") ){
 				$(this).removeClass("choosen");
 				if($(event.target).closest("table").is("#article-data")){
 					$("#redact-article").fadeOut();
+					$("#delete-article").fadeOut();
 					$("#redact-article-form").fadeOut();
 					//$("#redact-article-form").hide();	
 				}else {
@@ -255,6 +259,7 @@ $(document).ready(function() {
 				$(this).addClass("choosen");
 				if($(event.target).closest("table").is("#article-data")){
 					$("#redact-article").fadeIn();
+					$("#delete-article").fadeIn();
 				}else {
 					$("#redact-authors").fadeIn();
 				}
@@ -307,7 +312,7 @@ $(document).ready(function() {
 			success:function(data) {
 				var resp = JSON.parse(data);
 				//console.log(resp);
-				show_art_table(resp,jour_name);
+				show_table("#article-data",resp,jour_name);
 			}
 		});
 	}
@@ -368,6 +373,8 @@ $(document).ready(function() {
 			data_send = {
 				"art_name": $(row_cells.get(1)).text(),
 			};
+			choosen_row.parent().parent().removeClass("table-hover");
+			choosen_row.parent().parent().addClass("redacting");
 			$.ajax({
 			url: 'script.php?req_type=ajax_get_art',
 			type: 'POST',
@@ -393,13 +400,9 @@ $(document).ready(function() {
 
 				for (var i = 0; i < resp[0]["authors"].length; i++) {
 					var new_elem = $("<tr></tr>");
-						//new_inp = $("<input disabled type='hidden' name='art_author"+i+"' value='"+resp[0]["authors"][i]["name"]+"'></input>");
 					redact_teble.append(new_elem);
 					new_elem.append("<td>"+resp[0]["authors"][i]["name"]+"</td>");
-					//new_elem.append(new_inp);
 					new_elem.append("<td><div class='status unblocked-art'></div></td>");
-					//console.log($("#save-change-art")[0]);
-					//new_inp.insertBefore($("#save-change-art")[0]);
 
 				}
 				var count = 0,
@@ -442,17 +445,10 @@ $(document).ready(function() {
 	$(document).on("click", "#save-change-art", function(){
 		$("#redact-article-form").hide("slow");
 		$(document).find("tr.choosen").removeClass("choosen");
-		/*#auth-redact-data > tbody > tr:nth-child(1) > input[type="hidden"]
-		$(redact_inputs.get(0)).val(resp["art_data"]["author"]);
-		$(redact_inputs.get(1)).val(resp["art_data"]["name"]);
-		$(redact_inputs.get(2)).val("test journal");
-		$(redact_inputs.get(3)).val(resp["art_data"]["pages"]);
-		$(redact_form.find("textarea").get(0)).val(resp["art_data"]["article_text"]);
-		*/
-
+		$("#article-data").addClass("table-hover");
+		$("#article-data").removeClass("redacting");
 		var redact_form = $("#redact-article-form"),
 			redact_inputs = redact_form.find("input"),
-			lit_inputs = redact_form.find("div"),
 			remove_auth = $("#auth-redact-data").find(".blocked-art").parent().prev();
 			add_auth = $(".author_selectors").find("select");
 			j = 0,
@@ -463,8 +459,6 @@ $(document).ready(function() {
 			"dell_authors" : []
 		};
 
-		//console.log(add_auth);
-		//console.log($(remove_auth.get(0)).text());
 		for(var i = 0;i < remove_auth.length; i++){
 			data_send["dell_authors"][i] = $(remove_auth.get(i)).text();
 		}
@@ -511,10 +505,6 @@ $(document).ready(function() {
   			data: 'jsonData=' + $.toJSON(data_send),
   			success: function(data){
   				var resp = JSON.parse(data);
-				//console.log("authors");	
-  				//console.log(resp['authors']);
-  				//console.log("journals");					
-  				//console.log(resp['journals']);
   				show_select(resp,$("#avail_journals")[0],$(".avail_authors")[0]);
   				if(resp['journals'].length>0){
   					$("#avail_journals").removeAttr("disabled");
@@ -529,7 +519,6 @@ $(document).ready(function() {
   					$(".avail_authors").attr("disabled",true);
   					$("#choose-journal-class").after("<span>&nbsp&nbsp<nbsp></nbsp>Журналы данного класса ещё не опубликованы</span>");
   				}
-  				//console.log(resp.length);
 
   			}
   		});
@@ -557,6 +546,124 @@ $(document).ready(function() {
   			}
 
   		});
+  	});
+
+  	/*Обработка кнопки редактирования автора*/
+  	$("#redact-authors").on("click", function(){
+  		$("#redact-author-form").removeClass("hidden");
+  		$("#redact-author-form").hide();
+  		$("#redact-author-form").slideDown();
+  		$("#redact-authors").fadeOut();
+  		var choosen_row = $(".choosen"),
+			row_cells = choosen_row.children(),
+			data_send = {
+				"aut_name": $(row_cells.get(0)).text(),
+			},
+			redact_inputs = $("#redact-author-form").find('input'),
+			redact_selector = $("#redact-author-form").find('select')[0],
+			select_options = $(redact_selector).find('option');
+		//console.log(select_options);
+		//choosen_row.parent().addClass("redacting-row");
+		choosen_row.parent().parent().removeClass("table-hover");
+		choosen_row.parent().parent().addClass("redacting");
+		$.ajax({
+			url: 'script.php?req_type=ajax_get_aut',
+			type: 'POST',
+			data: 'jsonData=' + $.toJSON(data_send),
+			success : function(data) {
+				var resp = JSON.parse(data);
+				console.log(resp);
+				for(var i = 0; i < select_options.length; i++){
+					//console.log($(select_options[i]).text());
+					if($(select_options[i]).text() == resp['class']){
+						$(select_options[i]).attr("selected",true);
+					}
+				}
+				$(redact_inputs[0]).val(resp['name']);
+				$(redact_inputs[1]).val(resp['dc_degree']);
+				$(redact_inputs[2]).val(resp['organisation']);
+			}
+		});
+
+  	});
+
+  	/*Обработка сохранения изменений автора*/
+
+  	$("#update-author").on("click",function(){
+  		console.log("uupdt_author");
+  		$("#redact-author-form").slideUp();
+  		var choosen_row = $(".choosen");
+  		$(".choosen").removeClass("choosen");
+		$("#authors-data").removeClass("redacting");
+		$("#authors-data").addClass("table-hover");
+
+  		var update_form = $("#redact-author-form"),
+			update_inputs = update_form.find("input"),
+			update_select = update_form.find("select")[0],
+			j = 0,
+			data_send = {
+			"aut_name" : $(update_inputs.get(0)).val(),
+			"dc_degree" : $(update_inputs.get(1)).val(),
+			"organisation" : $(update_inputs.get(2)).val(),
+			"auth_class" : $(update_select).val()
+		};
+
+		$.ajax({
+			url: 'script.php?req_type=ajax_update_aut',
+			type: 'POST',
+			data: 'jsonData=' + $.toJSON(data_send),
+			success : function(data) {
+				var resp = JSON.parse(data);
+				console.log(resp);
+				show_table("#authors-data",resp,null);
+			}
+
+		});
+		console.log(data_send);
+  		return false;
+  	});
+
+  	/*Выбор серии журнала для вывода автора*/
+
+  	$("#vew_author_by_class").on("change", function(){
+  		var auth_table = $("#authors-data"),
+  			data_send = {
+  			"class": $(this).val()
+  		};
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_ch_aut_class',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success: function(data){
+  				var resp = JSON.parse(data);
+  				show_table("#authors-data",resp,null);
+  			}
+  		});
+  	});
+
+  	/*Обработка кнопки удаления статьи*/
+
+  	$("#delete-article").on("click",function(){
+  		var choosen_row = $("#article-data").find(".choosen")[0],
+  			art_name = $(choosen_row).find('td')[1],
+  			art_class = $("#vew_journ_class").val(),
+  			jour_name = $("#journals").val(),
+  			data_send = {
+  				"art_name": $(art_name).text(),
+  				"art_class": art_class
+  			};
+  			console.log(jour_name);
+  			$.ajax({
+  				url: 'script.php?req_type=ajax_del_art',
+  				type: 'POST',
+  				data: 'jsonData=' + $.toJSON(data_send),
+  				success: function(data){
+  					//var resp = JSON.parse(data);
+  					//show_table("#authors-data",resp,null);
+  					show_journal_articles(jour_name);
+  				}
+  			});
+  		
   	});
 
   	/*Обработка кнопки добавления авторов при редактировании статьи*/

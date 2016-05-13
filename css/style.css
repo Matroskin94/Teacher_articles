@@ -148,7 +148,9 @@ background: #A3AC9A;
 }
 
 #redact-authors,
-#redact-article {
+#redact-article,
+#delete-article,
+#delete-author {
 	display: none;
 }
 

@@ -214,24 +214,12 @@ function update_data_in_db($mysqli, $update_table){
 				}
 			}
 			$add->close();
-
-			//echo "qr:".$qr."\n";
-			//echo "res:".$result."\n";
-			//$qr = "UPDATE `lit_sources` SET name = ".$arg_list[8]->name[i]." authors = ".$arg_list[8]->author[i]." pages = ".$arg_list[8]->pages[i]."";
-			//$stmt = $mysqli->prepare("UPDATE `lit_sources` SET name = ? , authors = ? , pages = ? WHERE article_id = ?");
-			//$stmt->bind_param("sssi",$arg_list[6]->name[$i],$arg_list[6]->author[$i],$arg_list[6]->pages[$i],$curr_id);
-			//echo "name:". $arg_list[6]->name[0]."";
-			//for($i = 0; $i < count($arg_list[6]->author);$i++){
-				/*$name = $arg_list[6]->name[$i];
-				$author = $arg_list[6]->author[$i];
-				$pages = $arg_list[6]->pages[$i];
-				$curr_id = (int)$arg_list[7];*/
-			//	$stmt->execute();
-			//}
-			return $qr;
-		break;
-		case 'user_update':
 			
+		break;
+		case 'author_update':
+			$qr = "UPDATE `authors` SET `name` = '".$arg_list[3]."', `dc_degree` = '".$arg_list[4]."', `class` = '".$arg_list[5]."', `organisation` = '".$arg_list[6]."' WHERE `author_id` = ".$arg_list[2]."";
+			$result = $mysqli->query($qr);
+			//return $result;
 		break;
 		default:
 			
@@ -345,14 +333,15 @@ function select_script($mysqli)
 			
 			case 'search': 
 				$arr_articles = array();
+				unset($_GET['req_type']);
 				if(($_POST['search_name'] === "")&&($_POST['search_author'] === "")){
-					return "not_found";
+					$arr_articles = "not_found";
 				}else if(($_POST['search_name'] != "")&&($_POST['search_author'] === "")){
 					$search_by_name = find_article($mysqli,"*","articles","art_name",$_POST['search_name']);
 					//var_dump($search_by_name);
 					$arr_articles[0] = $search_by_name;
 					$arr_articles[1] = "search";
-					return $arr_articles;	
+					//return $arr_articles;	
 				}else{
 					$search_by_author = find_article($mysqli,"author_id", "authors","name",$_POST['search_author']);
 					$search_by_name = find_article($mysqli,"article_id","articles","art_name",$_POST['search_name']);
@@ -372,7 +361,7 @@ function select_script($mysqli)
 							}
 						}
 						$arr_articles[count($arr_articles)] = "search";
-						return $arr_articles;
+						//return $arr_articles;
 					}
 					if(($search_by_name != "not_found") && ($search_by_author != "not_found")){
 						$i = 0;
@@ -388,21 +377,21 @@ function select_script($mysqli)
 							$search_by_author->data_seek(0);
 						}
 						if(count($arr_articles) == 0){
-							return "not_found";
+							$arr_articles = "not_found";
 						}else{
 							$arr_articles[count($arr_articles)] = "search";
-							return $arr_articles;
+							//return $arr_articles;
 						}
 					}else {
-						return "not_found";
+						$arr_articles = "not_found";
 					}
 
 				}
-				
-				//$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
-				unset($_GET['req_type']);
-				//echo '<script>location.replace("test_script.php");</script>';
 				//header ('Location: test_script.php');
+				//$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
+				//echo '<script>location.replace("test_script.php");</script>';
+				return $arr_articles;
+				//echo '<script>location.replace("test_script.php");</script>';
 			break;
 
 			default:
@@ -507,15 +496,12 @@ if(isset($_GET['req_type'])){
 			$art_pages = '';
 			$dell_aut = array();
 			$new_aut = array();
-			//echo "string: ".$_POST['jsonData']."\n";
-			//echo "art_id".$_SESSION;
 			print_r($_SESSION);
 			if(isset($_SESSION['ses_upd_art_id'])){
 				$curr_art_id = $_SESSION['ses_upd_art_id'];
 			}
 			$data = json_decode($_POST['jsonData']);
 			foreach ($data as $key=>$value) {
-				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
 				switch ($key) {
 					case 'art_name':
 						$art_name = $value;
@@ -544,16 +530,8 @@ if(isset($_GET['req_type'])){
 			if($curr_art_id){
 				echo update_data_in_db($mysqli,"article_update",$curr_art_id,$art_name,$art_pages,$dell_aut,$new_aut);
 			}
-			/*if(isset($_SESSION['ses_upd_art_id'])){
-				//echo "art_id: ".$_SESSION['ses_upd_art_id']."";
-				$id = $_SESSION['ses_upd_art_id'];
-				//echo "id".$id."";
-				update_data_in_db($mysqli, "article_update",$art_author, $art_name, $art_pages, $art_text, $art_literature, $id);
-			}else{
-				echo "art ID undefined";
-			}*/
-			//$response = json_encode($art_literature->author[0]);
-			//echo $response;
+			unset($_SESSION['ses_upd_art_id']);
+			session_destroy();
 		break;
 		case 'ajax_ch_art_class':
 			$data = json_decode($_POST['jsonData']);
@@ -615,7 +593,105 @@ if(isset($_GET['req_type'])){
 			}
 			$res = json_encode($journals_arr);
 			echo $res;
-			break;
+		break;
+
+		case 'ajax_get_aut':
+			session_start();
+			$aut_name = '';
+			$data = json_decode($_POST['jsonData']);
+			$response = array();
+			$i = 0;
+			foreach ($data as $key=>$value) {
+				if($key == "aut_name"){
+					$aut_name = $value;
+				}
+			}
+			$qr = "SELECT * FROM `authors` WHERE name = '".$aut_name."'";
+			$qr_res = $mysqli->query($qr); 
+			$response = $qr_res->fetch_assoc();
+			//$auth_of_class = select_from_db($mysqli,"name","authors","class",$art_row['class']);
+			$_SESSION['ses_upd_aut_id'] = $response['author_id'];
+			$response = json_encode($response);
+			echo $response;
+		break;
+
+		case 'ajax_update_aut':
+			$response = array();
+			$i = 0;
+			session_start();
+			if(isset($_SESSION['ses_upd_aut_id'])){
+				$aut_id = (int)$_SESSION['ses_upd_aut_id'];
+				//echo "aut_id".$aut_id;
+			}
+			$data = json_decode($_POST['jsonData']);
+			foreach ($data as $key => $value) {
+				if($key == "aut_name"){
+					$aut_name = $value;
+				}
+				if($key == "dc_degree"){
+					$aut_degree = $value;
+				}
+				if($key == "organisation"){
+					$aut_org = $value;
+				}
+				if($key == "auth_class"){
+					$aut_class = $value;
+				}
+			}
+
+			//$qr = "UPDATE ";
+			update_data_in_db($mysqli,"author_update",$aut_id,$aut_name,$aut_degree,$aut_class,$aut_org);
+			$result = select_from_db($mysqli,"*","authors","class",$aut_class);
+			if(is_object($result)){
+				while( $row = $result->fetch_assoc() ){ 
+					$response[$i] = $row;
+					$i++;
+				}
+			}
+			$response = json_encode($response);
+			echo $response;
+		break;
+
+		case 'ajax_ch_aut_class':
+			$data = json_decode($_POST['jsonData']);
+			$class = "";
+			$authors_arr = array();
+			$i = 0;
+			foreach ($data as $key=>$value) {
+				if($key == "class"){
+					$class = $value;
+				}
+			}
+			$result = select_from_db($mysqli,"*","authors","class",$class);
+			if(is_object($result)){
+				while( $row = $result->fetch_assoc() ){ 
+					$authors_arr[$i] = $row;
+					$i++;
+				}
+			}
+
+			$res = json_encode($authors_arr);
+			echo $res;
+		break;
+
+		case 'ajax_del_art':
+			$data = json_decode($_POST['jsonData']);
+			$art_name = "";
+			$art_class = "";
+			foreach ($data as $key => $value) {
+				if($key == "art_name"){
+					$art_name = $value;
+				}
+				/*if($key == "art_class"){
+					$art_class = $value;
+				}*/			
+			}	
+
+			$qr = "DELETE FROM `articles` WHERE art_name = '".$art_name."'";
+			$result = $mysqli->query($qr);
+			//$qr = select_from_db($mysqli,"*");
+		break;
+
 		default:
 			//select_script($mysqli);
 		break;
