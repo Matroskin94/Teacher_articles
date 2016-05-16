@@ -29,7 +29,7 @@ function select_from_db($mysqli,$field,$table){
 	if($args_num == 5){
 		if ($result = $mysqli->query("SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."'")) { 
 			//echo "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."' <br>";
-			$result->qr = "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."' <br>";
+			$result->qr = "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."'";
 			return $result;
 		}else{
 			return "not_found";
@@ -252,20 +252,45 @@ function find_article($mysqli,$field,$s_table,$s_line,$s_word){
 /* Вывод статей по авторам*/
 function show_s_results($arr)
 {	
-	//echo "<br>";
-	//var_dump($arr);
+	$curr_authors = "";
+	$curr_journal = "";
+	$authors_str = "";
+	echo '<table class="table table-hover" id="article-data" style="opacity: 1">';
+	echo '<tr class="table-head">';
+	echo '<th>Авторы</th><th>Статья</th><th>Страницы</th><th>Журнал</th>';
+	echo '</tr>';
 	for($i = 0;$i<count($arr);$i++){
-		if(is_object($arr[$i])){
-			while( $row = $arr[$i]->fetch_assoc() ){ 
-				echo "<hr>";
-				//var_dump($row);
-				echo "Название:".$row['art_name']."<br>";
-				/*echo "Автор:".$row['author']."<br>";
-				echo "Текст:".$row['article_text']."<br>";*/
-				echo "<hr>";
+		if(is_object($arr[$i]) == 1){
+			//while( $row = $arr[$i]->fetch_assoc() ){
+			echo '<tr>';
+			$curr_authors = $arr[$i]->authors;
+			$curr_journal = $arr[$i]->art_journal;
+			$row = $arr[$i]->fetch_assoc(); 
+			//echo "authors".$row['authors'];
+			//echo "<hr>";
+			//var_dump($row);
+			for($j = 0;$j < count($curr_authors);$j++){
+				$authors_str = $authors_str.$curr_authors[$j]." <br>";
 			}
+			echo '<td>'.$authors_str.'</td>';
+			echo '<td>'.$row['art_name'].'</td>';
+			echo '<td>'.$row['art_pages'].'</td>';
+			echo '<td>'.$curr_journal.'</td>';
+    		//<tbody><tr class="table-head">
+      		/*<th>Авторы</th>
+      		<th>Статья</th>
+      		<th>Страницы</th>
+      		<th>Журнал</th>
+    		</tr>
+  			<tr class="choosen"><td>Руголь Дмитрий Генадьевич<br>Богуш Вася<br></td><td>Распознавание движущихся объектов различными способами</td><td>40-60</td><td>Серия C №2 2016</td></tr></tbody></table>";*/
+			//echo "Название:".$row['art_name']."<br>";
+			/*echo "Автор:".$row['author']."<br>";
+			echo "Текст:".$row['article_text']."<br>";*/
+			echo '</tr>';
+			
 		}
 	}
+	echo '</table>';
 	//$arr->free();
 }
 
@@ -330,75 +355,103 @@ function select_script($mysqli)
 				echo '<script>location.replace("test_script.php");</script>';
 				//header ('Location: test_script.php');
 			break;
-			
-			case 'search': 
-				$arr_articles = array();
-				unset($_GET['req_type']);
-				if(($_POST['search_name'] === "")&&($_POST['search_author'] === "")){
-					$arr_articles = "not_found";
-				}else if(($_POST['search_name'] != "")&&($_POST['search_author'] === "")){
-					$search_by_name = find_article($mysqli,"*","articles","art_name",$_POST['search_name']);
-					//var_dump($search_by_name);
-					$arr_articles[0] = $search_by_name;
-					$arr_articles[1] = "search";
-					//return $arr_articles;	
-				}else{
-					$search_by_author = find_article($mysqli,"author_id", "authors","name",$_POST['search_author']);
-					$search_by_name = find_article($mysqli,"article_id","articles","art_name",$_POST['search_name']);
-					//var_dump($search_by_name);
-					//echo "<br>";
-					$i = 0;
-					if(($_POST['search_name'] === "")&&($_POST['search_author'] != "")&&($search_by_author != "not_found")){
-						while ($auth_row = $search_by_author->fetch_assoc()){
-							$auth_id = $auth_row['author_id'];
-							$sel_by_auth = select_from_db($mysqli,"article_id","article_author","author_id",$auth_id);
-							if(is_object($sel_by_auth)){
-								while($row = $sel_by_auth->fetch_assoc()){
-									$sel_by_art_id = select_from_db($mysqli,"*","articles","article_id",$row['article_id']);
-									$arr_articles[$i] = $sel_by_art_id;
-									$i++;
-								}
-							}
-						}
-						$arr_articles[count($arr_articles)] = "search";
-						//return $arr_articles;
-					}
-					if(($search_by_name != "not_found") && ($search_by_author != "not_found")){
-						$i = 0;
-						while ($name_row = $search_by_name->fetch_assoc()){
-							while($auth_row = $search_by_author->fetch_assoc()){
-								$sel_aut_name = select_from_db($mysqli,"article_id","article_author","article_id",$name_row['article_id'],"author_id",$auth_row['author_id']);
-								if($sel_aut_name->num_rows != NULL){
-									$aut_name_row = $sel_aut_name->fetch_assoc();
-									$arr_articles[$i] = select_from_db($mysqli,"*","articles","article_id",$aut_name_row['article_id']);
-									$i++;
-								}
-							}
-							$search_by_author->data_seek(0);
-						}
-						if(count($arr_articles) == 0){
-							$arr_articles = "not_found";
-						}else{
-							$arr_articles[count($arr_articles)] = "search";
-							//return $arr_articles;
-						}
-					}else {
-						$arr_articles = "not_found";
-					}
-
-				}
-				//header ('Location: test_script.php');
-				//$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
-				//echo '<script>location.replace("test_script.php");</script>';
-				return $arr_articles;
-				//echo '<script>location.replace("test_script.php");</script>';
-			break;
 
 			default:
 				# code...
 			break;
-	}	
-	return $script_result;
+		}	
+		return $script_result;
+	}
+
+	if(isset($_POST['search_but'])){
+		$arr_articles = array();
+		//unset($_GET['req_type']);
+		if(($_POST['search_name'] == "")&&($_POST['search_author'] == "")){
+			$arr_articles = "not_found";
+		}else if(($_POST['search_name'] != "")&&($_POST['search_author'] === "")){
+			$search_by_name = find_article($mysqli,"*","articles","art_name",$_POST['search_name']);
+			$arr_articles[0] = $search_by_name;
+			$arr_articles[1] = "search";
+					//return $arr_articles;	
+		}else{
+			$search_by_author = find_article($mysqli,"author_id", "authors","name",$_POST['search_author']);
+			$search_by_name = find_article($mysqli,"article_id","articles","art_name",$_POST['search_name']);
+					//var_dump($search_by_name);
+					//echo "<br>";
+			$i = 0;
+			if(($_POST['search_name'] == "")&&($_POST['search_author'] != "")&&($search_by_author != "not_found")){
+				while ($auth_row = $search_by_author->fetch_assoc()){
+					$auth_id = $auth_row['author_id'];
+					$sel_by_auth = select_from_db($mysqli,"article_id","article_author","author_id",$auth_id);
+					if(is_object($sel_by_auth)){
+						while($row = $sel_by_auth->fetch_assoc()){
+							$sel_by_art_id = select_from_db($mysqli,"*","articles","article_id",$row['article_id']);
+							$arr_articles[$i] = $sel_by_art_id;
+							$i++;
+						}
+					}
+				}
+				$arr_articles[count($arr_articles)] = "search";
+			}else if(($search_by_name != "not_found") && ($search_by_author != "not_found")){
+				$i = 0;
+				while ($name_row = $search_by_name->fetch_assoc()){
+					while($auth_row = $search_by_author->fetch_assoc()){
+						$sel_aut_name = select_from_db($mysqli,"article_id","article_author","article_id",$name_row['article_id'],"author_id",$auth_row['author_id']);
+						if($sel_aut_name->num_rows != NULL){
+							$aut_name_row = $sel_aut_name->fetch_assoc();
+							$arr_articles[$i] = select_from_db($mysqli,"*","articles","article_id",$aut_name_row['article_id']);
+							$i++;
+						}
+					}
+					$search_by_author->data_seek(0);
+				}
+				if(count($arr_articles) == 0){
+					$arr_articles = "not_found";
+				}else{
+					$arr_articles[count($arr_articles)] = "search";
+							//return $arr_articles;
+				}
+			}else {
+				$arr_articles = "not_found";
+			}
+
+		}
+		//header ('Location: test_script.php');
+		//$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
+		//echo '<script>location.replace("test_script.php");</script>';
+		$journal = "";
+		$authors = [];
+		$journal_name = "";
+		$j = 0;
+		for($i = 0;$i < count($arr_articles) - 1;$i++){
+			$art = $arr_articles[$i]->fetch_assoc();
+			//var_dump($art);
+			$art_journal = select_from_db($mysqli,'*','journals','journal_id',$art['journal_id']);
+			$journal = $art_journal->fetch_assoc();
+			$art_authors = select_from_db($mysqli,'author_id','article_author','article_id',$art['article_id']);
+			$journal_name = "Серия ".$journal['class']." №".$journal['number']." ".$journal['pub_year']."";
+			$j = 0;
+			while ($row = $art_authors->fetch_assoc()) {
+				$author = select_from_db($mysqli,"name","authors","author_id",$row['author_id']);
+				$author_row = $author->fetch_assoc();
+				//var_dump($author_row['name']);
+				//echo "author:".$author_row['name']."<br>";
+				$authors[$j] = $author_row['name'];
+				$j++;
+			}
+			//echo "auth".$author_str;
+			$arr_articles[$i]->authors = $authors;
+			$arr_articles[$i]->art_journal = $journal_name;
+			$arr_articles[$i]->data_seek(0);
+		}
+		/*while ($row = $auth_of_class->fetch_assoc()) {
+				$art_data['auth_class'][$i] = $row;
+				$i++;
+		}*/
+
+		unset($_POST['search_but']);
+		return $arr_articles;
+		//echo '<script>location.replace("test_script.php");</script>';
 	}
 
 }
@@ -690,6 +743,30 @@ if(isset($_GET['req_type'])){
 			$qr = "DELETE FROM `articles` WHERE art_name = '".$art_name."'";
 			$result = $mysqli->query($qr);
 			//$qr = select_from_db($mysqli,"*");
+		break;
+
+		case 'ajax_del_aut':
+			$data = json_decode($_POST['jsonData']);
+			$auth_name = "";
+			$resp = array();
+			$i = 0;
+			foreach ($data as $key => $value) {
+				if($key == "author_name"){
+					$auth_name = $value;
+				}
+				if($key == "author_class"){
+					$auth_class = $value;
+				}
+			}
+			$qr = "DELETE FROM `authors` WHERE name = '".$auth_name."'";
+			$result = $mysqli->query($qr);
+			$result = select_from_db($mysqli,"*","authors","class",$auth_class);
+			while($row = $result->fetch_assoc()){
+				$resp[$i] = $row;
+				$i++;
+			}
+			$resp = json_encode($resp);
+			echo $resp;
 		break;
 
 		default:

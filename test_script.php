@@ -199,6 +199,7 @@
   </table>
   <br>
   <button id="redact-authors">Редактировать</button>
+  <button id="delete-author">Удалить</button>
     <form id="redact-author-form" name="redact_author" class="hidden">
       <p>Фамилия имя отчество<input required type="text"></input></p>
       <p>Научная степень<input required type="text"></input></p>    
