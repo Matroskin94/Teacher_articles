@@ -64,6 +64,10 @@ th {
 	height: 45px;
 }
 
+.choose-jour {
+
+}
+
 
 ul.horizontal-menu {
 margin-right: 10px;
@@ -73,18 +77,18 @@ float: right;
 }
 
 ul.horizontal-menu li {
-display: inline;
-margin-right: 5px
+margin-right: 5px;
+display: inline-block;
 }
 
 ul.horizontal-menu li a {
-color: #888899;
-text-decoration: none;
-background: #f7f7f9;
 border-bottom: none;
 box-shadow: 1px 1px 1px black;
 /*border:1px solid black;*/
 padding: 5px 14px;
+text-decoration: none;
+color: #888899;
+background: #f7f7f9;
 }
 
 ul.horizontal-menu li a:hover {
@@ -98,7 +102,13 @@ background: #A3AC9A;
 /*<<- end HMS end ->>*/
 
 .main-field{
-	
+	background-color: #FCFCFC;
+	height: 500px;
+	overflow: auto;
+}
+.result-table {
+	max-height: 400px;
+	overflow:auto;
 }
 
 .vert-menu{
@@ -112,6 +122,10 @@ background: #A3AC9A;
 }
 .row {
 	overflow: hidden;
+}
+
+.green {
+	background-color: green;
 }
 
 .wrong-pass{
@@ -151,7 +165,8 @@ background: #A3AC9A;
 #redact-article,
 #delete-article,
 #delete-author {
-	display: none;
+	display: inline-block;
+	opacity: 0;
 }
 
 .status {
@@ -192,4 +207,33 @@ background: #A3AC9A;
 
 .hidden {
 	display: none;
+}
+
+.search_art {
+	display: inline-block;
+	margin-bottom: 10px;
+	width: 130px;
+	height: 25px;
+	border-radius: 2px;
+}
+
+.btn {
+	line-height: 0.9;
+	margin-bottom: 2px;
+	padding: 5.5px 12px;
+}
+
+.class_select {
+	padding: 2px 5px;
+	width:80px;
+	margin-left: 45px 
+}
+
+.jour_select {
+	padding: 2px 5px;	
+}
+
+#show_art_data {
+    position: relative;
+    float: right;
 }

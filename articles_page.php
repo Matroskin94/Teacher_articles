@@ -7,53 +7,99 @@
 <!DOCTYPE <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" type="text/css" href="css/style.css">
-  	<link rel="stylesheet" type="text/css" href="css/test_script.css">
-	<title></title>
+	 <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>Вестник ПГУ</title>
+
+  <!-- Bootstrap -->
+  <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link rel="stylesheet" type="text/css" href="css/test_script.css">
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+
+    <script src="lib/jquery/jquery-1.12.0.min.js"></script>
+    <script src="lib/jquery/jquery-ui.min.js"></script>
+    <script src="lib/jquery/jquery.json.js"></script>
 </head>
 <body>
-
+	
 	<?php
       $query_result = select_script($connection);
     ?>
 
-    <div class="main_div">
-    	<h1>Поиск</h1>
-    	<p>Поиск новостей по автору:</p>
-    	<form id="search-form" method="post" action="articles_page.php">
-    		<input class="search_art" type=text name="search_author" placeholder="Автор">
-    		<p>Поиск новостей по названию статьи:</p>
-    		<input class="search_art" type=text name="search_name" placeholder="Статья">
-    		<p><button id="search_but" name="search_but">Поиск</button></p>
-    	</form>
-<!--    	<table class="hidden" id="article-data">
-    		<tr class="table-head">
-    			<th>Авторы</th>
-    			<th>Статья</th>
-    			<th>Страницы</th>
-    			<th>Журнал</th>
-    		</tr>
-    	</table> -->
-    	<?php
-    		//echo "res:";
-    		//var_dump($query_result);
-    	if($query_result[count($query_result)-1] === "search"){
-    		show_s_results($query_result);
-    	}
-		if($query_result === "not_found"){
-    		echo "Поиск не дал результатов";
-    	}
-    	?>
-		<p><button id="show_art_data" hidden>Данные о статье</button></p>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-md-2"></div>
+			<div class="col-md-8 main-field"><!-- Основное поле -->
+				<h1>Вестник ПГУ</h1>
+				<div class="row">
+					<div class="col-md-6">
+						<form id="search-form" method="post" action="articles_page.php">
+							<input class="form-control search_art" type=text name="search_author" placeholder="Автор">
+							<input class="form-control search_art" type=text name="search_name" placeholder="Статья">
+							<button class="btn btn-default" id="search_but" name="search_but">Поиск</button>
+						</form>					
+					</div>
+					<div class="col-md-1"></div>
+					<div class="col-md-2">
+						<select size="1" name="journal-class" class="form-control class_select" id="vew_journ_class">
+							<option disabled selected="true">Серия</option>
+							<option>A</option>
+							<option>B</option>
+							<option>C</option>
+							<option>D</option>
+							<option>E</option>
+						</select>					
+					</div>
+					<div class="col-md-3">
+						<select id="journals" class="choose-jour form-control jour_select" size="1" name="journal" disabled="true">
+							<option disabled selected="true">Журнал</option>
+						</select>				
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-12">
+					<p id="message_p">Выберите необходимый журнал либо воспользуйтесь поиском</p>
+						<div class="table-responsive result-table">
+							<table class="table table-hover" id="article-data" hidden style="opacity: 1">
+								<tr class="table-head">
+									<th>Авторы</th><th>Статья</th><th>Страницы</th><th>Журнал</th>
+								</tr>
+								<?php
+								if($query_result[count($query_result)-1] === "search"){
+									show_s_results($query_result);
+								?>
+								<script type="text/javascript">
+										$("#article-data").fadeIn();
+										$("#message_p").text("Результат");
+								</script>
+								<?php
+								}
+								if($query_result === "not_found"){
+									echo "Поиск не дал результатов";
+								}
+								?>
+							</table>
+						</div>
+						<p><button id="show_art_data" hidden>Данные о статье</button></p>
+					</div>
+				</div>
 
 
-    </div>
-	
+			</div>
+			<div class="col-md-2"></div>
+		</div>
+	</div>
 
-
-	<script src="lib/jquery/jquery-1.12.0.min.js"></script>
-    <script src="lib/jquery/jquery-ui.min.js"></script>
-    <script src="lib/jquery/jquery.json.js"></script>
     <script src="js/app.js"></script>
     <script src="lib/bootstrap/js/bootstrap.min.js"></script>
 </body>

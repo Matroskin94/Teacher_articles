@@ -88,9 +88,8 @@ header("Content-Type: text/html; charset=utf-8");
                     <div class="menu-frame">
                       <ul class="horizontal-menu">
                         <li id="redact-authors"><a href="#">Редактировать</a></li>
+                        <li id="delete-author"><a href="#">Удалить</a></li>
                         <li><a href="#">Добавить</a></li>
-                        <li><a href="#">Удалить</a></li>
-
                       </ul>
                     </div>
 

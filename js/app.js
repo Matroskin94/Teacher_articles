@@ -13,6 +13,7 @@ $(document).ready(function() {
 
   }
 
+
   $(window).resize(function(){
   	if($(window).width()<770 && ($('.container-menu').hasClass("open-sidebar"))){
   		$('.container-menu').toggleClass("open-sidebar");
@@ -52,8 +53,11 @@ $(document).ready(function() {
   		new_row = "",
   		new_elem = "",
   		authors_str = "";
-  	$("#article-data").css("opacity",0);
+  	$(table).css("opacity",0);
+  	$(table).removeAttr("hidden");
   	$(table).children().children().slice(1).remove();
+  	$("#message_p").text("Результат");
+  	$("#message_p").fadeIn();
   	//console.log($(table).attr("id"));
   	if(table === "#article-data"){
   		for(var i = 0; i<data[0]['authors'].length; i++){
@@ -124,12 +128,12 @@ $(document).ready(function() {
   		new_select = document.createElement('select'),
   		first_option = document.createElement('option'),
   		f_opt_text = document.createTextNode("Автор"),
-  		selector_div = $(".author_selectors")[0],
-  		last_selector_opt = $(".author_selectors > p > select:last > option")
+  		last_selector_opt = $(".author_selectors > p > select:last > option"),
   		last_choosen_opt = $(".author_selectors > p > select:last > option:selected"),
   		new_option = "",
   		last_select_name = last_choosen_opt.parent().prop("name");
   		new_option_text = "";
+  		//console.log($("select.avail_authors:last"));
   		//console.log(last_choosen_opt);
   		//console.log(last_select_name);
   		//#redact-article-form > div > p:nth-child(1) > select
@@ -138,7 +142,7 @@ $(document).ready(function() {
   		$(first_option).attr("disabled",true);
   		$(first_option).attr("selected",true);
 
-  		console.log(last_selector_opt);
+  		//console.log(last_selector_opt);
   		//console.log(last_select_name[last_select_name.length - 1]);
   		$(new_select).attr("name", "author" + Number(Number(last_select_name[last_select_name.length - 1]) + 1));
   		//$(new_select).prop("name",last_choosen_opt.parent().prop("name")[last_choosen_opt.parent().prop("name").length - 1])
@@ -155,7 +159,6 @@ $(document).ready(function() {
   			}
   			auth_p.appendChild(new_select);
   			$(auth_p).insertBefore($("#add_author").parent());
-  			//selector_div.appendChild(auth_p);
   			if(last_selector_opt.length <= 3){
   				$("button#add_author").attr("disabled",true);
   			}
@@ -249,6 +252,7 @@ $(document).ready(function() {
   		for(var i = 0;i < words.length - 1; i++){
 			if((i+1) % 3 != 0){
 				tmp_name = tmp_name + words[i] + " ";
+				//console.log(tmp_name);
 			}
 			if((i+1) % 3 == 0){
 				if(i != words.length - 2){
@@ -259,7 +263,7 @@ $(document).ready(function() {
 				tmp_name = "";
 			}
 		}
-		console.log("func"+art_authors);
+		//console.log("func"+art_authors);
 		return art_authors;
   	}
 
@@ -275,8 +279,11 @@ $(document).ready(function() {
 					$("#show_art_data").fadeOut();
 					//$("#redact-article-form").hide();	
 				}else {
-					$("#redact-authors").fadeOut();
-					$("#delete-author").fadeOut();
+					$("#redact-authors, #delete-author").animate({
+						opacity:0
+					},400);
+					/*$("#redact-authors").fadeOut();
+					$("#delete-author").fadeOut();*/
 				}
 			}else{
 				$("tr").removeClass("choosen");
@@ -286,8 +293,12 @@ $(document).ready(function() {
 					$("#delete-article").fadeIn();
 					$("#show_art_data").fadeIn();
 				}else {
-					$("#redact-authors").fadeIn();
-					$("#delete-author").fadeIn();
+					$("#redact-authors, #delete-author").animate({
+						opacity:1
+					},400);
+
+					/*$("#redact-authors").fadeIn();
+					$("#delete-author").fadeIn();*/
 				}
 			}
 		}
@@ -316,6 +327,9 @@ $(document).ready(function() {
 	$(".choose-jour").change(function() {
 		//Серия D №2 2016-04-13
 		var jour_name = $(this).val();
+		$("#show_art_data").fadeOut();
+		$("#message_p").fadeOut();
+		$("#article-data").attr("hidden",true);
 		show_journal_articles(jour_name);
 	});
 
@@ -519,6 +533,11 @@ $(document).ready(function() {
   		document.getElementById("re_pass").addEventListener("input", validatePassword);
   	}
 
+  	/*Установка значения select при выборе автора при публикации*/
+  	$(".avail_authors").on("change",function(){
+  		console.log($(this).val());
+  	});
+
   	/*Выбор типа журнала для публикации статьи*/
   	$("#choose-journal-class").change(function(event){
   		var data_send = {
@@ -563,12 +582,23 @@ $(document).ready(function() {
   			data: 'jsonData=' + $.toJSON(data_send),
   			success: function(data){
   				var resp = JSON.parse(data);
-  				$("#journals").removeAttr("disabled");
-  				for(var i = 0;i<resp.length;i++){
-  					new_elem = $("<option>Серия "+resp[i]['class']+" №"+resp[i]['number']+" "+resp[i]['pub_year']+"</option>");
-  					$("#journals").append(new_elem);
+  				//console.log(resp);
+  				if(resp == null){
+   					$("#message_p").text("Журналы данной серии ещё не опубликованы");
+   					$("#message_p").hide();
+  					$("#message_p").fadeIn(500);
+  					$($("#journals").find("option").get(0)).prop("selected",true);
+  					$("#journals").attr("disabled",true);
+  					$("#article-data").fadeOut();
+  				}else{
+  					$("#journals").removeAttr("disabled");
+  					console.log($("#journals").children().length);
+  					$("#journals").children().slice(1).remove();
+  					for(var i = 0;i<resp.length;i++){
+  						new_elem = $("<option>Серия "+resp[i]['class']+" №"+resp[i]['number']+" "+resp[i]['pub_year']+"</option>");
+  						$("#journals").append(new_elem);
+  					}
   				}
-
   			}
 
   		});
@@ -724,13 +754,18 @@ $(document).ready(function() {
   			art_name = $(row_cells[1]).text(),
   			art_pages = $(row_cells[2]).text(),
   			art_journal = $(row_cells[3]).text(),
-  			art_p = document.createElement("p"),
+  			art_p = "",
   			article_data = "",
   			p_text = "",
   			words = [],
 			words = art_authors.split(" ");
+			if(document.getElementById("article_str") == null){
+				art_p = document.createElement("p")
+			}else {
+				art_p = document.getElementById("article_str");
+				$(art_p).text("")
+			}
 			art_authors = "";
-			console.log(words);
 			art_authors = split_by_coma(words);
 			article_data = "Авторы:"+art_authors+"Cтатья:"+art_name+" Журнал:"+art_journal+" (стр."+art_pages+")";
 			p_text = document.createTextNode(article_data);
@@ -752,8 +787,8 @@ $(document).ready(function() {
 
   	/*Обработка кнопки добавления авторов при добавлении статьи(доработать при не хватке количества авторов)*/
   	$("#add_author").on("click", function(){
-  		var prev_select = $(event.target).parent().parent().find(".author_selectors > p > select");
-  		console.log(prev_select);
+  		var prev_select = $(event.target).parent().parent().find("select");
+  		//console.log(prev_select);
   		add_auth_select();
   		return false;
   	});

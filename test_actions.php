@@ -12,31 +12,28 @@
   <link rel="stylesheet" type="text/css" href="css/test_script.css">
 </head>
 <body>
-  <h1>Добавление материала</h1>
-   <form id="art-form" class="reg-form" method="post" action="test_script.php?req_type=new_article">
-      <p>Введите название статьи: <input type=text name="art_name"  required value="art_name"></p>
-      <p id="choose_journ_p">Выберите серию журнала: <select id="choose-journal-class" name="jour_class">
-        <option disabled selected="true"> Серия </option>
-        <option>A</option>
-        <option>B</option>
-        <option>C</option>
-        <option>D</option>
-        <option>E</option>
-      </select></p>
-      <p>Выберите журнал: <select disabled id="avail_journals" name="journal">
-        <option disabled selected>Журнал</option>
-      </select></p>
-      <p>Введите страницы публикации: <input type=text name="pages"  required value="pages"></p>
-      <hr>
-      <div class="author_selectors">
-        <p>Выберите автора публикации: <select disabled name="author0" class="avail_authors">
-          <option disabled selected>Автор</option>
-        </select></p>
-        <p><button class="hidden" onclick="return false" id="add_author">Ещё автор</button></p>
-      </div>
-      
-      <input id="send-article-data" type=submit value="Добавить материал" name="send_article_data">
-    </form>
+  
+  <?php
+      $query_result = select_script($connection);
+    ?>
+
+   <h1>Поиск</h1>
+      <p>Поиск новостей по автору:</p>
+      <form id="search-form" method="post" action="test_actions.php">
+        <input class="search_art" type=text name="search_author" placeholder="Автор">
+        <p>Поиск новостей по названию статьи:</p>
+        <input class="search_art" type=text name="search_name" placeholder="Статья">
+        <p><button id="search_but" name="search_but">Поиск</button></p>
+      </form>
+      <?php
+      if($query_result[count($query_result)-1] === "search"){
+        show_s_results($query_result);
+      }
+    if($query_result === "not_found"){
+        echo "Поиск не дал результатов";
+      }
+      ?>
+    <!-- <p><button id="show_art_data" hidden>Данные о статье</button></p> -->
     <hr><hr>
 
 

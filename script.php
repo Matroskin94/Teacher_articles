@@ -255,10 +255,6 @@ function show_s_results($arr)
 	$curr_authors = "";
 	$curr_journal = "";
 	$authors_str = "";
-	echo '<table class="table table-hover" id="article-data" style="opacity: 1">';
-	echo '<tr class="table-head">';
-	echo '<th>Авторы</th><th>Статья</th><th>Страницы</th><th>Журнал</th>';
-	echo '</tr>';
 	for($i = 0;$i<count($arr);$i++){
 		if(is_object($arr[$i]) == 1){
 			//while( $row = $arr[$i]->fetch_assoc() ){
@@ -268,7 +264,7 @@ function show_s_results($arr)
 			$row = $arr[$i]->fetch_assoc(); 
 			//echo "authors".$row['authors'];
 			//echo "<hr>";
-			//var_dump($row);
+			$authors_str = "";
 			for($j = 0;$j < count($curr_authors);$j++){
 				$authors_str = $authors_str.$curr_authors[$j]." <br>";
 			}
@@ -276,21 +272,10 @@ function show_s_results($arr)
 			echo '<td>'.$row['art_name'].'</td>';
 			echo '<td>'.$row['art_pages'].'</td>';
 			echo '<td>'.$curr_journal.'</td>';
-    		//<tbody><tr class="table-head">
-      		/*<th>Авторы</th>
-      		<th>Статья</th>
-      		<th>Страницы</th>
-      		<th>Журнал</th>
-    		</tr>
-  			<tr class="choosen"><td>Руголь Дмитрий Генадьевич<br>Богуш Вася<br></td><td>Распознавание движущихся объектов различными способами</td><td>40-60</td><td>Серия C №2 2016</td></tr></tbody></table>";*/
-			//echo "Название:".$row['art_name']."<br>";
-			/*echo "Автор:".$row['author']."<br>";
-			echo "Текст:".$row['article_text']."<br>";*/
 			echo '</tr>';
 			
 		}
 	}
-	echo '</table>';
 	//$arr->free();
 }
 
@@ -365,19 +350,15 @@ function select_script($mysqli)
 
 	if(isset($_POST['search_but'])){
 		$arr_articles = array();
-		//unset($_GET['req_type']);
 		if(($_POST['search_name'] == "")&&($_POST['search_author'] == "")){
 			$arr_articles = "not_found";
 		}else if(($_POST['search_name'] != "")&&($_POST['search_author'] === "")){
 			$search_by_name = find_article($mysqli,"*","articles","art_name",$_POST['search_name']);
 			$arr_articles[0] = $search_by_name;
 			$arr_articles[1] = "search";
-					//return $arr_articles;	
 		}else{
 			$search_by_author = find_article($mysqli,"author_id", "authors","name",$_POST['search_author']);
 			$search_by_name = find_article($mysqli,"article_id","articles","art_name",$_POST['search_name']);
-					//var_dump($search_by_name);
-					//echo "<br>";
 			$i = 0;
 			if(($_POST['search_name'] == "")&&($_POST['search_author'] != "")&&($search_by_author != "not_found")){
 				while ($auth_row = $search_by_author->fetch_assoc()){
@@ -416,9 +397,6 @@ function select_script($mysqli)
 			}
 
 		}
-		//header ('Location: test_script.php');
-		//$script_result = find_article($mysqli, $_POST['search_table'],$_POST['search_field'],$_POST['search_word']);
-		//echo '<script>location.replace("test_script.php");</script>';
 		$journal = "";
 		$authors = [];
 		$journal_name = "";
@@ -434,8 +412,6 @@ function select_script($mysqli)
 			while ($row = $art_authors->fetch_assoc()) {
 				$author = select_from_db($mysqli,"name","authors","author_id",$row['author_id']);
 				$author_row = $author->fetch_assoc();
-				//var_dump($author_row['name']);
-				//echo "author:".$author_row['name']."<br>";
 				$authors[$j] = $author_row['name'];
 				$j++;
 			}
@@ -443,6 +419,8 @@ function select_script($mysqli)
 			$arr_articles[$i]->authors = $authors;
 			$arr_articles[$i]->art_journal = $journal_name;
 			$arr_articles[$i]->data_seek(0);
+			$authors = [];
+
 		}
 		/*while ($row = $auth_of_class->fetch_assoc()) {
 				$art_data['auth_class'][$i] = $row;
@@ -450,6 +428,8 @@ function select_script($mysqli)
 		}*/
 
 		unset($_POST['search_but']);
+		unset($_POST['search_author']);
+		unset($_POST['search_name']);
 		return $arr_articles;
 		//echo '<script>location.replace("test_script.php");</script>';
 	}

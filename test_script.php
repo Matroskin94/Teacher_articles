@@ -73,7 +73,7 @@
     </form>
     <hr><hr>
 
-    <!--<h1>Добавление материала</h1>
+    <h1>Добавление материала</h1>
     <form id="art-form" class="reg-form" method="post" action="test_script.php?req_type=new_article">
       <p>Введите название статьи: <input type=text name="art_name"  required value="art_name"></p>
       <p id="choose_journ_p">Выберите серию журнала: <select id="choose-journal-class" name="jour_class">
@@ -99,7 +99,6 @@
       <input id="send-article-data" type=submit value="Добавить материал" name="send_article_data">
     </form>
     <hr><hr>
- -->
   
   
   <h1>Поиск</h1>
@@ -111,14 +110,13 @@
       <p><button name="search_but">Поиск</button></p>
     </form>
     <?php
-        //var_dump($query_result);
-        //echo "qr_res:".$query_result[count($query_result)-1]."<br>";
         if($query_result[count($query_result)-1] === "search"){
             show_s_results($query_result);
         } else if($query_result === "not_found"){
             echo "Поиск не дал результатов";
         }
     ?>
+    <button id="show_art_data" hidden>Данные о статье</button>
   
   <hr><hr>
 
@@ -147,7 +145,7 @@
     </tr>
   </table>
   <br> 
-  <form id="redact-article-form" method="POST" class="hidden" action="test_script.php?req_type=redact_article">
+  <!--<form id="redact-article-form" method="POST" class="hidden" action="test_script.php?req_type=redact_article">
     <p>Введите название статьи: <input required type=text name="art_name"  required value=""></p>
     <p>Введите страницы публикации: <input required type=text name="pages"  required value=""></p>
     <table class="table" id="auth-redact-data">
@@ -158,7 +156,7 @@
     <p><button onclick="return false" id="redact_add_auth">Добавить автора</button></p>
     <div class="author_selectors hidden">
         <p>Выберите автора публикации: <select name="author0" class="avail_authors">
-          <option disabled selected>Автор</option>
+          <option disabled="true" selected="true">Автор</option>
         </select></p>
         <p><button onclick="return false" id="add_author">Ещё автор</button></p>
     </div>
@@ -168,7 +166,7 @@
 
   <button id="redact-article">Редактировать</button>
   <button id="delete-article">Удалить</button>
-  
+  -->
   <hr><hr>
 
   <h1>Вывод авторов</h1>
