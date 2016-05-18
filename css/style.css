@@ -106,8 +106,11 @@ background: #A3AC9A;
 	height: 500px;
 	overflow: auto;
 }
+.main-field > .row{
+	overflow:visible;
+}
 .result-table {
-	max-height: 400px;
+	max-height: 270px;
 	overflow:auto;
 }
 
@@ -159,14 +162,6 @@ background: #A3AC9A;
 
 .active-item{
 
-}
-
-#redact-authors,
-#redact-article,
-#delete-article,
-#delete-author {
-	display: inline-block;
-	opacity: 0;
 }
 
 .status {
@@ -226,14 +221,32 @@ background: #A3AC9A;
 .class_select {
 	padding: 2px 5px;
 	width:80px;
-	margin-left: 45px 
+	/*margin-left: 45px */
 }
 
 .jour_select {
-	padding: 2px 5px;	
+	padding: 2px 5px;
+	width:140px;
 }
-
+#journals, #vew_journ_class{
+	display:inline-block;
+}
 #show_art_data {
     position: relative;
     float: right;
+}
+
+.content-tab {
+	display:none;
+}
+.active-tab {
+	display: block !important;
+}
+
+
+#redact-authors,
+
+#delete-author {
+	display: inline-block;
+	opacity: 0;
 }

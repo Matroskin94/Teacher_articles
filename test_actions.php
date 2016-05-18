@@ -34,6 +34,7 @@
       }
       ?>
     <!-- <p><button id="show_art_data" hidden>Данные о статье</button></p> -->
+    
     <hr><hr>
 
 

@@ -37,19 +37,18 @@
 
 	<div class="container">
 		<div class="row">
-			<div class="col-md-2"></div>
-			<div class="col-md-8 main-field"><!-- Основное поле -->
+			<div class="col-md-8 col-md-offset-2 main-field"><!-- Основное поле -->
 				<h1>Вестник ПГУ</h1>
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-lg-6 col-md-7">
 						<form id="search-form" method="post" action="articles_page.php">
 							<input class="form-control search_art" type=text name="search_author" placeholder="Автор">
 							<input class="form-control search_art" type=text name="search_name" placeholder="Статья">
 							<button class="btn btn-default" id="search_but" name="search_but">Поиск</button>
 						</form>					
 					</div>
-					<div class="col-md-1"></div>
-					<div class="col-md-2">
+					
+					<div class="col-lg-offset-2 col-lg-4 col-md-offset-0 col-md-5">
 						<select size="1" name="journal-class" class="form-control class_select" id="vew_journ_class">
 							<option disabled selected="true">Серия</option>
 							<option>A</option>
@@ -57,17 +56,20 @@
 							<option>C</option>
 							<option>D</option>
 							<option>E</option>
-						</select>					
-					</div>
-					<div class="col-md-3">
+						</select>		
+
 						<select id="journals" class="choose-jour form-control jour_select" size="1" name="journal" disabled="true">
 							<option disabled selected="true">Журнал</option>
-						</select>				
+						</select>			
 					</div>
+					<!--<div class="col-md-3 col-xs-6">
+										
+					</div>-->
 				</div>
 				
 				<div class="row">
 					<div class="col-md-12">
+					<br>
 					<p id="message_p">Выберите необходимый журнал либо воспользуйтесь поиском</p>
 						<div class="table-responsive result-table">
 							<table class="table table-hover" id="article-data" hidden style="opacity: 1">
@@ -90,7 +92,7 @@
 								?>
 							</table>
 						</div>
-						<p><button id="show_art_data" hidden>Данные о статье</button></p>
+						<p><br><button id="show_art_data" hidden>Данные о статье</button></p>
 					</div>
 				</div>
 

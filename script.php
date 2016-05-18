@@ -290,6 +290,7 @@ function select_article($mysqli,$jour_articles){
 		$authors_id = select_from_db($mysqli,"author_id","article_author","article_id",$row['article_id']);
 		while($art_auth_row = $authors_id->fetch_assoc()){
 			$authors_of_art = select_from_db($mysqli,"*","authors","author_id",$art_auth_row['author_id']);
+
 			while ($auth_row = $authors_of_art->fetch_assoc()) {
 				$article_authors[$j] = $auth_row;
 				$j++;

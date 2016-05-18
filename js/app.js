@@ -31,6 +31,20 @@ $(document).ready(function() {
   	}
   });
 
+  $("#main-menu").on("click","a",function(event){
+  	var link = $(event.target).attr("href");
+  		
+  	$(".active-item").removeClass("active-item");	
+  	$($(event.target).parent()[0]).addClass("active-item")
+  	$(".active-tab").fadeOut(400,function(){
+  		$(".active-tab").removeClass("active-tab");
+  		$(link).addClass("active-tab");
+  		$(link).fadeIn(400);
+  	});
+  	
+
+  });
+
   /*Проверка паролей при отправке формы*/
 
   var check_passwords = function(form,event){
@@ -60,17 +74,18 @@ $(document).ready(function() {
   	$("#message_p").fadeIn();
   	//console.log($(table).attr("id"));
   	if(table === "#article-data"){
-  		for(var i = 0; i<data[0]['authors'].length; i++){
-  			authors_str += data[0]['authors'][i]['name'];
-  			authors_str += "<br>"
-  		}
   		for (var i = 0; i < data.length; i++) {
+  			for(var j = 0; j<data[i]['authors'].length; j++){
+  				authors_str += data[i]['authors'][j]['name'];
+  				authors_str += "<br>"
+  			}
   			new_elem = $("<tr></tr>");
   			$(table).append(new_elem);
   			new_elem.append("<td>"+authors_str+"</td>");
   			new_elem.append("<td>"+data[i].art_name+"</td>");
   			new_elem.append("<td>"+data[i].art_pages+"</td>");
   			new_elem.append("<td>"+jour_name+"</td>");
+  			authors_str = "";
   		}
   	}else if(table === "#authors-data"){
   		for (var i = 0; i < data.length; i++) {
@@ -289,6 +304,8 @@ $(document).ready(function() {
 				$("tr").removeClass("choosen");
 				$(this).addClass("choosen");
 				if($(event.target).closest("table").is("#article-data")){
+					console.log("click");
+					console.log($("#redact-article"));
 					$("#redact-article").fadeIn();
 					$("#delete-article").fadeIn();
 					$("#show_art_data").fadeIn();
@@ -344,7 +361,6 @@ $(document).ready(function() {
 				"jour_numb" : number,
 				"jour_year" : year
 			};
-		//console.log("numb: "+$.toJSON(jour_data));
 		$.ajax({
 			url: 'script.php?req_type=ajax_ch_jour',
 			type: 'POST',
@@ -432,6 +448,7 @@ $(document).ready(function() {
 				//console.log(resp);
 				redact_form.removeClass("hidden");
 				$("#redact-article").hide();
+				$("#delete-article").hide();
 				redact_form.hide();
 				redact_form.show("slow");
 				//console.log(redact_inputs.get(0));
