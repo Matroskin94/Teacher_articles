@@ -165,7 +165,7 @@ background: #A3AC9A;
 }
 
 .status {
-	margin: 6px 4px;
+	margin: 6px 20px;
 	width: 10px;
 	height: 10px;
 	border-radius: 5px;
@@ -176,7 +176,7 @@ background: #A3AC9A;
  	content: "Удалить"; 
     position: relative;
     top: -5px;
-    left: 30px;
+    left: 18px;
     color:red;
 }
 
@@ -184,7 +184,7 @@ background: #A3AC9A;
  	content: "Восстановить"; 
     position: relative;
     top: -5px;
-    left: 30px;
+    left: 18px;
     color:green;
 }
 
@@ -207,7 +207,7 @@ background: #A3AC9A;
 .search_art {
 	display: inline-block;
 	margin-bottom: 10px;
-	width: 130px;
+	width: 140px;
 	height: 25px;
 	border-radius: 2px;
 }
@@ -227,6 +227,7 @@ background: #A3AC9A;
 .jour_select {
 	padding: 2px 5px;
 	width:140px;
+	height: 25px;
 }
 #journals, #vew_journ_class{
 	display:inline-block;
@@ -243,10 +244,22 @@ background: #A3AC9A;
 	display: block !important;
 }
 
+#redact-article,
+#delete-article {
+	display: none;
+}
 
 #redact-authors,
-
 #delete-author {
 	display: inline-block;
 	opacity: 0;
+}
+
+.redact-input {
+	height: 25px;
+}
+.avail_authors {
+	width: 200px;
+    height: 25px;
+    padding: 2px 5px;
 }

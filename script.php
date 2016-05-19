@@ -338,7 +338,7 @@ function select_script($mysqli)
 				$ins_art_id = insert_to_db($mysqli,"new_article",$_POST['art_name'],$_POST['pages'],$_POST['jour_class'],$journal_id);
 				authors_link_art($mysqli,$ins_art_id);
 				unset($_GET['req_type']);
-				echo '<script>location.replace("test_script.php");</script>';
+				echo '<script>location.replace("admin_page.php");</script>';
 				//header ('Location: test_script.php');
 			break;
 
