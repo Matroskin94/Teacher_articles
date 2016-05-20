@@ -279,6 +279,23 @@ function show_s_results($arr)
 	//$arr->free();
 }
 
+/*Вывод годов с опубликованными журналами*/
+function show_years($mysqli,$jour_class){
+	$qr = "SELECT DISTINCT `pub_year` FROM `journals` WHERE `class` = '".$jour_class."'";
+	$result = $mysqli->query($qr);
+	$res = [];
+	$i = 0;
+	if(is_object($result) == 1){
+		while ($year = $result->fetch_assoc()) {
+			$res[$i] = $year['pub_year'];
+			$i++;
+		}
+		return $res;
+	}else{
+		return "not_found";
+	}
+
+}
 
 /*Выборка собдержимого статьи*/
 
@@ -309,19 +326,6 @@ function select_script($mysqli)
 	$script_result = NULL;
 	if(isset($_GET['req_type'])){
 		switch ($_GET['req_type']) {
-			case 'add_author':
-				insert_to_db($mysqli,"add_author", NULL, $_POST['author_name'],$_POST['dc_degree'],$_POST['type'],$_POST['organisation']);
-				unset($_GET['req_type']);
-				echo '<script>location.replace("test_script.php");</script>'; exit;
-				//header ('Location: test_script.php');
-				$script_result = "user_registred";
-			break;
-
-			case 'add_journal':
-				$script_result = insert_to_db($mysqli, "add_journal", NULL, $_POST["journal_name"], $_POST["type"], $_POST["pub_year"], $_POST["journal_number"], $_POST["journal_pages"], (int)$_POST["art_blocked"]);
-				echo '<script>location.replace("test_script.php");</script>'; exit;
-			break;
-
 			case 'new_article' :
 				$parts = explode(" ", $_POST['journal']);
 				$jour_class = $parts[1];
@@ -595,7 +599,6 @@ if(isset($_GET['req_type'])){
 			$i = 0;
 			if(is_object($result)){
 				while( $row = $result->fetch_assoc() ){ 
-          			//echo "<option>Серия ".$row['class']." №".$row['number']." ".$row['pub_year']."</option>";
 					$authors_arr[$i] = $row;
 					$i++;
 				}
@@ -742,6 +745,137 @@ if(isset($_GET['req_type'])){
 			$qr = "DELETE FROM `authors` WHERE name = '".$auth_name."'";
 			$result = $mysqli->query($qr);
 			$result = select_from_db($mysqli,"*","authors","class",$auth_class);
+			while($row = $result->fetch_assoc()){
+				$resp[$i] = $row;
+				$i++;
+			}
+			$resp = json_encode($resp);
+			echo $resp;
+		break;
+
+		case 'ajax_add_aut':
+			$i = 0;
+			$data = json_decode($_POST['jsonData']);
+			foreach ($data as $key => $value) {
+				if($key == "aut_name"){
+					$aut_name = $value;
+				}
+				if($key == "dc_degree"){
+					$aut_degree = $value;
+				}
+				if($key == "organisation"){
+					$aut_org = $value;
+				}
+				if($key == "auth_class"){
+					$aut_class = $value;
+				}
+			}
+			insert_to_db($mysqli,"add_author", NULL, $aut_name,$aut_degree,$aut_class,$aut_org);
+			$result = select_from_db($mysqli,"*","authors","class",$aut_class);
+
+			while($row = $result->fetch_assoc()){
+				$resp[$i] = $row;
+				$i++;
+			}
+			$resp = json_encode($resp);
+			echo $resp;
+		break;
+		case 'ajax_ch_jour_class':
+			$data = json_decode($_POST['jsonData']);
+			$avail_years = "";
+			foreach ($data as $key => $value) {
+				if($key == "jour_class"){
+					$jour_class = $value;
+				}
+			}
+			$avail_years = show_years($mysqli, $jour_class);
+			$resp = json_encode($avail_years);
+			echo $resp;
+
+		break;
+
+		case 'ajax_ch_jour_year':
+			$data = json_decode($_POST['jsonData']);
+			$jour_class = "";
+			$jour_year = "";
+			$avail_journals = "";
+			$i = 0;
+			foreach ($data as $key => $value) {
+				if($key == "class"){
+					$jour_class = $value;
+				}
+				if($key == "year"){
+					$jour_year = $value;
+				}
+			}
+			$result = select_from_db($mysqli,"*","journals","class",$jour_class,"pub_year",$jour_year);	
+			while ($jour_row = $result->fetch_assoc()) {
+				$avail_journals[$i] = $jour_row;
+				$i++;
+			}
+			$resp = json_encode($avail_journals);
+			echo $resp;
+
+		break;
+
+		case 'ajax_del_jour':
+			$data = json_decode($_POST['jsonData']);
+			$jour_class = "";
+			$jour_numb = "";
+			$jour_year = "";
+			$i = 0;
+			foreach ($data as $key => $value) {
+				if($key == "jour_class"){
+					$jour_class = $value;
+				}
+				if($key == "jour_year"){
+					$jour_year = $value;
+				}
+				if($key == "jour_numb"){
+					$jour_numb = $value;
+				}
+			}
+
+			$qr = "DELETE FROM `journals` WHERE class = '".$jour_class."' AND pub_year = '".$jour_year."' AND number = '".$jour_numb."'";
+			$result = $mysqli->query($qr);
+			$result = select_from_db($mysqli,"*","journals","class",$jour_class);
+			while($row = $result->fetch_assoc()){
+				$resp[$i] = $row;
+				$i++;
+			}
+			$resp = json_encode($resp);
+			echo $resp;
+
+		break;
+
+		case 'ajax_add_jour':
+			$data = json_decode($_POST['jsonData']);
+			$jour_name = "";
+			$jour_class = "";
+			$jour_year = "";
+			$jour_numb = "";
+			$jour_pages = "";
+			$i = 0;
+			foreach ($data as $key => $value) {
+				if($key == "jour_name"){
+					$jour_name = $value;
+				}
+				if($key == "jour_class"){
+					$jour_class = $value;
+				}
+				if($key == "jour_year"){
+					$jour_year = $value;
+				}
+				if($key == "jour_numb"){
+					$jour_numb = $value;
+				}
+				if($key == "jour_pages"){
+					$jour_pages = $value;
+				}
+			}
+			//$script_result = insert_to_db($mysqli, "add_journal", NULL, $jour_name, $jour_class, $jour_year, $jour_numb, $jour_pages, 0);
+
+			$result = select_from_db($mysqli, "*","journals","class",$jour_class,"pub_year",$jour_year);
 			while($row = $result->fetch_assoc()){
 				$resp[$i] = $row;
 				$i++;

@@ -184,16 +184,6 @@
       <th>Научная степень</th>
       <th>Организация</th>
     </tr>
-    <?php
-      /*$result = select_from_db($connection,"*","authors");
-      while( $row = $result->fetch_assoc() ){ 
-        echo "<tr>";
-        echo "<td>".$row['name']."</td>";
-        echo "<td>".$row['dc_degree']."</td>";
-        echo "<td>".$row['organisation']."</td>";
-        echo "</tr>";
-      }*/
-    ?>
   </table>
   <br>
   <button id="redact-authors">Редактировать</button>

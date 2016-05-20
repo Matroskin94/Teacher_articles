@@ -243,17 +243,16 @@ background: #A3AC9A;
 .active-tab {
 	display: block !important;
 }
-
+#redact-authors,
+#delete-author,
 #redact-article,
-#delete-article {
+#delete-article,
+#redact-journal,
+#delete-journal {
 	display: none;
 }
 
-#redact-authors,
-#delete-author {
-	display: inline-block;
-	opacity: 0;
-}
+
 
 .redact-input {
 	height: 25px;

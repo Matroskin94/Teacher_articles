@@ -1,10 +1,10 @@
 $(document).ready(function() {
 	console.log("ready");
-  $("[data-toggle]").click(function() {
-    var toggle_el = $(this).data("toggle");
-    $('.container-menu').toggleClass("open-sidebar");
+	$("[data-toggle]").click(function() {
+		var toggle_el = $(this).data("toggle");
+		$('.container-menu').toggleClass("open-sidebar");
     //$("#sidebar ul li.active-item a").toggleClass("#sidebar ul li.active-item a");
-  });
+});
   //console.log($('.container-menu').hasClass('open-sidebar'));
   if($(window).width()<770) {
   	$('.container-menu').removeClass("open-sidebar");
@@ -32,24 +32,24 @@ $(document).ready(function() {
   });
 
 
-	/*Переход по вкладкам*/
+  /*Переход по вкладкам*/
   $("#main-menu").on("click","a",function(event){
   	var link = $(event.target).attr("href");
   	switch (link){
   		case "#articles-tab" :
-  			$("#page-id").fadeOut(200,function(){
-  				$("#page-id").text("Публикации");
-  			});	
+  		$("#page-id").fadeOut(200,function(){
+  			$("#page-id").text("Публикации");
+  		});	
   		break;
   		case "#authors-tab" :
-  			$("#page-id").fadeOut(200,function(){
-  				$("#page-id").text("Авторы");
-  			});
+  		$("#page-id").fadeOut(200,function(){
+  			$("#page-id").text("Авторы");
+  		});
   		break;
   		case "#journals-tab" :
-  			$("#page-id").fadeOut(200,function(){
-  				$("#page-id").text("Журналы");
-  			});
+  		$("#page-id").fadeOut(200,function(){
+  			$("#page-id").text("Журналы");
+  		});
   		break;
   	}
   	$("#page-id").fadeIn(200);
@@ -83,28 +83,33 @@ $(document).ready(function() {
   /*Заполнение таблицы данными*/
   var show_table = function (table,data, jour_name) {
   	var table_body = $('#article-data > tbody'),
-  		new_row = "",
-  		new_elem = "",
-  		authors_str = "";
+  	new_row = "",
+  	new_elem = "",
+  	authors_str = "";
   	$(table).css("opacity",0);
   	$(table).removeAttr("hidden");
   	$(table).children().children().slice(1).remove();
-  	$("#message_p").text("Результат");
-  	$("#message_p").fadeIn();
   	//console.log($(table).attr("id"));
   	if(table === "#article-data"){
-  		for (var i = 0; i < data.length; i++) {
-  			for(var j = 0; j<data[i]['authors'].length; j++){
-  				authors_str += data[i]['authors'][j]['name'];
-  				authors_str += "<br>"
+  		if(data != null){
+  			for (var i = 0; i < data.length; i++) {
+  				for(var j = 0; j<data[i]['authors'].length; j++){
+  					authors_str += data[i]['authors'][j]['name'];
+  					authors_str += " <br>"
+  				}
+  				$("#message_p").text("Результат");
+  				$("#message_p").fadeIn();
+  				new_elem = $("<tr></tr>");
+  				$(table).append(new_elem);
+  				new_elem.append("<td>"+authors_str+"</td>");
+  				new_elem.append("<td>"+data[i].art_name+"</td>");
+  				new_elem.append("<td>"+data[i].art_pages+"</td>");
+  				new_elem.append("<td>"+jour_name+"</td>");
+  				authors_str = "";
   			}
-  			new_elem = $("<tr></tr>");
-  			$(table).append(new_elem);
-  			new_elem.append("<td>"+authors_str+"</td>");
-  			new_elem.append("<td>"+data[i].art_name+"</td>");
-  			new_elem.append("<td>"+data[i].art_pages+"</td>");
-  			new_elem.append("<td>"+jour_name+"</td>");
-  			authors_str = "";
+  		}else{
+  			$("#message_p").text("Статьи журнала ещё не опубликованы");
+  			$("#message_p").fadeIn();
   		}
   	}else if(table === "#authors-data"){
   		for (var i = 0; i < data.length; i++) {
@@ -114,50 +119,61 @@ $(document).ready(function() {
   			new_elem.append("<td>"+data[i].dc_degree+"</td>");
   			new_elem.append("<td>"+data[i].organisation+"</td>");
   		}
+  	}else if(table === "#journals-data"){
+  		for (var i = 0; i < data.length; i++) {
+  			new_elem = $("<tr></tr>");
+  			$(table).append(new_elem);
+  			new_elem.append("<td>"+data[i].name+"</td>");
+  			new_elem.append("<td>"+data[i].class+"</td>");
+  			new_elem.append("<td>"+data[i].number+"</td>");
+  			new_elem.append("<td>"+data[i].pub_year+"</td>");
+  			new_elem.append("<td>"+data[i].pages+"</td>");
+  		}
   	}
-  		$(table).removeClass("hidden");
-  		$(table).addClass("table table-hover");
-  		$(table).animate({"opacity":1},500);
+  	$(table).removeClass("hidden");
+  	$(table).addClass("table table-hover");
+  	$(table).animate({"opacity":1},500);
+  	$(table).fadeIn();
   		//$(table).slideDown();
-  }
-
-  /*Вывод доступных журналов определённого класса*/
-  var show_select = function(data,select_journal,select_author){
-  	for(var i = 0;i<data['journals'].length;i++){
-  		new_elem = $("<option>Серия "+data['journals'][i]['class']+" №"+data['journals'][i]['number']+" "+data['journals'][i]['pub_year']+"</option>");
-  		$(select_journal).append(new_elem);
   	}
-  	for(var i = 0;i<data['authors'].length;i++){
-  		new_elem = $("<option>"+data['authors'][i]['name']+"</option>");
-  		$(select_author).append(new_elem);
+
+  	/*Вывод доступных журналов определённого класса*/
+  	var show_select = function(data,select_journal,select_author){
+  		for(var i = 0;i<data['journals'].length;i++){
+  			new_elem = $("<option>Серия "+data['journals'][i]['class']+" №"+data['journals'][i]['number']+" "+data['journals'][i]['pub_year']+"</option>");
+  			$(select_journal).append(new_elem);
+  		}
+  		for(var i = 0;i<data['authors'].length;i++){
+  			new_elem = $("<option>"+data['authors'][i]['name']+"</option>");
+  			$(select_author).append(new_elem);
+  		}
   	}
-  }
 
-  /*Проверка совпадения паролей*/
-  var validatePassword = function(){
-  	var pass2=document.getElementById("pass").value;
-  	var pass1=document.getElementById("re_pass").value;
-  	if(pass1!=pass2){
-  		$(".reg-form").find(".wrong-pass").find("p").text('Пароли не совпадают!');
-  		$(".wrong-pass").animate({"opacity":1},500);
+  	/*Проверка совпадения паролей*/
+  	var validatePassword = function(){
+  		var pass2=document.getElementById("pass").value;
+  		var pass1=document.getElementById("re_pass").value;
+  		if(pass1!=pass2){
+  			$(".reg-form").find(".wrong-pass").find("p").text('Пароли не совпадают!');
+  			$(".wrong-pass").animate({"opacity":1},500);
+  		}
+  		else if(pass1 !== "" && pass2 == pass1){
+  			$(".wrong-pass").animate({"opacity":0},
+  				500,
+  				function(){
+  					$(".reg-form").find(".wrong-pass").find("p").text('Пароли совпадают!');
+  				}
+  				);
+  			$(".wrong-pass").animate({"opacity":1},500);
+
+
+  		}
   	}
-  	else if(pass1 !== "" && pass2 == pass1){
-  		$(".wrong-pass").animate({"opacity":0},
-  			500,
-  			function(){
-  				$(".reg-form").find(".wrong-pass").find("p").text('Пароли совпадают!');
-  			}
-  			);
-  		$(".wrong-pass").animate({"opacity":1},500);
 
-  		
-  	}
-  }
+  	/*Функция добавления select для авторов*/
 
-  /*Функция добавления select для авторов*/
-
-  var add_auth_select = function(butt_id){
-  	var p_div = document.createElement('div'),
+  	var add_auth_select = function(butt_id){
+  		var p_div = document.createElement('div'),
   		clear_div = document.createElement('div'),
   		select_div = document.createElement('div'),
   		sel_p = document.createElement('p'),
@@ -170,11 +186,11 @@ $(document).ready(function() {
   		new_option = "",
   		last_select_name = "";
 
-  	if(butt_id == "#add_author_new_art"){
-  		last_choosen_opt = $("#adding_auth_selector > div > select:last > option:selected");
-  		last_selector_opt = $("#adding_auth_selector > div > select:last > option");
-  	}
-  	if(butt_id == "#add_author_red_art"){
+  		if(butt_id == "#add_author_new_art"){
+  			last_choosen_opt = $("#adding_auth_selector > div > select:last > option:selected");
+  			last_selector_opt = $("#adding_auth_selector > div > select:last > option");
+  		}
+  		if(butt_id == "#add_author_red_art"){
   		//redacting_auth_selector
   		last_choosen_opt = $("#redacting_auth_selector > div > select:last > option:selected");
   		last_selector_opt = $("#redacting_auth_selector > div > select:last > option");
@@ -228,19 +244,19 @@ $(document).ready(function() {
 
   var add_lit_form = function(prev_input, prev_numb,add_butt){
   	var lit_div = document.createElement('div'),
-  		input_name = document.createElement('input'),
-  		input_authors = document.createElement('input'),
-  		input_pages = document.createElement('input'),
-  		p_name = document.createElement('p'),
-  		p_authors = document.createElement('p'),
-  		p_pages = document.createElement('p'),
-  		txt1 = document.createTextNode("Наименование источника: "),
-  		txt2 = document.createTextNode("Список авторов: "),
-  		txt3 = document.createTextNode("Страницы: "),
-		prev_numb = Number(prev_numb) + 1,
-		inputs = Array();
-	
-	$(lit_div).addClass("literature");	
+  	input_name = document.createElement('input'),
+  	input_authors = document.createElement('input'),
+  	input_pages = document.createElement('input'),
+  	p_name = document.createElement('p'),
+  	p_authors = document.createElement('p'),
+  	p_pages = document.createElement('p'),
+  	txt1 = document.createTextNode("Наименование источника: "),
+  	txt2 = document.createTextNode("Список авторов: "),
+  	txt3 = document.createTextNode("Страницы: "),
+  	prev_numb = Number(prev_numb) + 1,
+  	inputs = Array();
+
+  	$(lit_div).addClass("literature");	
 
 	//parentElem.appendChild(elem)
 	//Добавляет elem в конец дочерних элементов parentElem.				
@@ -270,16 +286,16 @@ $(document).ready(function() {
 	lit_div.appendChild(document.createElement("br"));
 	$(lit_div).insertBefore(add_butt);
 	return inputs;
-  }
+}
 
-	/*Проверка заполненности полей источников литературы*/
-	var check_lit_fields = function(prev_numb,butt){
-		var prev_lit = "literature_name" + prev_numb,
-			prev_auth = "literature_authors" + prev_numb,
-			prev_pages = "literature_pages" + prev_numb,
-			lit_val = $('input[name="'+prev_lit+'"]').val(),
-			auth_val = $('input[name="'+prev_auth+'"]').val(),
-			pages_val = $('input[name="'+prev_pages+'"]').val();
+/*Проверка заполненности полей источников литературы*/
+var check_lit_fields = function(prev_numb,butt){
+	var prev_lit = "literature_name" + prev_numb,
+	prev_auth = "literature_authors" + prev_numb,
+	prev_pages = "literature_pages" + prev_numb,
+	lit_val = $('input[name="'+prev_lit+'"]').val(),
+	auth_val = $('input[name="'+prev_auth+'"]').val(),
+	pages_val = $('input[name="'+prev_pages+'"]').val();
 
 		/*if((lit_val != "")&&(auth_val != "")&&(pages_val != "")){
 			return true;
@@ -305,10 +321,10 @@ $(document).ready(function() {
 
 	/*Разбиение массива авторов на ФИО через запятую*/
 
-  	var split_by_coma = function(words){
-  		var tmp_name = "",
-  			art_authors = "";
-  		for(var i = 0;i < words.length - 1; i++){
+	var split_by_coma = function(words){
+		var tmp_name = "",
+		art_authors = "";
+		for(var i = 0;i < words.length - 1; i++){
 			if((i+1) % 3 != 0){
 				tmp_name = tmp_name + words[i] + " ";
 				//console.log(tmp_name);
@@ -324,9 +340,9 @@ $(document).ready(function() {
 		}
 		//console.log("func"+art_authors);
 		return art_authors;
-  	}
+	}
 
-  /*Обработка клика на строку таблицы*/
+	/*Обработка клика на строку таблицы*/
 	$(document).on("click", "tr", function(event){
 		if(!$(event.target).hasClass("status")&&!($(event.target).parent().hasClass('table-head'))&&!($(event.target).parent().parent().parent().hasClass("redacting"))){
 			if($(this).hasClass("choosen") ){
@@ -337,12 +353,17 @@ $(document).ready(function() {
 					$("#redact-article-form").fadeOut();
 					$("#show_art_data").fadeOut();
 					//$("#redact-article-form").hide();	
-				}else {
-					$("#redact-authors, #delete-author").animate({
+				}else if($(event.target).closest("table").is("#authors-data")) {
+					/*$("#redact-authors, #delete-author").animate({
 						opacity:0
-					},400);
+					},400);*/
+					$("#redact-authors").fadeOut();
+					$("#delete-author").fadeOut();
 					/*$("#redact-authors").fadeOut();
 					$("#delete-author").fadeOut();*/
+				}else  if($(event.target).closest("table").is("#journals-data")){
+					$("#redact-journal").fadeOut();
+					$("#delete-journal").fadeOut();
 				}
 			}else{
 				$("tr").removeClass("choosen");
@@ -351,13 +372,17 @@ $(document).ready(function() {
 					$("#redact-article").fadeIn();
 					$("#delete-article").fadeIn();
 					$("#show_art_data").fadeIn();
-				}else {
-					$("#redact-authors, #delete-author").animate({
+				}else if($(event.target).closest("table").is("#authors-data")) {
+					/*$("#redact-authors, #delete-author").animate({
 						opacity:1
-					},400);
-
+					},400);*/
+					$("#redact-authors").fadeIn();
+					$("#delete-author").fadeIn();
 					/*$("#redact-authors").fadeIn();
 					$("#delete-author").fadeIn();*/
+				}else if($(event.target).closest("table").is("#journals-data")) {
+					$("#redact-journal").fadeIn();
+					$("#delete-journal").fadeIn();
 				}
 			}
 		}
@@ -368,7 +393,7 @@ $(document).ready(function() {
 	/*Добавление полей вводя для дополнительных авторов*/
 	$(document).on("click", "#add-litr", function(event){
 		var	prev_input = $(event.target).parent().find("#last");
-			prev_numb = prev_input.prop("name")[prev_input.prop("name").length - 1];
+		prev_numb = prev_input.prop("name")[prev_input.prop("name").length - 1];
 		if(check_lit_fields(prev_numb,$("#add-litr"))){
 			add_lit_form(prev_input,prev_numb,$('#add-litr'));
 			if(prev_numb >= 9){
@@ -396,20 +421,20 @@ $(document).ready(function() {
 	/**/
 	var show_journal_articles = function(jour_name){
 		var	batch = jour_name.substring(6,7),
-			number = jour_name.match(/№[\d]{1,2}/)[0].substring(1),
-			year = jour_name.match(/[\d]{4}/)[0],
-			jour_data = {
-				"jour_batch" : batch,
-				"jour_numb" : number,
-				"jour_year" : year
-			};
+		number = jour_name.match(/№[\d]{1,2}/)[0].substring(1),
+		year = jour_name.match(/[\d]{4}/)[0],
+		jour_data = {
+			"jour_batch" : batch,
+			"jour_numb" : number,
+			"jour_year" : year
+		};
 		$.ajax({
 			url: 'script.php?req_type=ajax_ch_jour',
 			type: 'POST',
 			data: 'jsonData=' + $.toJSON(jour_data),
 			success:function(data) {
 				var resp = JSON.parse(data);
-				//console.log(resp);
+				console.log(resp);
 				show_table("#article-data",resp,jour_name);
 				$("#add-art-but").show(200);
 			}
@@ -468,24 +493,24 @@ $(document).ready(function() {
 	/*Редактрование материала*/
 	$(document).on("click", "#redact-article", function(event){
 		var choosen_row = $(".choosen"),
-			row_cells = choosen_row.children(),
-			data_send = {
-				"art_name": $(row_cells.get(1)).text(),
-			};
-			choosen_row.parent().parent().removeClass("table-hover");
-			choosen_row.parent().parent().addClass("redacting");
-			$.ajax({
+		row_cells = choosen_row.children(),
+		data_send = {
+			"art_name": $(row_cells.get(1)).text(),
+		};
+		choosen_row.parent().parent().removeClass("table-hover");
+		choosen_row.parent().parent().addClass("redacting");
+		$.ajax({
 			url: 'script.php?req_type=ajax_get_art',
 			type: 'POST',
 			data: 'jsonData=' + $.toJSON(data_send),
 			success: function(data) {
 				//console.log(data);
 				var resp = JSON.parse(data),
-					redact_form = $("#redact-article-form"),
-					redact_inputs = redact_form.find("input"),
-					last_inputs = "",
-					redact_teble = redact_form.find("table"),
-					authors_select = redact_form.find("select");
+				redact_form = $("#redact-article-form"),
+				redact_inputs = redact_form.find("input"),
+				last_inputs = "",
+				redact_teble = redact_form.find("table"),
+				authors_select = redact_form.find("select");
 				$(authors_select.children()).remove();
 				$(authors_select).append("<option disabled>Автор</option>");
 				//console.log(resp);
@@ -507,7 +532,7 @@ $(document).ready(function() {
 
 				}
 				var count = 0,
-					not_add = false;
+				not_add = false;
 				for(var i =0; i < resp['auth_class'].length;i++){
 					if(count != resp[0]["authors"].length){
 						for(var j= 0; j < resp[0]["authors"].length; j++){
@@ -525,7 +550,7 @@ $(document).ready(function() {
 				}
 
 			} 
-			});
+		});
 	});
 
 	/*Обработка нажатия маркера удаления автора статьи*/
@@ -549,11 +574,11 @@ $(document).ready(function() {
 		$("#article-data").addClass("table-hover");
 		$("#article-data").removeClass("redacting");
 		var redact_form = $("#redact-article-form"),
-			redact_inputs = redact_form.find("input"),
-			remove_auth = $("#auth-redact-data").find(".blocked-art").parent().prev();
-			add_auth = $(".author_selectors").find("select");
-			j = 0,
-			data_send = {
+		redact_inputs = redact_form.find("input"),
+		remove_auth = $("#auth-redact-data").find(".blocked-art").parent().prev();
+		add_auth = $(".author_selectors").find("select");
+		j = 0,
+		data_send = {
 			"art_name" : $(redact_inputs.get(0)).val(),
 			"pages" : $(redact_inputs.get(1)).val(),
 			"new_authors" : [],
@@ -582,7 +607,7 @@ $(document).ready(function() {
 		$("#auth-redact-data > tbody > tr").remove();
 		$(".author_selectors").hide();
 		var old_selects = $(".author_selectors").find("p"),
-			select_count = old_selects.length;
+		select_count = old_selects.length;
 		for(var i = 1;i<select_count - 1;i++){
 			$(old_selects.get(i)).remove();
 		}
@@ -590,11 +615,11 @@ $(document).ready(function() {
 		return false;
 	});
 
-  	if(document.getElementById("re_pass")){
-  		document.getElementById("re_pass").addEventListener("input", validatePassword);
-  	}
+	if(document.getElementById("re_pass")){
+		document.getElementById("re_pass").addEventListener("input", validatePassword);
+	}
 
-  	/*Установка значения select при выборе автора при публикации*/
+	/*Установка значения select при выборе автора при публикации*/
   	/*$(".avail_authors").on("change",function(){
   		console.log($(this).val());
   	});
@@ -604,18 +629,18 @@ $(document).ready(function() {
   		var data_send = {
   			"journal_class": $(this).val()
   		};
-		if($(event.target).parent().parent().prop("id") == "add-art-form"){
+  		if($(event.target).parent().parent().prop("id") == "add-art-form"){
   			$.ajax({
-  			url: 'script.php?req_type=ajax_ch_art_class',
-  			type: 'POST',
-  			data: 'jsonData=' + $.toJSON(data_send),
-  			success: function(data){
-  				var resp = JSON.parse(data);
-  				console.log(resp);
-  				show_select(resp,$("#avail_journals")[0],$("#add-art-avail-auth")[0]);
-  				if(resp['journals'].length>0){
-  					$("#avail_journals").removeAttr("disabled");
-  					$("#add-art-avail-auth").removeAttr("disabled");
+  				url: 'script.php?req_type=ajax_ch_art_class',
+  				type: 'POST',
+  				data: 'jsonData=' + $.toJSON(data_send),
+  				success: function(data){
+  					var resp = JSON.parse(data);
+  					console.log(resp);
+  					show_select(resp,$("#avail_journals")[0],$("#add-art-avail-auth")[0]);
+  					if(resp['journals'].length>0){
+  						$("#avail_journals").removeAttr("disabled");
+  						$("#add-art-avail-auth").removeAttr("disabled");
   					//$("#add_author").removeAttr("disabled");
   					$("#add_author").removeClass("hidden");
   					$("#add_author").hide();
@@ -654,8 +679,8 @@ $(document).ready(function() {
   				var resp = JSON.parse(data);
   				console.log(resp);
   				if(resp == null){
-   					$("#message_p").text("Журналы данной серии ещё не опубликованы");
-   					$("#message_p").hide();
+  					$("#message_p").text("Журналы данной серии ещё не опубликованы");
+  					$("#message_p").hide();
   					$("#message_p").fadeIn(500);
   					$($("#journals").find("option").get(0)).prop("selected",true);
   					$("#journals").attr("disabled",true);
@@ -679,15 +704,18 @@ $(document).ready(function() {
   		$("#redact-author-form").removeClass("hidden");
   		$("#redact-author-form").hide();
   		$("#redact-author-form").slideDown();
+  		$("#update-author").parent().show();
   		$("#redact-authors").fadeOut();
+  		$("#delete-author").fadeOut();
+  		$("#vew_author_by_class").prop("disabled",true);
   		var choosen_row = $(".choosen"),
-			row_cells = choosen_row.children(),
-			data_send = {
-				"aut_name": $(row_cells.get(0)).text(),
-			},
-			redact_inputs = $("#redact-author-form").find('input'),
-			redact_selector = $("#redact-author-form").find('select')[0],
-			select_options = $(redact_selector).find('option');
+  		row_cells = choosen_row.children(),
+  		data_send = {
+  			"aut_name": $(row_cells.get(0)).text(),
+  		},
+  		redact_inputs = $("#redact-author-form").find('input'),
+  		redact_selector = $("#redact-author-form").find('select')[0],
+  		select_options = $(redact_selector).find('option');
 		//console.log(select_options);
 		//choosen_row.parent().addClass("redacting-row");
 		choosen_row.parent().parent().removeClass("table-hover");
@@ -711,7 +739,7 @@ $(document).ready(function() {
 			}
 		});
 
-  	});
+	});
 
   	/*Обработка сохранения изменений автора*/
 
@@ -720,40 +748,44 @@ $(document).ready(function() {
   		$("#redact-author-form").slideUp();
   		var choosen_row = $(".choosen");
   		$(".choosen").removeClass("choosen");
-		$("#authors-data").removeClass("redacting");
-		$("#authors-data").addClass("table-hover");
+  		$("#authors-data").removeClass("redacting");
+  		$("#authors-data").addClass("table-hover");
+  		$("#vew_author_by_class").removeAttr("disabled");
 
   		var update_form = $("#redact-author-form"),
-			update_inputs = update_form.find("input"),
-			update_select = update_form.find("select")[0],
-			j = 0,
-			data_send = {
-			"aut_name" : $(update_inputs.get(0)).val(),
-			"dc_degree" : $(update_inputs.get(1)).val(),
-			"organisation" : $(update_inputs.get(2)).val(),
-			"auth_class" : $(update_select).val()
-		};
+  		update_inputs = update_form.find("input"),
+  		update_select = update_form.find("select")[0],
+  		j = 0,
+  		data_send = {
+  			"aut_name" : $(update_inputs.get(0)).val(),
+  			"dc_degree" : $(update_inputs.get(1)).val(),
+  			"organisation" : $(update_inputs.get(2)).val(),
+  			"auth_class" : $(update_select).val()
+  		};
+  		console.log(data_send);
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_update_aut',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success : function(data) {
+  				var resp = JSON.parse(data);
+  				console.log(resp);
+  				show_table("#authors-data",resp,null);
+  				$("#vew_author_by_class").removeAttr("disabled");
+  			}
 
-		$.ajax({
-			url: 'script.php?req_type=ajax_update_aut',
-			type: 'POST',
-			data: 'jsonData=' + $.toJSON(data_send),
-			success : function(data) {
-				var resp = JSON.parse(data);
-				console.log(resp);
-				show_table("#authors-data",resp,null);
-			}
+  		});
+		//console.log(data_send);
+		return false;
+	});
 
-		});
-		console.log(data_send);
-  		return false;
-  	});
+
 
   	/*Выбор серии журнала для вывода автора*/
 
   	$("#vew_author_by_class").on("change", function(){
   		var auth_table = $("#authors-data"),
-  			data_send = {
+  		data_send = {
   			"class": $(this).val()
   		};
   		$.ajax({
@@ -771,19 +803,19 @@ $(document).ready(function() {
 
   	$("#delete-article").on("click",function(){
   		var choosen_row = $("#article-data").find(".choosen")[0],
-  			art_name = $(choosen_row).find('td')[1],
-  			art_class = $("#vew_journ_class").val(),
-  			jour_name = $("#journals").val(),
-  			data_send = {
-  				"art_name": $(art_name).text(),
-  				"art_class": art_class
-  			};
-  			console.log(jour_name);
-  			$.ajax({
-  				url: 'script.php?req_type=ajax_del_art',
-  				type: 'POST',
-  				data: 'jsonData=' + $.toJSON(data_send),
-  				success: function(data){
+  		art_name = $(choosen_row).find('td')[1],
+  		art_class = $("#vew_journ_class").val(),
+  		jour_name = $("#journals").val(),
+  		data_send = {
+  			"art_name": $(art_name).text(),
+  			"art_class": art_class
+  		};
+  		console.log(jour_name);
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_del_art',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success: function(data){
   					//var resp = JSON.parse(data);
   					//show_table("#authors-data",resp,null);
   					show_journal_articles(jour_name);
@@ -796,54 +828,82 @@ $(document).ready(function() {
 
   	$("#delete-author").on("click",function(){
   		var choosen_row = $("#authors-data").find(".choosen")[0],
-  			auth_name = $(choosen_row).find("td")[0],
-  			auth_class = $("#vew_author_by_class").val();
-  			data_send = {
-  				"author_name": $(auth_name).text(),
-  				"author_class": auth_class
-  			};
-  			console.log(data_send);
-  			$.ajax({
-  				url: 'script.php?req_type=ajax_del_aut',
-  				type: 'POST',
-  				data: 'jsonData=' + $.toJSON(data_send),
-  				success: function(data){
-  					var resp = JSON.parse(data);
-  					console.log(resp);
+  		auth_name = $(choosen_row).find("td")[0],
+  		auth_class = $("#vew_author_by_class").val();
+  		data_send = {
+  			"author_name": $(auth_name).text(),
+  			"author_class": auth_class
+  		};
+  		$("#delete-author").fadeOut();
+  		$("#redact-authors").fadeOut();
+  		console.log(data_send);
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_del_aut',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success: function(data){
+  				var resp = JSON.parse(data);
+  				console.log(resp);
   					//show_table("#authors-data",resp,null);
   					show_table("#authors-data",resp,null);
   				}
   			});
   	});
 
+  	/*Обработка кнопки удаления журнала*/
+
+  	$("#delete-journal").on("click",function(){
+  		var choosen_row = $("#journals-data").find(".choosen")[0],
+  		row_cells = $(choosen_row).children(),
+  		data_send = {
+  			"jour_class" : $(row_cells[1]).text(),
+  			"jour_numb" : $(row_cells[2]).text(),
+  			"jour_year" : $(row_cells[3]).text()
+  		};
+			//console.log(data_send);
+			$.ajax({
+				url: 'script.php?req_type=ajax_del_jour',
+				type: 'POST',
+				data: 'jsonData=' + $.toJSON(data_send),
+				success: function(data){
+					var resp = JSON.parse(data);
+					console.log(resp);
+  					//show_table("#authors-data",resp,null);
+  					//show_table("#journals-data",resp,null);
+  				}
+  			});
+
+		});
+
   	/*Обработка кнопки получения данных о статье*/
   	$("#show_art_data").on("click",function(){
   		var choosen_row = $("table").find(".choosen")[0],
-  			row_cells = $(choosen_row).children(),
-  			art_authors = $(row_cells[0]).text(),
-  			art_name = $(row_cells[1]).text(),
-  			art_pages = $(row_cells[2]).text(),
-  			art_journal = $(row_cells[3]).text(),
-  			art_p = "",
-  			article_data = "",
-  			p_text = "",
-  			words = [],
-			words = art_authors.split(" ");
-			if(document.getElementById("article_str") == null){
-				art_p = document.createElement("p")
-			}else {
-				art_p = document.getElementById("article_str");
-				$(art_p).text("")
-			}
-			art_authors = "";
-			art_authors = split_by_coma(words);
-			article_data = "Авторы:"+art_authors+"Cтатья:"+art_name+" Журнал:"+art_journal+" (стр."+art_pages+")";
-			p_text = document.createTextNode(article_data);
-  			art_p.appendChild(p_text);
-  			$(art_p).insertAfter("#show_art_data");
-  			$(art_p).hide();
-  			$(art_p).prop("id","article_str");
-  			$("#article_str").fadeIn();
+  		row_cells = $(choosen_row).children(),
+  		art_authors = $(row_cells[0]).text(),
+  		art_name = $(row_cells[1]).text(),
+  		art_pages = $(row_cells[2]).text(),
+  		art_journal = $(row_cells[3]).text(),
+  		art_p = "",
+  		article_data = "",
+  		p_text = "",
+  		words = [],
+  		words = art_authors.split(" ");
+  		console.log(art_authors);
+  		if(document.getElementById("article_str") == null){
+  			art_p = document.createElement("p")
+  		}else {
+  			art_p = document.getElementById("article_str");
+  			$(art_p).text("")
+  		}
+  		art_authors = "";
+  		art_authors = split_by_coma(words);
+  		article_data = "Авторы:"+art_authors+"Cтатья:"+art_name+" Журнал:"+art_journal+" (стр."+art_pages+")";
+  		p_text = document.createTextNode(article_data);
+  		art_p.appendChild(p_text);
+  		$(art_p).insertAfter("#show_art_data");
+  		$(art_p).hide();
+  		$(art_p).prop("id","article_str");
+  		$("#article_str").fadeIn();
   	});
 
   	/*Обработка кнопки добавления авторов при редактировании статьи*/
@@ -864,7 +924,7 @@ $(document).ready(function() {
   		return false;
   	});
 
-  	/*Обработка кнопки добавления статьи*/
+  	/*Обработка кнопки открытия формы добавления статьи*/
   	$("#add-art-but").on("click",function(){
   		$("#add-art-form").slideDown(200);
   		$("#add-art-but").fadeOut(200);
@@ -873,5 +933,143 @@ $(document).ready(function() {
   		$(".choosen").removeClass("choosen");
   		//console.log("adding article");
   	});
-	
-});
+
+  	/*Обработка кнопки открытия формы для добавления автора */
+  	$("#add-aut-but").on("click",function(){
+  		$("#authors-data").fadeOut(200, function(){
+  			$("#redact-author-form").slideDown();
+  		});
+  		$("#redact-authors").fadeOut();
+  		$("#new-author").parent().show();
+  		$("#delete-author").fadeOut();
+  		$("#vew_author_by_class").prop("disabled",true);
+  		$("#update-author").hide();
+  	});
+
+  	/*Обработка кнопки добавления автора*/
+  	$("#new-author").on("click",function(){
+  		$("#redact-author-form").slideUp();
+  		$("#vew_author_by_class").removeAttr("disabled");
+  		var update_form = $("#redact-author-form"),
+  		update_inputs = update_form.find("input"),
+  		update_select = update_form.find("select")[0],
+  		j = 0,
+  		data_send = {
+  			"aut_name" : $(update_inputs.get(0)).val(),
+  			"dc_degree" : $(update_inputs.get(1)).val(),
+  			"organisation" : $(update_inputs.get(2)).val(),
+  			"auth_class" : $(update_select).val()
+  		};
+
+
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_add_aut',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success : function(data) {
+  				var resp = JSON.parse(data);
+  				console.log(resp);
+  				show_table("#authors-data",resp,null);
+  				$("#vew_author_by_class").val($(update_select).val());
+  			}
+  		});
+  	});
+
+  	/*Обработка кнопки добавления журнала*/
+
+  	$("#add-jour-but").on("click", function(){
+  		$("#redact-journal").fadeOut();
+  		$("#delete-journal").fadeOut();
+  		$("#journals-data").fadeOut();
+  		$("#vew_journal_year").prop("disabled",true);
+  		$("#vew_journal_by_class").prop("disabled",true);
+  		$("#add-jour-but").fadeOut();
+  		$("#add-journal-form").slideDown();
+  		document.getElementById('vew_journal_by_class').options[0].selected=true;
+  	});
+
+  	/*Обработка кнопки создания журнала*/
+  	$("#new_journal_but").on("click",function(){
+  		//$("#add-journal-form").slideDown();
+  		var form_inputs = $("#add-journal-form").find("input"),
+  			form_select = $("#add-journal-form").find("select")[0],
+  			data_send = {
+  			"jour_name" : $(form_inputs.get(0)).val(),
+  			"jour_class" : $(form_select).val(),
+  			"jour_year" : $(form_inputs.get(1)).val(),
+  			"jour_numb" : $(form_inputs.get(2)).val(),
+  			"jour_pages" : $(form_inputs.get(3)).val(),
+  		};
+  		console.log(data_send);
+  		//$("#new_journal_but").fadeOut();
+  		$("#add-jour-but").fadeIn();
+  		$("#add-journal-form").slideUp();
+  		$("#vew_journal_by_class").prop("disabled",false);
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_add_jour',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success : function(data) {
+  				var resp = JSON.parse(data);
+  				console.log(resp);
+  				show_table("#journals-data",resp,null);
+  				//show_table("#authors-data",resp,null);
+  				//$("#vew_author_by_class").val($(update_select).val());
+  			}
+  		});
+  	});
+
+  	/*Обработка выблора класса журнала для просмотра*/
+  	$("#vew_journal_by_class").on("change", function(event){
+  		var jour_class = $(event.target).val(),	
+  		data_send = {
+  			"jour_class" : jour_class
+  		};
+  		console.log(data_send);
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_ch_jour_class',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success : function(data) {
+  				var resp = JSON.parse(data);
+  				if(resp.length != 0){
+  					$("#journals-res").text("Выберите год");
+  					$("#journals-res").hide();
+  					$("#journals-res").fadeIn(200);
+  					$("#vew_journal_year").removeAttr("disabled");
+  					$("#journals").children().slice(1).remove();
+  					for(var i = 0; i < resp.length; i++){
+  						year = $('<option>'+resp[i]+'</option>');
+  						$("#vew_journal_year").append(year);
+  					}
+  				}else{
+  					$("#journals-res").text("Журналы не опубликованы");
+  					$("#journals-res").hide();
+  					$("#journals-res").fadeIn(200);
+  				}
+			}
+		});
+
+
+  	});
+
+  	/*Просмотр журналов определённого года*/
+  	$("#vew_journal_year").on("change",function(event){
+  		var data_send = {
+  			"class" : $("#vew_journal_by_class").val(),
+  			"year" : $(event.target).val()
+  		};
+
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_ch_jour_year',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success : function(data) {
+  				var resp = JSON.parse(data);
+  				//console.log(resp);
+  				show_table("#journals-data",resp,null);
+			}
+		});
+	});
+
+  });
