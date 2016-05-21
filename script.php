@@ -884,6 +884,29 @@ if(isset($_GET['req_type'])){
 			echo $resp;
 		break;
 
+		case 'ajax_get_jour':
+			$data = json_decode($_POST['jsonData']);
+			$jour_class = "";
+			$jour_numb = "";
+			$jour_year = "";
+			$i = 0;
+			foreach ($data as $key => $value) {
+				if($key == "jour_class"){
+					$jour_class = $value;
+				}
+				if($key == "jour_year"){
+					$jour_year = $value;
+				}
+				if($key == "jour_numb"){
+					$jour_numb = $value;
+				}
+			}
+			$result = select_from_db($mysqli,"*","journals","class",$jour_class,"pub_year",$jour_year,"number",$jour_numb);
+			$jour_row = $result->fetch_assoc();
+			$resp = json_encode($jour_row);
+			echo $resp;
+		break;
+
 		default:
 			//select_script($mysqli);
 		break;

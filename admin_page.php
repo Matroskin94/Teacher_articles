@@ -416,7 +416,8 @@ $connection = db_connect();
                       <input class="form-control redact-input" type="text" name="journal_pages" required placeholder="Страницы">
                     </div>
                     <div class="col-md-12">
-                    <button onclick="return false" class="btn btn-primary" id="new_journal_but" name="send_article_data"> Добавить журнал </button>
+                    <p hidden ><button onclick="return false" class="btn btn-primary" id="new_journal_but" name="send_article_data"> Добавить журнал </button></p>
+                    <p hidden ><button class="btn btn-primary" onclick="return false" id="update_jour_but">Сохранить изменения</button></p>
                     </div>
                   </form>
                   <div class="row">

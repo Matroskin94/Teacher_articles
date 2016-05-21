@@ -975,25 +975,53 @@ var check_lit_fields = function(prev_numb,butt){
   		});
   	});
 
-  	/*Обработка кнопки добавления журнала*/
 
-  	$("#add-jour-but").on("click", function(){
-  		$("#redact-journal").fadeOut();
-  		$("#delete-journal").fadeOut();
-  		$("#journals-data").fadeOut();
-  		$("#vew_journal_year").prop("disabled",true);
-  		$("#vew_journal_by_class").prop("disabled",true);
-  		$("#add-jour-but").fadeOut();
-  		$("#add-journal-form").slideDown();
-  		document.getElementById('vew_journal_by_class').options[0].selected=true;
-  	});
+  	/*
+  	  Обработка кнопки добавления журнала
+	  Обработка кнопки редактирования журнала
+	  */
 
-  	/*Обработка кнопки создания журнала*/
-  	$("#new_journal_but").on("click",function(){
+	  $("#add-jour-but, #redact-journal").on("click", function(event){
+	  	$("#redact-journal, #delete-journal,#journals-data, #add-jour-but").fadeOut(200, function(){
+	  		$("#add-journal-form").slideDown();
+	  	});
+	  	$("#vew_journal_year").prop("disabled",true);
+	  	$("#vew_journal_by_class").prop("disabled",true);
+	  	if($(event.target).prop("id") == "add-jour-but"){
+	  		$("#new_journal_but").parent().show();
+	  	}else if($(event.target).prop("id") == "redact-journal"){
+	  		$("#update_jour_but").parent().show();
+	  		$($("#add-journal-form").find("select")[0]).prop("disabled",true);
+	  		var choosen_row = $("#journals-data").find(".choosen")[0],
+	  		row_cells = $(choosen_row).children(),
+	  		data_send = {
+	  			"jour_class" : $(row_cells[1]).text(),
+	  			"jour_numb" : $(row_cells[2]).text(),
+	  			"jour_year" : $(row_cells[3]).text()
+	  		};
+			//console.log(data_send);
+			$.ajax({
+				url: 'script.php?req_type=ajax_get_jour',
+				type: 'POST',
+				data: 'jsonData=' + $.toJSON(data_send),
+				success: function(data){
+					var resp = JSON.parse(data);
+					console.log(resp);
+  					//show_table("#authors-data",resp,null);
+  					//show_table("#journals-data",resp,null);
+  				}
+  			});
+
+		}
+		document.getElementById('vew_journal_by_class').options[0].selected=true;
+	});
+
+	  /*Обработка кнопки создания журнала*/
+	  $("#new_journal_but").on("click",function(){
   		//$("#add-journal-form").slideDown();
   		var form_inputs = $("#add-journal-form").find("input"),
-  			form_select = $("#add-journal-form").find("select")[0],
-  			data_send = {
+  		form_select = $("#add-journal-form").find("select")[0],
+  		data_send = {
   			"jour_name" : $(form_inputs.get(0)).val(),
   			"jour_class" : $(form_select).val(),
   			"jour_year" : $(form_inputs.get(1)).val(),
@@ -1019,57 +1047,59 @@ var check_lit_fields = function(prev_numb,butt){
   		});
   	});
 
-  	/*Обработка выблора класса журнала для просмотра*/
-  	$("#vew_journal_by_class").on("change", function(event){
-  		var jour_class = $(event.target).val(),	
-  		data_send = {
-  			"jour_class" : jour_class
-  		};
-  		console.log(data_send);
-  		$.ajax({
-  			url: 'script.php?req_type=ajax_ch_jour_class',
-  			type: 'POST',
-  			data: 'jsonData=' + $.toJSON(data_send),
-  			success : function(data) {
-  				var resp = JSON.parse(data);
-  				if(resp.length != 0){
-  					$("#journals-res").text("Выберите год");
-  					$("#journals-res").hide();
-  					$("#journals-res").fadeIn(200);
-  					$("#vew_journal_year").removeAttr("disabled");
-  					$("#journals").children().slice(1).remove();
-  					for(var i = 0; i < resp.length; i++){
-  						year = $('<option>'+resp[i]+'</option>');
-  						$("#vew_journal_year").append(year);
-  					}
-  				}else{
-  					$("#journals-res").text("Журналы не опубликованы");
-  					$("#journals-res").hide();
-  					$("#journals-res").fadeIn(200);
-  				}
-			}
-		});
+	  /*Обработка кнопки сохранения изменений жернала*/
+
+	  /*Обработка выблора класса журнала для просмотра*/
+	  $("#vew_journal_by_class").on("change", function(event){
+	  	var jour_class = $(event.target).val(),	
+	  	data_send = {
+	  		"jour_class" : jour_class
+	  	};
+	  	console.log(data_send);
+	  	$.ajax({
+	  		url: 'script.php?req_type=ajax_ch_jour_class',
+	  		type: 'POST',
+	  		data: 'jsonData=' + $.toJSON(data_send),
+	  		success : function(data) {
+	  			var resp = JSON.parse(data);
+	  			if(resp.length != 0){
+	  				$("#journals-res").text("Выберите год");
+	  				$("#journals-res").hide();
+	  				$("#journals-res").fadeIn(200);
+	  				$("#vew_journal_year").removeAttr("disabled");
+	  				$("#journals").children().slice(1).remove();
+	  				for(var i = 0; i < resp.length; i++){
+	  					year = $('<option>'+resp[i]+'</option>');
+	  					$("#vew_journal_year").append(year);
+	  				}
+	  			}else{
+	  				$("#journals-res").text("Журналы не опубликованы");
+	  				$("#journals-res").hide();
+	  				$("#journals-res").fadeIn(200);
+	  			}
+	  		}
+	  	});
 
 
-  	});
+	  });
 
-  	/*Просмотр журналов определённого года*/
-  	$("#vew_journal_year").on("change",function(event){
-  		var data_send = {
-  			"class" : $("#vew_journal_by_class").val(),
-  			"year" : $(event.target).val()
-  		};
+	  /*Просмотр журналов определённого года*/
+	  $("#vew_journal_year").on("change",function(event){
+	  	var data_send = {
+	  		"class" : $("#vew_journal_by_class").val(),
+	  		"year" : $(event.target).val()
+	  	};
 
-  		$.ajax({
-  			url: 'script.php?req_type=ajax_ch_jour_year',
-  			type: 'POST',
-  			data: 'jsonData=' + $.toJSON(data_send),
-  			success : function(data) {
-  				var resp = JSON.parse(data);
+	  	$.ajax({
+	  		url: 'script.php?req_type=ajax_ch_jour_year',
+	  		type: 'POST',
+	  		data: 'jsonData=' + $.toJSON(data_send),
+	  		success : function(data) {
+	  			var resp = JSON.parse(data);
   				//console.log(resp);
   				show_table("#journals-data",resp,null);
-			}
-		});
-	});
+  			}
+  		});
+	  });
 
-  });
+	});
