@@ -37,7 +37,7 @@ function select_from_db($mysqli,$field,$table){
 	}
 	if($args_num == 7){
 		if ($result = $mysqli->query("SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."'")) { 
-			//echo "SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."' <br>";
+			//$result->qr = "SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."' <br>";
 			return $result;
 		}else{
 			return "not_found";
@@ -220,6 +220,12 @@ function update_data_in_db($mysqli, $update_table){
 			$qr = "UPDATE `authors` SET `name` = '".$arg_list[3]."', `dc_degree` = '".$arg_list[4]."', `class` = '".$arg_list[5]."', `organisation` = '".$arg_list[6]."' WHERE `author_id` = ".$arg_list[2]."";
 			$result = $mysqli->query($qr);
 			//return $result;
+		break;
+		case 'journal_update':
+			$result = "";
+			$qr = "UPDATE `journals` SET `name` = '".$arg_list[3]."', `number` = '".$arg_list[4]."', `pub_year` = '".$arg_list[5]."', `pages` = '".$arg_list[6]."' WHERE `journal_id` = ".$arg_list[2]."";
+			$result = $mysqli->query($qr);
+			return $result;
 		break;
 		default:
 			
@@ -885,6 +891,7 @@ if(isset($_GET['req_type'])){
 		break;
 
 		case 'ajax_get_jour':
+			session_start();
 			$data = json_decode($_POST['jsonData']);
 			$jour_class = "";
 			$jour_numb = "";
@@ -903,8 +910,62 @@ if(isset($_GET['req_type'])){
 			}
 			$result = select_from_db($mysqli,"*","journals","class",$jour_class,"pub_year",$jour_year,"number",$jour_numb);
 			$jour_row = $result->fetch_assoc();
+			$_SESSION['ses_upd_jour_id'] = $jour_row['journal_id'];
+			$_SESSION['jour_class'] = $jour_row['class'];
+			$_SESSION['jour_year'] = $jour_row['pub_year'];
 			$resp = json_encode($jour_row);
 			echo $resp;
+		break;
+
+		case 'ajax_update_jour':
+			session_start();
+			$data = json_decode($_POST['jsonData']);
+			$jour_name = "";
+			$jour_numb = "";
+			$jour_year = "";
+			$jour_pages = "";
+			$curr_class = "";
+			$curr_year = "";
+			$i = 0;
+			foreach ($data as $key => $value) {
+				if($key == "jour_name"){
+					$jour_name = $value;
+				}
+				if($key == "jour_year"){
+					$jour_year = $value;
+				}
+				if($key == "jour_numb"){
+					$jour_numb = $value;
+				}
+				if($key == "jour_pages"){
+					$jour_pages = $value;
+				}
+			}
+			if(isset($_SESSION['ses_upd_jour_id'])){
+				$curr_jour_id = $_SESSION['ses_upd_jour_id'];
+			}
+			if(isset($_SESSION['jour_class'])){
+				$curr_class = $_SESSION['jour_class'];
+			}
+			if(isset($_SESSION['jour_year'])){
+				$curr_year = $_SESSION['jour_year'];
+			}
+			$upd_res = update_data_in_db($mysqli,"journal_update",$curr_jour_id,$jour_name,$jour_numb,$jour_year,$jour_pages);
+
+			$result = select_from_db($mysqli,"*","journals","class",$curr_class,"pub_year",$curr_year);
+			if(is_object($result)){
+				while( $row = $result->fetch_assoc() ){ 
+					$response[$i] = $row;
+					$i++;
+				}
+			}
+			$response = json_encode($response);
+			unset($_SESSION['ses_upd_jour_id']);
+			unset($_SESSION['jour_class']);
+			unset($_SESSION['jour_year']);
+			session_destroy();
+			echo $response;
+
 		break;
 
 		default:

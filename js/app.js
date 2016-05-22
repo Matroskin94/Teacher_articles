@@ -493,9 +493,9 @@ var check_lit_fields = function(prev_numb,butt){
 	/*Редактрование материала*/
 	$(document).on("click", "#redact-article", function(event){
 		var choosen_row = $(".choosen"),
-		row_cells = choosen_row.children(),
-		data_send = {
-			"art_name": $(row_cells.get(1)).text(),
+			row_cells = choosen_row.children(),
+			data_send = {
+				"art_name": $(row_cells.get(1)).text(),
 		};
 		choosen_row.parent().parent().removeClass("table-hover");
 		choosen_row.parent().parent().addClass("redacting");
@@ -982,14 +982,16 @@ var check_lit_fields = function(prev_numb,butt){
 	  */
 
 	  $("#add-jour-but, #redact-journal").on("click", function(event){
-	  	$("#redact-journal, #delete-journal,#journals-data, #add-jour-but").fadeOut(200, function(){
-	  		$("#add-journal-form").slideDown();
-	  	});
 	  	$("#vew_journal_year").prop("disabled",true);
 	  	$("#vew_journal_by_class").prop("disabled",true);
 	  	if($(event.target).prop("id") == "add-jour-but"){
 	  		$("#new_journal_but").parent().show();
+	  		$("#redact-journal, #delete-journal,#journals-data, #add-jour-but").fadeOut(200, function(){
+	  		$("#add-journal-form").slideDown();
+	  	});
 	  	}else if($(event.target).prop("id") == "redact-journal"){
+	  		var redact_inputs = "",
+	  			choosen_row = $("#journals-data").find(".choosen")[0];
 	  		$("#update_jour_but").parent().show();
 	  		$($("#add-journal-form").find("select")[0]).prop("disabled",true);
 	  		var choosen_row = $("#journals-data").find(".choosen")[0],
@@ -1006,15 +1008,62 @@ var check_lit_fields = function(prev_numb,butt){
 				data: 'jsonData=' + $.toJSON(data_send),
 				success: function(data){
 					var resp = JSON.parse(data);
-					console.log(resp);
+					$(choosen_row).parent().parent().removeClass("table-hover");
+					$(choosen_row).parent().parent().addClass("redacting");
+					$("#redact-journal, #delete-journal, #add-jour-but").fadeOut(200, function(){
+	  					$("#add-journal-form").slideDown();
+	  				});
+	  				redact_inputs = $("#add-journal-form").find('input');
+					//console.log(resp);
+					$(redact_inputs[0]).val(resp['name']);
+					$(redact_inputs[1]).val(resp['pub_year']);
+					$(redact_inputs[2]).val(resp['number']);
+					$(redact_inputs[3]).val(resp['pages']);
   					//show_table("#authors-data",resp,null);
   					//show_table("#journals-data",resp,null);
   				}
   			});
 
 		}
-		document.getElementById('vew_journal_by_class').options[0].selected=true;
+		//document.getElementById('vew_journal_by_class').options[0].selected=true;
 	});
+
+	  /*Обработка кнопки отправки отредактированного журнала */
+	  $("#update_jour_but").on("click",function(){
+  		$("#add-journal-form").slideUp();
+  		//var choosen_row = $("#journals-data").find(".choosen")[0];
+  		$(".choosen").removeClass("choosen");
+  		$("#journals-data").removeClass("redacting");
+  		$("#journals-data").addClass("table-hover");
+  		$("#vew_journal_by_class").removeAttr("disabled");
+  		$("#vew_journal_year").removeAttr("disabled");
+
+  		var update_form = $("#add-journal-form"),
+  			update_inputs = update_form.find("input"),
+  			j = 0,
+  			data_send = {
+  				"jour_name" : $(update_inputs.get(0)).val(),
+  				"jour_year" : $(update_inputs.get(1)).val(),
+  				"jour_numb" : $(update_inputs.get(2)).val(),
+  				"jour_pages": $(update_inputs.get(3)).val()
+  			};
+  		console.log(data_send);
+  		$.ajax({
+  			url: 'script.php?req_type=ajax_update_jour',
+  			type: 'POST',
+  			data: 'jsonData=' + $.toJSON(data_send),
+  			success : function(data) {
+  				var resp = JSON.parse(data);
+  				console.log(resp);
+  				show_table("#journals-data",resp,null);
+  				$("#add-jour-but").fadeIn();
+  				//$("#vew_author_by_class").removeAttr("disabled");
+  			}
+
+  		});
+		//console.log(data_send);
+		return false;
+	  });
 
 	  /*Обработка кнопки создания журнала*/
 	  $("#new_journal_but").on("click",function(){
@@ -1028,7 +1077,7 @@ var check_lit_fields = function(prev_numb,butt){
   			"jour_numb" : $(form_inputs.get(2)).val(),
   			"jour_pages" : $(form_inputs.get(3)).val(),
   		};
-  		console.log(data_send);
+  		//console.log(data_send);
   		//$("#new_journal_but").fadeOut();
   		$("#add-jour-but").fadeIn();
   		$("#add-journal-form").slideUp();
@@ -1047,15 +1096,13 @@ var check_lit_fields = function(prev_numb,butt){
   		});
   	});
 
-	  /*Обработка кнопки сохранения изменений жернала*/
-
 	  /*Обработка выблора класса журнала для просмотра*/
 	  $("#vew_journal_by_class").on("change", function(event){
 	  	var jour_class = $(event.target).val(),	
 	  	data_send = {
 	  		"jour_class" : jour_class
 	  	};
-	  	console.log(data_send);
+	  	//console.log(data_send);
 	  	$.ajax({
 	  		url: 'script.php?req_type=ajax_ch_jour_class',
 	  		type: 'POST',
