@@ -99,7 +99,7 @@ $connection = db_connect();
                       <div class="row">
                         <div class="col-md-12">
                           <br>
-                          <p id="message_p">Выберите необходимый журнал либо воспользуйтесь поиском</p>
+                          <h4 id="message_p">Выберите необходимый журнал либо воспользуйтесь поиском</h4>
                           <div class="table-responsive result-table">
                             <table class="table table-hover hidden" id="article-data" style="opacity: 1">
                               <tr class="table-head">
@@ -147,24 +147,23 @@ $connection = db_connect();
                               <input class="form-control redact-input" required type=text name="pages"  required value="">
                             </div>
                             <div class="col-sm-12">
-                              <table class="table" id="auth-redact-data">
+                            <table class="table" hidden id="auth-redact-data">
                                 <tbody>
                                  <caption>Авторы статьи</caption>
                                </tbody>
                              </table>
-                             <p><button onclick="return false" class="btn btn-primary" id="redact_add_auth">Добавить автора</button></p>
                            </div>
 
-                           <div class="author_selectors hidden" id="redacting_auth_selector">
+                           <div class="author_selectors" id="adding_auth_name">
+                            <div class="clearfix"></div>
+                            
+                            <div class="clearfix"></div> 
                             <div class="col-sm-5">
-                              <p>Выберите автора публикации:</p>
-                            </div> 
-                            <div class="col-sm-7">
-                              <select name="author0" class="avail_authors form-control">
-                                <option disabled="true" selected="true">Автор</option>
-                              </select>
+                              <p>Выберите автора публикации:</p> 
                             </div>
-                            <div class="col-sm-12"><p><button class="btn btn-primary" onclick="return false" id="add_author_red_art">Ещё автор</button></p></div>
+                            <div class="col-sm-7">
+                              <p><img id="search_auth_icon" src="img/search_icon.png" data-toggle="modal" data-target="#authors_modal"></p>
+                            </div>
                           </div>
 
                           <div class="col-sm-12"><p><button class="btn btn-primary" id="save-change-art" onclick="return false">Сохранить изменения</button></p></div>
@@ -174,18 +173,18 @@ $connection = db_connect();
                         <!-- Добавление материала -->
 
 
-                        <form hidden id="add-art-form" class="reg-form" method="post" action="admin_page.php?req_type=new_article">
+                        <form id="add-art-form" hidden class="reg-form" method="post">
                           <br>
                           <div class="col-sm-12">
                             <p>Введите название статьи: </p>
                           </div>
                           <div class="col-sm-12">
-                            <p><input class="form-control redact-input" required type=text name="art_name"  required value=""></p>
+                            <p><input class="form-control redact-input" required type=text name="art_name"  required placeholder="Название" value=""></p>
                           </div>
-                          <div class="col-md-4">
+                          <div class="col-sm-5">
                             <p id="choose_journ_p">Выберите серию журнала:</p>
                           </div>
-                          <div class="col-md-3 col-md-offset-1">
+                          <div class="col-md-3">
                             <select size="1" class="class_select form-control" id="choose-journal-class" name="jour_class">
                               <option disabled selected="true"> Серия </option>
                               <option>A</option>
@@ -213,235 +212,284 @@ $connection = db_connect();
                        </div> 
 
                        <div class="col-sm-7">
-                        <input class="form-control search_art" type=text name="pages"  required value="pages">
+                        <input class="form-control search_art" type=text name="pages"  required placeholder="Страницы">
                       </div>
+
                       <div class="clearfix"></div>
-                      <div class="author_selectors" id="adding_auth_selector">
+                      <div class="col-sm-12">
+                            <table class="table" hidden id="auth-redact-data">
+                                <tbody>
+                                 <caption>Авторы статьи</caption>
+                               </tbody>
+                             </table>
+                           </div>
+
+
+                      <div class="clearfix"></div>
+                      <div class="author_selectors" id="adding_auth_name">
+                        <div class="clearfix"></div>
+                        <div class="col-sm-12">
+                          <div id="add_author_new_art"></div>
+                        </div>
                         <div class="clearfix"></div> 
                         <div class="col-sm-5">
                           <p>Выберите автора публикации:</p> 
                         </div>
                         <div class="col-sm-7">
-                          <select disabled name="author0" id="add-art-avail-auth" class="form-control avail_authors">
-                            <option disabled="true" selected="true">Автор</option>
-                          </select>
-                        </select>
+                          <p><img id="search_auth_icon" src="img/search_icon.png" data-toggle="modal" data-target="#authors_modal"></p>
+                        </div>
                       </div>
 
                       <div class="col-md-12">
-                        <p><button class="btn btn-primary" onclick="return false" id="add_author_new_art">Ещё автор</button></p>
+                        <button onclick="return false" class="btn btn-primary" id="send-article-data" name="send_article_data"> Добавить материал </button>
+                      </div>
+                    </form>
+
+                    <div id="authors_modal" class="modal fade">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header"><button class="close" type="button" data-dismiss="modal">×</button>
+                            <h4 class="modal-title">Выберите автора</h4>
+                          </div>
+
+                          <div class="modal-body">
+                            <div class="row">
+                              <div class="col-xs-5">
+                                <input id="n_auth_s" class="form-control redact-input" type=text name="pages"  required placeholder="Автор">
+                              </div>
+                              <button id="new_auth_search" class="btn btn-primary">Поиск</button>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-12">
+                                <p id="n_auth_s_p"></p>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-12 table-responsive">
+                                <table class="table table-hover" hidden id="authors-search">
+                                  <tr class="table-head">
+                                    <th>Автор</th>
+                                    <th>Научная степень</th>
+                                    <th>Организация</th>
+                                  </tr>
+                                </table>
+                              </div>
+                            </div>
+
+                            <button class="btn btn-primary" id="add_new_auth">Добавить автора</button>
+
+
+
+                          </div>
+                          <div class="modal-footer"><button class="btn btn-default" type="button" data-dismiss="modal">Закрыть</button></div>
+                        </div>
                       </div>
                     </div>
 
-                    <div class="col-md-12">
-                      <button class="btn btn-primary" id="send-article-data" name="send_article_data"> Добавить материал </button>
-                    </div>
-                  </form>
+                    <br>
 
-                  <br>
-
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 col-sm-6 col-xs-7">
+                   <button class="btn btn-default" id="redact-article" hidden>Редактировать</button>
+                   <button class="btn btn-default" id="delete-article" hidden>Удалить</button>
+                 </div>
+                 <div class="col-md-offset-2 col-md-3 col-sm-offset-3 col-sm-2 col-lg-offset-3 col-lg-3 col-xs-offset-1 col-xs-4">
+                  <button class="btn btn-default" id="add-art-but" name="new_article_but">Добавить статью</button>
                 </div>
               </div>
-              <div class="row">
-                <div class="col-md-6 col-sm-6 col-xs-7">
-                 <button class="btn btn-default" id="redact-article" hidden>Редактировать</button>
-                 <button class="btn btn-default" id="delete-article" hidden>Удалить</button>
-               </div>
-               <div class="col-md-offset-2 col-md-3 col-sm-offset-3 col-sm-2 col-lg-offset-3 col-lg-3 col-xs-offset-1 col-xs-4">
-                <button class="btn btn-default" id="add-art-but" name="new_article_but">Добавить статью</button>
-              </div>
+
             </div>
 
-          </div>
+            <!-- Вкладка авторов -->
 
-          <!-- Вкладка авторов -->
-
-          <div class="content-tab" id="authors-tab">
-            <h2>Авторы статей</h1>
-              <div class="row">
-                <div class="col-xs-5 col-sm-5 col-md-5">
-                  <p>Выберите сtрию журнала:</p>  
-                </div>
-                <div class="col-md-3 col-sm-3 col-xs-3">
-                  <select size="1" name="journal-class" class="form-control class_select" id="vew_author_by_class">
-                    <option disabled selected="true">Серия</option>
-                    <option>A</option>
-                    <option>B</option>
-                    <option>C</option>
-                    <option>D</option>
-                    <option>E</option>
-                  </select>
-                </div>
-                <div class="col-md-4 col-md-offset-0 col-sm-offset-0 col-sm-4 col-xs-4">
-                  <button class="btn btn-default" id="add-aut-but" name="new_article_but">Добавить автора</button>
-                </div>
-
-              </div> 
-              <table class="table table-hover hidden" id="authors-data">
-                <tr class="table-head">
-                  <th>Автор</th>
-                  <th>Научная степень</th>
-                  <th>Организация</th>
-                </tr>
-              </table>
-              <br>
-              <button class="btn btn-default" id="redact-authors">Редактировать</button>
-              <button class="btn btn-default" id="delete-author">Удалить</button>
-              <form id="redact-author-form" hidden name="redact_author">
-
-                <div class="col-md-4">
-                  <p>Фамилия имя отчество:</p>
-                </div>
-                <div class="col-md-7 col-md-offset-1">
-                  <input required class="form-control redact-input" type="text">
-                </div>
-                <div class="clearfix"></div>
-                
-                <div class="col-md-4">
-                  <p>Научная степень</p>
-                </div>
-                <div class="col-md-3 col-md-offset-1">
-                  <input required class="form-control redact-input" type="text">
-                </div>
-
-                <div class="clearfix"></div>
-
-                <div class="col-md-4">
-                  <p>Организация</p>
-                </div>
-                <div class="col-md-3 col-md-offset-1">
-                  <input class="form-control redact-input" required type="text">
-                </div>
-
-                <div class="clearfix"></div>
-                
-                <div class="col-md-4">
-                  <p>Серия журналов для публикации</p>
-                </div>    
-                <div class="col-md-4 col-md-offset-1">
-                  <select class="class_select form-control" id="choose-type" size="1" name="type">
-                    <option disabled selected="true">Серия</option>
-                    <option>A</option>
-                    <option>B</option>
-                    <option>C</option>
-                    <option>D</option>
-                    <option>E</option>
-                    <select>
-                    </div>
-                    <div class="col-md-12">
-                      <p hidden ><button class="btn btn-default" onclick="return false" id="update-author">Сохранить изменения</button></p>
-                      <p hidden><button class="btn btn-primary" onclick="return false" id="new-author">Добавить автора</button></p>
-                    </div>
-                  </form>
-
-                </div> 
-
-
-                <!-- Вкладка журналы -->
-                <div class="content-tab active-tab" id="journals-tab">
-                  <h2>Журналы</h2>
-                  <div class="row">
-                    <div class="col-md-4 col-sm-4 col-xs-4">
-                      <p id="journals-res">Выберите серию журнала:</p>  
-                    </div>
-                    <div class="col-md-2 col-sm-2 col-xs-3">
-                      <select size="1" name="journal-class" class="form-control class_select" id="vew_journal_by_class">
-                        <option disabled selected="true">Серия</option>
-                        <option>A</option>
-                        <option>B</option>
-                        <option>C</option>
-                        <option>D</option>
-                        <option>E</option>
-                      </select>
-                    </div>
-                    <div class="col-md-2 col-sm-2 col-xs-3">
-                      <select disabled size="1" name="journal-class" class="form-control class_select" id="vew_journal_year">
-                        <option disabled selected="true">Год</option>
-                      </select>
-                    </div>
-                    <div class="col-md-3 col-sm-12 col-xs-12 col-md-offset-0 col-sm-offset-0 col-sm-offset-1">
-                      <button class="btn btn-default" id="add-jour-but" name="new_journal_but">Добавить журнал</button>
-                    </div>
+            <div class="content-tab" id="authors-tab">
+              <h2>Авторы статей</h1>
+                <div class="row">
+                  <div class="col-xs-5 col-sm-5 col-md-5">
+                    <p>Выберите сtрию журнала:</p>  
                   </div>
-                  
-                  <table class="table table-hover hidden" id="journals-data">
-                    <tr class="table-head">
-                      <th>Название</th>
-                      <th>Серия</th>
-                      <th>Номер</th>
-                      <th>Год</th>
-                      <th>Страниц</th>
-                    </tr>
-                  </table>
-                  
-                  <form id="add-journal-form" hidden method="post">
-                    <div class="col-sm-12">
-                      <p>Введите название журнала: </p>
-                    </div>
-                    <div class="col-sm-12">
-                      <p><input class="form-control redact-input" type="text" name="journal_name" required placeholder="Журнал"></p>
-                    </div>
-                    <div class="col-md-4">
-                      <p>Выберите класс журнала:</p>
-                    </div> 
-                    <div class="col-md-3 col-md-offset-1">
-                     <select class="class_select form-control" id="choose-type" size="1" name="type">
+                  <div class="col-md-3 col-sm-3 col-xs-3">
+                    <select size="1" name="journal-class" class="form-control class_select" id="vew_author_by_class">
                       <option disabled selected="true">Серия</option>
                       <option>A</option>
                       <option>B</option>
                       <option>C</option>
                       <option>D</option>
                       <option>E</option>
-                      <select> 
+                    </select>
+                  </div>
+                  <div class="col-md-4 col-md-offset-0 col-sm-offset-0 col-sm-4 col-xs-4">
+                    <button class="btn btn-default" id="add-aut-but" name="new_article_but">Добавить автора</button>
+                  </div>
+
+                </div> 
+                <table class="table table-hover hidden" id="authors-data">
+                  <tr class="table-head">
+                    <th>Автор</th>
+                    <th>Научная степень</th>
+                    <th>Организация</th>
+                  </tr>
+                </table>
+                <br>
+                <button class="btn btn-default" id="redact-authors">Редактировать</button>
+                <button class="btn btn-default" id="delete-author">Удалить</button>
+                <form id="redact-author-form" hidden name="redact_author">
+
+                  <div class="col-md-4">
+                    <p>Фамилия имя отчество:</p>
+                  </div>
+                  <div class="col-md-7 col-md-offset-1">
+                    <input required placeholder="ФИО" class="form-control redact-input" type="text">
+                  </div>
+                  <div class="clearfix"></div>
+
+                  <div class="col-md-4">
+                    <p>Научная степень</p>
+                  </div>
+                  <div class="col-md-3 col-md-offset-1">
+                    <input required placeholder="Степень" class="form-control redact-input" type="text">
+                  </div>
+
+                  <div class="clearfix"></div>
+
+                  <div class="col-md-4">
+                    <p>Организация</p>
+                  </div>
+                  <div class="col-md-3 col-md-offset-1">
+                    <input placeholder="Организация" class="form-control redact-input" required type="text">
+                  </div>
+
+                  <div class="clearfix"></div>
+
+                  <div class="col-md-4">
+                    <p>Серия журналов для публикации</p>
+                  </div>    
+                  <div class="col-md-4 col-md-offset-1">
+                    <select class="class_select form-control" id="choose-type" size="1" name="type">
+                      <option disabled selected="true">Серия</option>
+                      <option>A</option>
+                      <option>B</option>
+                      <option>C</option>
+                      <option>D</option>
+                      <option>E</option>
+                      <select>
+                      </div>
+                      <div class="col-md-12">
+                        <p hidden ><button class="btn btn-default" onclick="return false" id="update-author">Сохранить изменения</button></p>
+                        <p hidden><button class="btn btn-primary" onclick="return false" id="new-author">Добавить автора</button></p>
+                      </div>
+                    </form>
+
+                  </div> 
+
+
+                  <!-- Вкладка журналы -->
+                  <div class="content-tab active-tab" id="journals-tab">
+                    <h2>Журналы</h2>
+                    <div class="row">
+                      <div class="col-md-4 col-sm-4 col-xs-4">
+                        <p id="journals-res">Выберите серию журнала:</p>  
+                      </div>
+                      <div class="col-md-2 col-sm-2 col-xs-3">
+                        <select size="1" name="journal-class" class="form-control class_select" id="vew_journal_by_class">
+                          <option disabled selected="true">Серия</option>
+                          <option>A</option>
+                          <option>B</option>
+                          <option>C</option>
+                          <option>D</option>
+                          <option>E</option>
+                        </select>
+                      </div>
+                      <div class="col-md-2 col-sm-2 col-xs-3">
+                        <select disabled size="1" name="journal-class" class="form-control class_select" id="vew_journal_year">
+                          <option disabled selected="true">Год</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3 col-sm-12 col-xs-12 col-md-offset-0 col-sm-offset-0 col-sm-offset-1">
+                        <button class="btn btn-default" id="add-jour-but" name="new_journal_but">Добавить журнал</button>
+                      </div>
+                    </div>
+
+                    <table class="table table-hover hidden" id="journals-data">
+                      <tr class="table-head">
+                        <th>Название</th>
+                        <th>Серия</th>
+                        <th>Номер</th>
+                        <th>Год</th>
+                        <th>Страниц</th>
+                      </tr>
+                    </table>
+
+                    <form id="add-journal-form" hidden method="post">
+                      <div class="col-sm-12">
+                        <p>Введите название журнала: </p>
+                      </div>
+                      <div class="col-sm-12">
+                        <p><input class="form-control redact-input" type="text" name="journal_name" required placeholder="Журнал"></p>
+                      </div>
+                      <div class="col-md-4">
+                        <p>Выберите класс журнала:</p>
+                      </div> 
+                      <div class="col-md-3 col-md-offset-1">
+                       <select class="class_select form-control" id="choose-type" size="1" name="type">
+                        <option disabled selected="true">Серия</option>
+                        <option>A</option>
+                        <option>B</option>
+                        <option>C</option>
+                        <option>D</option>
+                        <option>E</option>
+                        <select> 
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-4">
+                         <p>Введите год публикации:</p>
+                       </div>
+                       <div class="col-md-3 col-md-offset-1">
+                         <input class="form-control redact-input" type="text" name="pub_year" required placeholder="Год">
+                       </div>
+                       <div class="clearfix"></div>
+                       <div class="col-md-4">
+                        <p>Введите номер журнала:</p>
+                      </div> 
+                      <div class="col-md-3 col-md-offset-1">
+                        <input class="form-control redact-input" type="text" name="journal_number" required placeholder="Номер">
                       </div>
                       <div class="clearfix"></div>
                       <div class="col-md-4">
-                       <p>Введите год публикации:</p>
+                        <p>Введите количество страниц:</p>
+                      </div>  
+                      <div class="col-md-3 col-md-offset-1">
+                        <input class="form-control redact-input" type="text" name="journal_pages" required placeholder="Страницы">
+                      </div>
+                      <div class="col-md-12">
+                        <p hidden ><button onclick="return false" class="btn btn-primary" id="new_journal_but" name="send_article_data"> Добавить журнал </button></p>
+                        <p hidden ><button class="btn btn-primary" onclick="return false" id="update_jour_but">Сохранить изменения</button></p>
+                      </div>
+                    </form>
+                    <div class="row">
+                      <div class="col-md-6 col-sm-6 col-xs-7">
+                       <button class="btn btn-default" id="redact-journal" hidden>Редактировать</button>
+                       <button class="btn btn-default" id="delete-journal" hidden>Удалить</button>
                      </div>
-                     <div class="col-md-3 col-md-offset-1">
-                       <input class="form-control redact-input" type="text" name="pub_year" required placeholder="Год">
-                     </div>
-                     <div class="clearfix"></div>
-                     <div class="col-md-4">
-                      <p>Введите номер журнала:</p>
-                    </div> 
-                    <div class="col-md-3 col-md-offset-1">
-                      <input class="form-control redact-input" type="text" name="journal_number" required placeholder="Номер">
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="col-md-4">
-                      <p>Введите количество страниц:</p>
-                    </div>  
-                    <div class="col-md-3 col-md-offset-1">
-                      <input class="form-control redact-input" type="text" name="journal_pages" required placeholder="Страницы">
-                    </div>
-                    <div class="col-md-12">
-                    <p hidden ><button onclick="return false" class="btn btn-primary" id="new_journal_but" name="send_article_data"> Добавить журнал </button></p>
-                    <p hidden ><button class="btn btn-primary" onclick="return false" id="update_jour_but">Сохранить изменения</button></p>
-                    </div>
-                  </form>
-                  <div class="row">
-                    <div class="col-md-6 col-sm-6 col-xs-7">
-                     <button class="btn btn-default" id="redact-journal" hidden>Редактировать</button>
-                     <button class="btn btn-default" id="delete-journal" hidden>Удалить</button>
+
+
+
+
                    </div>
-
-
-
-
                  </div>
-               </div>
 
 
-             </div> <!-- content field -->
+               </div> <!-- content field -->
+             </div>
            </div>
          </div>
+
        </div>
 
-     </div>
 
-
-     <script src="lib/bootstrap/js/bootstrap.min.js"></script>
-     <script src="js/app.js"></script>
-   </body>
-   </html>
+       <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+       <script src="js/app.js"></script>
+     </body>
+     </html>

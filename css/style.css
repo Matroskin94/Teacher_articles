@@ -248,7 +248,9 @@ background: #A3AC9A;
 #redact-article,
 #delete-article,
 #redact-journal,
-#delete-journal {
+#delete-journal,
+#show_art_data,
+#add_new_auth {
 	display: none;
 }
 
@@ -262,3 +264,12 @@ background: #A3AC9A;
     height: 25px;
     padding: 2px 5px;
 }
+
+#search_auth_icon:hover {
+	cursor:pointer;
+}
+h4 {
+	font-size: 16px;
+}
+
+/*Стили всплывающего окна*/

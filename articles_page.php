@@ -92,7 +92,7 @@
 								?>
 							</table>
 						</div>
-						<p><br><button id="show_art_data" hidden>Данные о статье</button></p>
+						<p><br><button hidden id="show_art_data" class="btn btn-default" >Данные о статье</button></p>
 					</div>
 				</div>
 
