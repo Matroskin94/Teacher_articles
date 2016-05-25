@@ -142,9 +142,6 @@ function select_link($mysqli,$author_id,$art_id_arr){
 
 function update_data_in_db($mysqli, $update_table){
 	/*Изменение записи в таблице*/
-	//$stmt = $mysqli->prepare("UPDATE `users` SET nickname = ?, password = ? WHERE id=1");
-	//$stmt->bind_param("ss", $nickname, $pass); 
-	//$art_literature->author[0]
 	$args_num = func_num_args();
 	$arg_list = func_get_args();
 	switch ($update_table) {
@@ -164,18 +161,18 @@ function update_data_in_db($mysqli, $update_table){
 		$add->bind_param("ii", $curr_auth, $article_id);
 		if(count($dell_authors) != 0){
 			for($i = 0; $i < count($dell_authors);$i++){
-				$result = select_from_db($mysqli,"author_id","authors","name",$dell_authors[$i]);
-				$auth_row = $result->fetch_assoc();
-				$curr_auth = (int)$auth_row['author_id'];
+				//$result = select_from_db($mysqli,"author_id","authors","name",$dell_authors[$i]);
+				//$auth_row = $result->fetch_assoc();
+				$curr_auth = (int)$dell_authors[$i];
 				$dell->execute();
 			}
 		}
 		$dell->close();
 		if(count($new_authors)!=0){
 			for($i = 0; $i < count($new_authors);$i++){
-				$result = select_from_db($mysqli,"author_id","authors","name",$new_authors[$i]);
-				$auth_row = $result->fetch_assoc();
-				$curr_auth = (int)$auth_row['author_id'];
+				//$result = select_from_db($mysqli,"author_id","authors","name",$new_authors[$i]);
+				//$auth_row = $result->fetch_assoc();
+				$curr_auth = (int)$new_authors[$i];
 				$add->execute();
 			}
 		}
@@ -279,13 +276,13 @@ function select_article($mysqli,$jour_articles){
 		$authors_id = select_from_db($mysqli,"author_id","article_author","article_id",$row['article_id']);
 		while($art_auth_row = $authors_id->fetch_assoc()){
 			$authors_of_art = select_from_db($mysqli,"*","authors","author_id",$art_auth_row['author_id']);
-
 			while ($auth_row = $authors_of_art->fetch_assoc()) {
 				$article_authors[$j] = $auth_row;
 				$j++;
 			}
 		}
 		$row['authors'] = $article_authors;
+		$article_authors = [];
 		$json_data[$i] = $row;
 		$i++;
 	}
@@ -416,36 +413,37 @@ function select_script($mysqli)
 		$mysqli = db_connect();
 		switch ($_GET['req_type']) {
 			case 'ajax_ch_jour':
-			$data = json_decode($_POST['jsonData']);
-			$curr_batch = '';
-			$curr_numb = '';
-			$curr_year = '';
-			$jour_articles = ''; 
-			foreach ($data as $key=>$value) {
-				//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
-				if($key == 'jour_batch'){
-					$curr_batch = $value;
+				$data = json_decode($_POST['jsonData']);
+				$curr_batch = '';
+				$curr_numb = '';
+				$curr_year = '';
+				$jour_articles = ''; 
+				foreach ($data as $key=>$value) {
+					//$response .= 'Параметр: '.$key.'; Значение: '.$value.'';
+					if($key == 'jour_batch'){
+						$curr_batch = $value;
+					}
+					if($key == 'jour_numb'){
+						$curr_numb = $value;
+					}
+					if($key == 'jour_year'){
+						$curr_year = $value;
+					}
 				}
-				if($key == 'jour_numb'){
-					$curr_numb = $value;
-				}
-				if($key == 'jour_year'){
-					$curr_year = $value;
-				}
-			}
-			$jour_id = $mysqli->query("SELECT `journal_id` FROM `journals` WHERE class = '".$curr_batch."' AND number = ".$curr_numb." AND pub_year = ".$curr_year."");
-			$row = $jour_id->fetch_assoc();
-			$jour_id = $row['journal_id'];
-			$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."'");
-			$i = 0;
-			//echo var_dump($jour_articles);
-			$json_data = array();
-			$single_article = array();
-			$json_data = select_article($mysqli, $jour_articles);
-			$response = json_encode($json_data);
-			echo $response;
-			$mysqli->close();
+				$jour_id = $mysqli->query("SELECT `journal_id` FROM `journals` WHERE class = '".$curr_batch."' AND number = ".$curr_numb." AND pub_year = ".$curr_year."");
+				$row = $jour_id->fetch_assoc();
+				$jour_id = $row['journal_id'];
+				$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."'");
+				$i = 0;
+				//echo var_dump($jour_articles);
+				$json_data = array();
+				$single_article = array();
+				$json_data = select_article($mysqli, $jour_articles);
+				$response = json_encode($json_data);
+				echo $response;
+				$mysqli->close();
 			break;
+
 			case 'ajax_bl_art':
 			$art_name = '';
 			$art_stat = '';
@@ -505,7 +503,7 @@ function select_script($mysqli)
 			$art_pages = '';
 			$dell_aut = array();
 			$new_aut = array();
-			print_r($_SESSION);
+			//print_r($_SESSION);
 			if(isset($_SESSION['ses_upd_art_id'])){
 				$curr_art_id = $_SESSION['ses_upd_art_id'];
 			}
@@ -528,16 +526,13 @@ function select_script($mysqli)
 						$new_aut[$i] = $value[$i];
 					}
 					break;
-					case 'literature':
-					$art_literature = $value;
-					break;
 					default:
 						# code...
 					break;
 				}
 			}
 			if($curr_art_id){
-				echo update_data_in_db($mysqli,"article_update",$curr_art_id,$art_name,$art_pages,$dell_aut,$new_aut);
+				update_data_in_db($mysqli,"article_update",$curr_art_id,$art_name,$art_pages,$dell_aut,$new_aut);
 			}
 			unset($_SESSION['ses_upd_art_id']);
 			session_destroy();
@@ -844,6 +839,7 @@ function select_script($mysqli)
 					$jour_pages = $value;
 				}
 			}
+			insert_to_db($mysqli,"add_journal",NULL,$data->jour_name, $data->jour_class, $data->jour_year, $data->jour_numb, $data->jour_pages, 0);
 			$result = select_from_db($mysqli, "*","journals","class",$jour_class,"pub_year",$jour_year);
 			while($row = $result->fetch_assoc()){
 				$resp[$i] = $row;

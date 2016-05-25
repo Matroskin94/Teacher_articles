@@ -37,22 +37,22 @@ $connection = db_connect();
           <div class="col-md-8 col-md-offset-2 main-field">
             <!-- <h1>Авторы</h1> -->
             <div class="row">
-              <div class="col-xs-1 col-sm-3 col-md-3 vert-menu">
+              <div class="col-xs-3 col-sm-3 col-md-3 vert-menu">
                 <h2 id="page-id">Публикации</h2>
                 <div class="container container-menu open-sidebar">
                   <div class="row">
                     <div id="sidebar" class='col-md-12'>
-                      <div class="menu-icon">
+                      <!--<div class="menu-icon">
                         <a href="#" data-toggle=".container" id="sidebar-toggle">
                           <span class="bar"></span>
                           <span class="bar"></span>
                           <span class="bar"></span>
                         </a>
-                      </div>
+                      </div>-->
                       <ul id="main-menu">
-                        <li><a href="#articles-tab">Публикации</a></li>
+                        <li class="active-item"><a href="#articles-tab">Публикации</a></li>
                         <li><a href="#authors-tab">Авторы</a></li>
-                        <li class="active-item"><a href="#journals-tab">Журналы</a></li>
+                        <li><a href="#journals-tab">Журналы</a></li>
                       </ul>
                     </div>
                   </div>
@@ -60,7 +60,7 @@ $connection = db_connect();
               </div>
 
               <!-- Горизонтальное меню -->
-              <div class="col-xs-11 col-sm-9 col-md-9 info-field">
+              <div class="col-xs-9 col-sm-9 col-md-9 info-field">
                 <!-- Основное поле -->
                 <div class="row">
                   <div class="col-md-12"> <!-- content field -->
@@ -68,7 +68,7 @@ $connection = db_connect();
                     <!-- Вкладка статей -->
 
 
-                    <div class="content-tab" id="articles-tab">
+                    <div class="content-tab active-tab" id="articles-tab">
                       <h1>Вестник ПГУ</h1>
                       <div class="row">
                         <div class="col-lg-12 col-md-12">
@@ -126,50 +126,7 @@ $connection = db_connect();
                               ?>
                             </table>
                           </div>
-                          
-
-                          <!-- Редактирование статьи -->
-
-                          <form id="redact-article-form" method="POST" class="hidden" action="test_script.php?req_type=redact_article">
-                            <br>
-                            <div class="col-sm-12">
-                              <p>Введите название статьи: </p>
-                            </div>
-                            <div class="col-sm-12">
-                              <p><input class="form-control redact-input" required type=text name="art_name"  required value=""></p>
-                            </div>
-                            <br>
-                            <div class="col-sm-6">
-                              <p>Введите страницы публикации:</p>
-                            </div>
-
-                            <div class="col-sm-offset-2 col-sm-4">
-                              <input class="form-control redact-input" required type=text name="pages"  required value="">
-                            </div>
-                            <div class="col-sm-12">
-                            <table class="table" hidden id="auth-redact-data">
-                                <tbody>
-                                 <caption>Авторы статьи</caption>
-                               </tbody>
-                             </table>
-                           </div>
-
-                           <div class="author_selectors" id="adding_auth_name">
-                            <div class="clearfix"></div>
-                            
-                            <div class="clearfix"></div> 
-                            <div class="col-sm-5">
-                              <p>Выберите автора публикации:</p> 
-                            </div>
-                            <div class="col-sm-7">
-                              <p><img id="search_auth_icon" src="img/search_icon.png" data-toggle="modal" data-target="#authors_modal"></p>
-                            </div>
-                          </div>
-
-                          <div class="col-sm-12"><p><button class="btn btn-primary" id="save-change-art" onclick="return false">Сохранить изменения</button></p></div>
-                          
-                        </form>
-
+                         
                         <!-- Добавление материала -->
 
 
@@ -241,7 +198,10 @@ $connection = db_connect();
                       </div>
 
                       <div class="col-md-12">
-                        <button onclick="return false" class="btn btn-primary" id="send-article-data" name="send_article_data"> Добавить материал </button>
+                        <p hidden><button onclick="return false" class="btn btn-primary" id="send-article-data" name="send_article_data"> Добавить материал </button></p>
+                      </div>
+                      <div class="col-sm-12">
+                        <p hidden><button class="btn btn-primary" id="update-article" onclick="return false">Сохранить изменения</button></p>
                       </div>
                     </form>
 
@@ -308,7 +268,7 @@ $connection = db_connect();
               <h2>Авторы статей</h1>
                 <div class="row">
                   <div class="col-xs-5 col-sm-5 col-md-5">
-                    <p>Выберите сtрию журнала:</p>  
+                    <p>Выберите серию журнала:</p>  
                   </div>
                   <div class="col-md-3 col-sm-3 col-xs-3">
                     <select size="1" name="journal-class" class="form-control class_select" id="vew_author_by_class">
@@ -335,6 +295,9 @@ $connection = db_connect();
                 <br>
                 <button class="btn btn-default" id="redact-authors">Редактировать</button>
                 <button class="btn btn-default" id="delete-author">Удалить</button>
+
+
+                <!-- Добавление и редатирование автора -->
                 <form id="redact-author-form" hidden name="redact_author">
 
                   <div class="col-md-4">
@@ -386,7 +349,7 @@ $connection = db_connect();
 
 
                   <!-- Вкладка журналы -->
-                  <div class="content-tab active-tab" id="journals-tab">
+                  <div class="content-tab" id="journals-tab">
                     <h2>Журналы</h2>
                     <div class="row">
                       <div class="col-md-4 col-sm-4 col-xs-4">

@@ -42,6 +42,8 @@ font-style: italic;
 /*<<- end MF end ->>*/
 body {
 	font-family: 'Arsenal';
+	min-width: 780px;
+	overflow: auto;
 }
 
 table {
