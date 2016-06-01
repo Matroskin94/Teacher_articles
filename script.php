@@ -28,8 +28,13 @@ function select_from_db($mysqli,$field,$table){
 	}
 	if($args_num == 5){
 		if ($result = $mysqli->query("SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."'")) { 
-			//echo "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."' <br>";
-			$result->qr = "SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."'";
+			return $result;
+		}else{
+			return "not_found";
+		}
+	}
+	if($args_num == 6){
+		if ($result = $mysqli->query("SELECT ".$field." FROM ".$table." WHERE ".$args_list[3]." = '".$args_list[4]."' ORDER BY ".$args_list[5]."")) { 
 			return $result;
 		}else{
 			return "not_found";
@@ -37,7 +42,13 @@ function select_from_db($mysqli,$field,$table){
 	}
 	if($args_num == 7){
 		if ($result = $mysqli->query("SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."'")) { 
-			//$result->qr = "SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."' <br>";
+			return $result;
+		}else{
+			return "not_found";
+		}
+	}
+	if($args_num == 8){
+		if ($result = $mysqli->query("SELECT ".$field." FROM `".$table."` WHERE `".$args_list[3]."` = '".$args_list[4]."' AND `".$args_list[5]."` = '".$args_list[6]."' ORDER BY ".$args_list[7]."")) { 
 			return $result;
 		}else{
 			return "not_found";
@@ -161,8 +172,6 @@ function update_data_in_db($mysqli, $update_table){
 		$add->bind_param("ii", $curr_auth, $article_id);
 		if(count($dell_authors) != 0){
 			for($i = 0; $i < count($dell_authors);$i++){
-				//$result = select_from_db($mysqli,"author_id","authors","name",$dell_authors[$i]);
-				//$auth_row = $result->fetch_assoc();
 				$curr_auth = (int)$dell_authors[$i];
 				$dell->execute();
 			}
@@ -170,8 +179,6 @@ function update_data_in_db($mysqli, $update_table){
 		$dell->close();
 		if(count($new_authors)!=0){
 			for($i = 0; $i < count($new_authors);$i++){
-				//$result = select_from_db($mysqli,"author_id","authors","name",$new_authors[$i]);
-				//$auth_row = $result->fetch_assoc();
 				$curr_auth = (int)$new_authors[$i];
 				$add->execute();
 			}
@@ -201,10 +208,10 @@ function update_data_in_db($mysqli, $update_table){
 
 /*Поиск статей*/
 
-function find_article($mysqli,$field,$s_table,$s_line,$s_word){
+function find_article($mysqli,$field,$s_table,$s_line,$s_word, $order_field){
 	$arg_list = func_get_args();
 	$result = "";
-	$qr = "SELECT ".$field." FROM `".$s_table."` WHERE ".$s_line." LIKE '%$s_word%'";
+	$qr = "SELECT ".$field." FROM `".$s_table."` WHERE ".$s_line." LIKE '%$s_word%' ORDER BY ".$order_field."";
 	$result = $mysqli->query($qr);
 	//echo "<br>";
 	//var_dump($result);
@@ -326,12 +333,12 @@ function select_script($mysqli)
 		if(($_POST['search_name'] == "")&&($_POST['search_author'] == "")){
 			$arr_articles = "not_found";
 		}else if(($_POST['search_name'] != "")&&($_POST['search_author'] === "")){
-			$search_by_name = find_article($mysqli,"*","articles","art_name",$_POST['search_name']);
+			$search_by_name = find_article($mysqli,"*","articles","art_name",$_POST['search_name'],"art_pages");
 			$arr_articles[0] = $search_by_name;
 			$arr_articles[1] = "search";
 		}else{
-			$search_by_author = find_article($mysqli,"author_id", "authors","name",$_POST['search_author']);
-			$search_by_name = find_article($mysqli,"article_id","articles","art_name",$_POST['search_name']);
+			$search_by_author = find_article($mysqli,"author_id", "authors","name",$_POST['search_author'],"name");
+			$search_by_name = find_article($mysqli,"article_id","articles","art_name",$_POST['search_name'],"art_pages");
 			$i = 0;
 			if(($_POST['search_name'] == "")&&($_POST['search_author'] != "")&&($search_by_author != "not_found")){
 				while ($auth_row = $search_by_author->fetch_assoc()){
@@ -433,7 +440,7 @@ function select_script($mysqli)
 				$jour_id = $mysqli->query("SELECT `journal_id` FROM `journals` WHERE class = '".$curr_batch."' AND number = ".$curr_numb." AND pub_year = ".$curr_year."");
 				$row = $jour_id->fetch_assoc();
 				$jour_id = $row['journal_id'];
-				$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."'");
+				$jour_articles = $mysqli->query("SELECT * FROM `articles` WHERE journal_id = '".$jour_id."' ORDER BY art_pages");
 				$i = 0;
 				//echo var_dump($jour_articles);
 				$json_data = array();
@@ -538,44 +545,41 @@ function select_script($mysqli)
 			session_destroy();
 			break;
 			case 'ajax_ch_art_class':
-			$data = json_decode($_POST['jsonData']);
-			$journal_class = "";
-			$journals_arr = array();
-			$authors_arr = array();
-			$response_arr = array(
-				"authors"=> array(),
-				"journals"=> array(),
-				);
-			$i = 0;
-			$block = "blocked";
-			foreach ($data as $key=>$value) {
-				if($key == "journal_class"){
-					$journal_class = $value;
+				$data = json_decode($_POST['jsonData']);
+				$journal_class = "";
+				$journals_arr = array();
+				$authors_arr = array();
+				$response_arr = array(
+					"authors"=> array(),
+					"journals"=> array(),
+					);
+				$i = 0;
+				$block = "blocked";
+				foreach ($data as $key=>$value) {
+					if($key == "journal_class"){
+						$journal_class = $value;
+					}
 				}
-			}
-			$result = select_from_db($mysqli,"*","journals","class",$journal_class);
-			if(is_object($result)){
-				while( $row = $result->fetch_assoc() ){ 
-					$journals_arr[$i] = $row;
-					$i++;
+				$result = select_from_db($mysqli,"*","journals","class",$journal_class,"number");
+				if(is_object($result)){
+					while( $row = $result->fetch_assoc() ){ 
+						$journals_arr[$i] = $row;
+						$i++;
+					}
 				}
-			}
-			$response_arr['journals'] = $journals_arr;
-			$result = select_from_db($mysqli, "*", "authors","class",$journal_class);
-			$i = 0;
-			if(is_object($result)){
-				while( $row = $result->fetch_assoc() ){ 
-					$authors_arr[$i] = $row;
-					$i++;
+				$response_arr['journals'] = $journals_arr;
+				$result = select_from_db($mysqli, "*", "authors","class",$journal_class);
+				$i = 0;
+				if(is_object($result)){
+					while( $row = $result->fetch_assoc() ){ 
+						$authors_arr[$i] = $row;
+						$i++;
+					}
 				}
-			}else{
-				//$res = json_encode($result);
-				//echo $result;
-			}
-			$response_arr['authors'] = $authors_arr;
+				$response_arr['authors'] = $authors_arr;
 
-			$res = json_encode($response_arr);
-			echo $res;
+				$res = json_encode($response_arr);
+				echo $res;
 			break;
 
 			case 'ajax_vew_jour_class':
@@ -587,7 +591,7 @@ function select_script($mysqli)
 					$journal_class = $value;
 				}
 			}
-			$result = select_from_db($mysqli,"*","journals","class",$journal_class);
+			$result = select_from_db($mysqli,"*","journals","class",$journal_class,"number");
 			if(is_object($result)){
 				while( $row = $result->fetch_assoc() ){ 
 					$journals_arr[$i] = $row;
@@ -644,7 +648,9 @@ function select_script($mysqli)
 
 			//$qr = "UPDATE ";
 			update_data_in_db($mysqli,"author_update",$aut_id,$aut_name,$aut_degree,$aut_class,$aut_org);
-			$result = select_from_db($mysqli,"*","authors","class",$aut_class);
+			//$result = select_from_db($mysqli,"*","authors","class",$aut_class);
+			$result = find_article($mysqli,"*","authors","name",$aut_class,"name");
+			echo $auth_class;
 			if(is_object($result)){
 				while( $row = $result->fetch_assoc() ){ 
 					$response[$i] = $row;
@@ -720,68 +726,58 @@ function select_script($mysqli)
 			break;
 
 			case 'ajax_add_aut':
-			$i = 0;
-			$data = json_decode($_POST['jsonData']);
-			foreach ($data as $key => $value) {
-				if($key == "aut_name"){
-					$aut_name = $value;
+				$i = 0;
+				$data = json_decode($_POST['jsonData']);
+				foreach ($data as $key => $value) {
+					if($key == "aut_name"){
+						$aut_name = $value;
+					}
+					if($key == "dc_degree"){
+						$aut_degree = $value;
+					}
+					if($key == "organisation"){
+						$aut_org = $value;
+					}
 				}
-				if($key == "dc_degree"){
-					$aut_degree = $value;
-				}
-				if($key == "organisation"){
-					$aut_org = $value;
-				}
-				if($key == "auth_class"){
-					$aut_class = $value;
-				}
-			}
-			insert_to_db($mysqli,"add_author", NULL, $aut_name,$aut_degree,$aut_class,$aut_org);
-			$result = select_from_db($mysqli,"*","authors","class",$aut_class);
-
-			while($row = $result->fetch_assoc()){
-				$resp[$i] = $row;
-				$i++;
-			}
-			$resp = json_encode($resp);
-			echo $resp;
+				insert_to_db($mysqli,"add_author", NULL, $aut_name,$aut_degree,"C",$aut_org);
+				
 			break;
+
 			case 'ajax_ch_jour_class':
-			$data = json_decode($_POST['jsonData']);
-			$avail_years = "";
-			foreach ($data as $key => $value) {
-				if($key == "jour_class"){
-					$jour_class = $value;
+				$data = json_decode($_POST['jsonData']);
+				$avail_years = "";
+				foreach ($data as $key => $value) {
+					if($key == "jour_class"){
+						$jour_class = $value;
+					}
 				}
-			}
-			$avail_years = show_years($mysqli, $jour_class);
-			$resp = json_encode($avail_years);
-			echo $resp;
+				$avail_years = show_years($mysqli, $jour_class);
+				$resp = json_encode($avail_years);
+				echo $resp;
 
 			break;
 
 			case 'ajax_ch_jour_year':
-			$data = json_decode($_POST['jsonData']);
-			$jour_class = "";
-			$jour_year = "";
-			$avail_journals = "";
-			$i = 0;
-			foreach ($data as $key => $value) {
-				if($key == "class"){
-					$jour_class = $value;
+				$data = json_decode($_POST['jsonData']);
+				$jour_class = "";
+				$jour_year = "";
+				$avail_journals = "";
+				$i = 0;
+				foreach ($data as $key => $value) {
+					if($key == "class"){
+						$jour_class = $value;
+					}
+					if($key == "year"){
+						$jour_year = $value;
+					}
 				}
-				if($key == "year"){
-					$jour_year = $value;
+				$result = select_from_db($mysqli,"*","journals","class",$jour_class,"pub_year",$jour_year,"number");	
+				while ($jour_row = $result->fetch_assoc()) {
+					$avail_journals[$i] = $jour_row;
+					$i++;
 				}
-			}
-			$result = select_from_db($mysqli,"*","journals","class",$jour_class,"pub_year",$jour_year);	
-			while ($jour_row = $result->fetch_assoc()) {
-				$avail_journals[$i] = $jour_row;
-				$i++;
-			}
-			$resp = json_encode($avail_journals);
-			echo $resp;
-
+				$resp = json_encode($avail_journals);
+				echo $resp;
 			break;
 
 			case 'ajax_del_jour':
@@ -928,27 +924,27 @@ function select_script($mysqli)
 			break;
 
 			case 'ajax_find_auth':
-			$data = json_decode($_POST['jsonData']);
-			$auth_name = "";
-			$resp = [];
-			$i = 0;
-			foreach ($data as $key => $value) {
-				if($key == "name"){
-					$auth_name = $value;
+				$data = json_decode($_POST['jsonData']);
+				$auth_name = "";
+				$resp = [];
+				$i = 0;
+				foreach ($data as $key => $value) {
+					if($key == "name"){
+						$auth_name = $value;
+					}
 				}
-			}
-			$result = find_article($mysqli,"*","authors","name",$auth_name);
-			if(is_object($result)){
-				while ($row = $result->fetch_assoc()) {
-					$response[$i] = $row;
-					$i++;
+				$result = find_article($mysqli,"*","authors","name",$auth_name,"name");
+				if(is_object($result)){
+					while ($row = $result->fetch_assoc()) {
+						$response[$i] = $row;
+						$i++;
+					}
+					$resp = json_encode($response);
+				}else{
+					$resp = "not_found";
+					$resp = json_encode($resp);
 				}
-				$resp = json_encode($response);
-			}else{
-				$resp = "not_found";
-				$resp = json_encode($resp);
-			}
-			echo $resp;
+				echo $resp;
 			break;
 
 			case 'ajax_add_art':

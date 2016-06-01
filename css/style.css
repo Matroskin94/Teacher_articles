@@ -105,7 +105,7 @@ background: #A3AC9A;
 
 .main-field{
 	background-color: #FCFCFC;
-	height: 500px;
+	min-height: 500px;
 	overflow: auto;
 }
 .main-field > .row{
@@ -272,6 +272,16 @@ background: #A3AC9A;
 }
 h4 {
 	font-size: 16px;
+}
+
+.button-right{
+	float:right;
+}
+
+.red-letters{
+	color:red;
+	font-weight: bold;
+	display: none;
 }
 
 /*Стили всплывающего окна*/
