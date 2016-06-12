@@ -283,5 +283,29 @@ h4 {
 	font-weight: bold;
 	display: none;
 }
-
+/*#authors-data > tbody > tr.table-head > th:nth-child(1)*/
 /*Стили всплывающего окна*/
+/*Стрелки сортировки*/
+
+.sortable {
+	margin-top: 4px;
+	width: 12px;
+	height: 12px;
+	float:right;
+	cursor:pointer;
+	font-family: Arial, sans-serif;
+	font-weight: 200;
+
+}
+.not-sorted {
+	background: url(img/sort.png) no-repeat;
+	height: 15px;
+	margin-top:2px;
+}
+
+.sort-down {
+	background: url(img/sort_down.png) no-repeat;
+}
+.sort-up{
+	background: url(img/sort_up.png) no-repeat;
+}

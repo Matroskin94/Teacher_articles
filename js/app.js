@@ -310,9 +310,73 @@ $(document).ready(function() {
 	  }
 
 
+	  /*Валидация формы статьи*/
+	var validate_form = function(form,p_worn){
+		var form_inputs = $(form).find('input'),
+			form_selects = $(form).find('select'),
+			validation_result = {
+				"empty_inputs": false,
+				"empty_select": false,
+				"empty_author": true,
+				"wrong_numb_type":false,
+				"wrong_text_type":false,
+				"error":false
+			},
+			warn_text = "";
+		$(p_worn).hide();
+		$(p_worn).text("");
+		for(var i = 0;i < form_inputs.length; i++){
+			var curr_inp = form_inputs.get(i);
+			if(($(curr_inp).val() == "") && (validation_result['empty_inputs']) == false){
+				validation_result['empty_inputs'] = true;
+				validation_result['error'] = true;
+				warn_text = warn_text + "Имеются незаполненные поля<br>";
+			}else 
+			if(($(curr_inp).prop("name") == "pub_year")||($(curr_inp).prop("name") == "journal_number")){
+				if(isNaN($(curr_inp).val()) && (validation_result['wrong_numb_type'] == false)){
+					validation_result['error'] = true;
+					validation_result['wrong_numb_type'] == true;
+					warn_text = warn_text + "Имеются некорректные числовые поля<br>";
+				}
+			}else if((/\d/.test($(curr_inp).val())) && 
+				(validation_result['wrong_text_type'] == false) && 
+				($(curr_inp).prop('name') != "journal_pages") && 
+				($(curr_inp).prop('name') != "pages") &&
+				($(curr_inp).prop('type') != "hidden")){
+				validation_result['wrong_text_type'] == true;
+				validation_result['error'] = true;	
+				warn_text = warn_text + "Имеются некорректные текстовые поля<br>";
+			}
+
+			if($(curr_inp).prop("name").indexOf("auth_id") == 0){
+				validation_result['empty_author'] = false;
+			}
+		}
+		if(validation_result['empty_author'] == true){
+			validation_result['error'] = true;	
+			warn_text = warn_text + "Не выбрано ни одного автора<br>";
+		}
+		for(var i = 0; i < form_selects.length;i++){
+			var curr_sel = form_selects.get(i),
+				sel_val = curr_sel.options[curr_sel.selectedIndex].value;
+			if((sel_val == "Журнал") && ($("#update-article").parent().css("display") != "block")){
+				warn_text = warn_text + "Не выбран журнал<br>";
+				validation_result['error'] = true;
+			}
+			
+		}
+		if(validation_result['error'] == true){
+			$(p_worn).append(warn_text);
+			$(p_worn).fadeIn();
+		}
+		return validation_result;
+
+	}
+
+
 	/*Обработка клика на строку таблицы*/
 	$(document).on("click", "tr", function(event){
-		if(!$(event.target).hasClass("status")&&!($(event.target).parent().hasClass('table-head'))&&!($(event.target).parent().parent().parent().hasClass("redacting"))){
+		if(!$(event.target).hasClass("status")&&!($(event.target).parent().hasClass('table-head'))&&!($(event.target).parent().parent().parent().hasClass("redacting")) && !$(event.target).hasClass("sortable")){
 			if($(this).hasClass("choosen") ){
 				$(this).removeClass("choosen");
 				if($(event.target).closest("table").is("#article-data")){
@@ -1091,67 +1155,55 @@ $(document).ready(function() {
 	  	hide_form(butt_id);
 	  });
 
-	  /*Валидация формы статьи*/
-	var validate_form = function(form,p_worn){
-		var form_inputs = $(form).find('input'),
-			form_selects = $(form).find('select'),
-			validation_result = {
-				"empty_inputs": false,
-				"empty_select": false,
-				"empty_author": true,
-				"wrong_numb_type":false,
-				"wrong_text_type":false,
-				"error":false
-			},
-			warn_text = "";
-		$(p_worn).hide();
-		$(p_worn).text("");
-		for(var i = 0;i < form_inputs.length; i++){
-			var curr_inp = form_inputs.get(i);
-			if(($(curr_inp).val() == "") && (validation_result['empty_inputs']) == false){
-				validation_result['empty_inputs'] = true;
-				validation_result['error'] = true;
-				warn_text = warn_text + "Имеются незаполненные поля<br>";
-			}else 
-			if(($(curr_inp).prop("name") == "pub_year")||($(curr_inp).prop("name") == "journal_number")){
-				if(isNaN($(curr_inp).val()) && (validation_result['wrong_numb_type'] == false)){
-					validation_result['error'] = true;
-					validation_result['wrong_numb_type'] == true;
-					warn_text = warn_text + "Имеются некорректные числовые поля<br>";
-				}
-			}else if((/\d/.test($(curr_inp).val())) && 
-				(validation_result['wrong_text_type'] == false) && 
-				($(curr_inp).prop('name') != "journal_pages") && 
-				($(curr_inp).prop('name') != "pages") &&
-				($(curr_inp).prop('type') != "hidden")){
-				validation_result['wrong_text_type'] == true;
-				validation_result['error'] = true;	
-				warn_text = warn_text + "Имеются некорректные текстовые поля<br>";
-			}
+	  
+	  /*Сортировка таблица*/
 
-			if($(curr_inp).prop("name").indexOf("auth_id") == 0){
-				validation_result['empty_author'] = false;
-			}
-		}
-		if(validation_result['empty_author'] == true){
-			validation_result['error'] = true;	
-			warn_text = warn_text + "Не выбрано ни одного автора<br>";
-		}
-		for(var i = 0; i < form_selects.length;i++){
-			var curr_sel = form_selects.get(i),
-				sel_val = curr_sel.options[curr_sel.selectedIndex].value;
-			if((sel_val == "Журнал") && ($("#update-article").parent().css("display") != "block")){
-				warn_text = warn_text + "Не выбран журнал<br>";
-				validation_result['error'] = true;
-			}
-			
-		}
-		if(validation_result['error'] == true){
-			$(p_worn).append(warn_text);
-			$(p_worn).fadeIn();
-		}
-		return validation_result;
+	  $(".sortable").on("click",function(event){
+	  	var head_rows = $(event.target).parent().parent().find(".sortable"),
+	  		sort_column = head_rows.index(event.target),
+	  		table_rows = $(event.target).parent().parent().parent().find("tr"),
+	  		head_row = table_rows[0],
+	  		sort_type = 0,
+	  		sort_func = function(a,b){
+	  			var sort_cell_A = $($(a).find("td")[sort_column]).text(),
+	  				sort_cell_B = $($(b).find("td")[sort_column]).text();
+	  			if(isNaN(Number(sort_cell_A)) == true){
+		  			if((sort_type == 1)){
+			  			if (sort_cell_A > sort_cell_B){return 1;} 
+		  				if (sort_cell_A < sort_cell_B){return -1;}
+		  			}else if(sort_type == 0){
+		  				if (sort_cell_A > sort_cell_B){return -1;} 
+	  					if (sort_cell_A < sort_cell_B){return 1;}
+		  			}
+	  			}else{
+	  				if((sort_type == 1)){
+			  			if (parseInt(sort_cell_A,10) > parseInt(sort_cell_B,10)){return 1;} 
+		  				if (parseInt(sort_cell_A,10) < parseInt(sort_cell_B,10)){return -1;}
+		  			}else if(sort_type == 0){
+		  				if (parseInt(sort_cell_A,10) > parseInt(sort_cell_B,10)){return -1;} 
+	  					if (parseInt(sort_cell_A,10) < parseInt(sort_cell_B,10)){return 1;}
+		  			}
 
-	}
+	  			}
 
-	});
+	  		};
+
+	  	table_rows.splice(0,1);	
+	  	if($(event.target).hasClass("sort-up") == true){
+	  		$(event.target).removeClass("sort-up").addClass("sort-down");
+	  		sort_type = 0;
+	  	}else if(($(event.target).hasClass("sort-down") == true)||$(event.target).hasClass("not-sorted") == true){
+	  		$(event.target).parent().parent().find(".sortable").removeClass("sort-up").removeClass("sort-down").addClass("not-sorted");
+	  		$(event.target).removeClass("sort-down").removeClass("not-sorted").addClass("sort-up");
+	  		sort_type = 1;
+	  	}
+	  	var old_rows = table_rows;
+	  	table_rows.sort(sort_func);
+	  	for(var i = 0;i < table_rows.length;i++){
+	  		$(head_row).after(table_rows[i]);
+	  	}
+	  })
+
+
+
+});

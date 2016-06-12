@@ -583,23 +583,23 @@ function select_script($mysqli)
 			break;
 
 			case 'ajax_vew_jour_class':
-			$data = json_decode($_POST['jsonData']);
-			$journal_class = "";
-			$i = 0;
-			foreach ($data as $key=>$value) {
-				if($key == "journal_class"){
-					$journal_class = $value;
+				$data = json_decode($_POST['jsonData']);
+				$journal_class = "";
+				$i = 0;
+				foreach ($data as $key=>$value) {
+					if($key == "journal_class"){
+						$journal_class = $value;
+					}
 				}
-			}
-			$result = select_from_db($mysqli,"*","journals","class",$journal_class,"number");
-			if(is_object($result)){
-				while( $row = $result->fetch_assoc() ){ 
-					$journals_arr[$i] = $row;
-					$i++;
+				$result = select_from_db($mysqli,"*","journals","class",$journal_class,"number");
+				if(is_object($result)){
+					while( $row = $result->fetch_assoc() ){ 
+						$journals_arr[$i] = $row;
+						$i++;
+					}
 				}
-			}
-			$res = json_encode($journals_arr);
-			echo $res;
+				$res = json_encode($journals_arr);
+				echo $res;
 			break;
 
 			case 'ajax_get_aut':

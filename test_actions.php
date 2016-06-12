@@ -31,113 +31,81 @@ $connection = db_connect();
 
       <?php
       $query_result = select_script($connection);
+      //phpinfo();
       ?>
 
-      <form id="add-art-form" class="reg-form" method="post">
-        <br>
-        <div class="col-sm-12">
-          <p>Введите название статьи: </p>
-        </div>
-        <div class="col-sm-12">
-          <p><input class="form-control redact-input" required type=text name="art_name"  required placeholder="Название" value=""></p>
-        </div>
-        <div class="col-md-4">
-          <p id="choose_journ_p">Выберите серию журнала:</p>
-        </div>
-        <div class="col-md-3 col-md-offset-1">
-          <select size="1" class="class_select form-control" id="choose-journal-class" name="jour_class">
-            <option disabled selected="true"> Серия </option>
-            <option>A</option>
-            <option>B</option>
-            <option>C</option>
-            <option>D</option>
-            <option>E</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <p id="art-not-exist"></p>
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-md-4">
-          <p>Выберите журнал: </p>
-        </div>
-        <div class="col-md-3 col-md-offset-1">
-         <select disabled class="choose-jour form-control jour_select" id="avail_journals" name="journal">
-          <option disabled selected>Журнал</option>
-        </select>
-      </div>
-      <div class="clearfix"></div>
-      <div class="col-sm-5">
-       <p>Введите страницы публикации:</p> 
-     </div> 
+      <table class="table table-hover" style="width: 700px; margin:20px auto" id="authors-data">
+        <tr class="table-head">
+          <th>Автор <div class="sortable not-sorted"></div></th>
+          <th>Научная степень <div class="sortable not-sorted"></div></th>
+          <th>Организация <div class="sortable not-sorted"></div></th>
+        </tr>
+        <tr>
+          <td>Васильков</td>
+          <td>2</td>
+          <td>организация</td>
+        </tr>
+        <tr>
+          <td>Авилкин</td>
+          <td>12</td>
+          <td>зорганизация</td>
+        </tr>
+        <tr>
+          <td>Богуш</td>
+          <td>3</td>
+          <td>яорганизация</td>
+        </tr>
+        <tr>
+          <td>Глухова</td>
+          <td>16</td>
+          <td>яорганизация</td>
+        </tr>
+      </table>
 
-     <div class="col-sm-7">
-      <input class="form-control search_art" type=text name="pages"  required placeholder="Страницы">
-    </div>
-    <div class="clearfix"></div>
-    <div class="author_selectors" id="adding_auth_name">
-      <div class="clearfix"></div>
-      <div class="col-sm-12">
-        <div id="add_author_new_art"></div>
-      </div>
-      <div class="clearfix"></div> 
-      <div class="col-sm-5">
-        <p>Выберите автора публикации:</p> 
-      </div>
-      <div class="col-sm-7">
-        <p><img id="search_auth_icon" src="img/search_icon.png" data-toggle="modal" data-target="#authors_modal"></p>
-      </div>
-    </div>
-
-    <div class="col-md-12">
-      <button onclick="return false" class="btn btn-primary" id="send-article-data" name="send_article_data"> Добавить материал </button>
-    </div>
-  </form>
-
-  <div id="authors_modal" class="modal fade">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header"><button class="close" type="button" data-dismiss="modal">×</button>
-          <h4 class="modal-title">Выберите автора</h4>
-        </div>
-
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-xs-5">
-              <input id="n_auth_s" class="form-control redact-input" type=text name="pages"  required placeholder="Автор">
+      <div id="authors_modal" class="modal fade">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header"><button class="close" type="button" data-dismiss="modal">×</button>
+              <h4 class="modal-title">Выберите автора</h4>
             </div>
-            <button id="new_auth_search" class="btn btn-primary">Поиск</button>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <p id="n_auth_s_p"></p>
+
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-xs-5">
+                  <input id="n_auth_s" class="form-control redact-input" type=text name="pages"  required placeholder="Автор">
+                </div>
+                <button id="new_auth_search" class="btn btn-primary">Поиск</button>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <p id="n_auth_s_p"></p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 table-responsive">
+                  <table class="table table-hover" hidden id="authors-search">
+                    <tr class="table-head">
+                      <th>Автор</th>
+                      <th>Научная степень</th>
+                      <th>Организация</th>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="add_new_auth">Добавить автора</button>
+
+
+
             </div>
+            <div class="modal-footer"><button class="btn btn-default" type="button" data-dismiss="modal">Закрыть</button></div>
           </div>
-          <div class="row">
-            <div class="col-md-12 table-responsive">
-              <table class="table table-hover" hidden id="authors-search">
-                <tr class="table-head">
-                  <th>Автор</th>
-                  <th>Научная степень</th>
-                  <th>Организация</th>
-                </tr>
-              </table>
-            </div>
-          </div>
-
-          <button class="btn btn-primary" id="add_new_auth">Добавить автора</button>
-
-          
-
         </div>
-        <div class="modal-footer"><button class="btn btn-default" type="button" data-dismiss="modal">Закрыть</button></div>
       </div>
-    </div>
-  </div>
 
 
-  <script src="lib/bootstrap/js/bootstrap.min.js"></script>
-  <script src="js/app.js"></script>
-</body>
-</html>
+      <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+      <script src="js/app.js"></script>
+    </body>
+    </html>
 
